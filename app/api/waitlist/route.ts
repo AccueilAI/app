@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const resend = getResend();
     resend.emails
       .send({
-        from: 'AccueilAI <noreply@accueilai.com>',
+        from: 'AccueilAI <onboarding@resend.dev>',
         to: email,
         subject: 'Welcome to the AccueilAI waitlist!',
         html: `
