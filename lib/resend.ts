@@ -1,1 +1,9 @@
-// Step 4: Resend email client setup
+import { Resend } from 'resend';
+
+let client: Resend | null = null;
+
+export function getResend(): Resend {
+  if (client) return client;
+  client = new Resend(process.env.RESEND_API_KEY);
+  return client;
+}

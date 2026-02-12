@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { PostHogProvider } from '@/components/PostHogProvider';
 import '../globals.css';
 
 const geistSans = Geist({
@@ -16,11 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
-  title: 'AccueilAI — AI Admin Assistant for Expats in France',
-  description:
-    'Navigate French bureaucracy with confidence. AI-powered assistant for visa, CAF, taxes, and healthcare — in your language.',
-};
+const BASE_URL = 'https://accueilai.com';
 
 type Props = {
   children: React.ReactNode;
@@ -31,6 +28,47 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Hero' });
+
+  const title = 'AccueilAI — ' + t('headline');
+  const description = t('subhead');
+
+  return {
+    title,
+    description,
+    metadataBase: new URL(BASE_URL),
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, `/${l}`]),
+      ),
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${locale}`,
+      siteName: 'AccueilAI',
+      locale,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
 export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) {
@@ -39,12 +77,35 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'AccueilAI',
+    applicationCategory: 'UtilitiesApplication',
+    description:
+      'AI-powered administrative assistant for expats in France. Visa, CAF, taxes, healthcare — in your language.',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'EUR',
+    },
+    inLanguage: ['en', 'fr', 'ko'],
+  };
+
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <PostHogProvider>
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

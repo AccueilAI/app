@@ -8,5 +8,146 @@
     "cta": "Rejoindre la liste d'attente",
     "ctaSub": "Acces anticipé",
     "trust": "Base sur les donnees officielles du gouvernement francais"
+  },
+  "PainPoints": {
+    "label": "Le Probleme",
+    "headline": "L'administration francaise est faite pour vous decourager",
+    "items": {
+      "0": {
+        "title": "Des documents incomprehensibles",
+        "description": "Convocations, attestations, formulaires CERFA — des pages de jargon juridique sans traduction disponible."
+      },
+      "1": {
+        "title": "Chaque prefecture est differente",
+        "description": "Les regles changent selon votre lieu de residence. Les forums en ligne donnent des conseils contradictoires et obsoletes."
+      },
+      "2": {
+        "title": "Un delai manque, tout est perdu",
+        "description": "Un seul renouvellement oublie peut signifier la perte de votre droit de sejour. Le systeme n'envoie pas de rappels."
+      }
+    }
+  },
+  "HowItWorks": {
+    "label": "Comment ca marche",
+    "headline": "De la confusion a la confiance en 3 etapes",
+    "steps": {
+      "0": {
+        "title": "Decrivez votre situation",
+        "description": "Indiquez votre nationalite, type de visa et ce dont vous avez besoin. Nous supportons le francais, l'anglais et le coreen."
+      },
+      "1": {
+        "title": "Recevez des conseils personnalises",
+        "description": "Notre IA analyse les donnees officielles — loi CESEDA, exigences prefectorales, regles CAF — pour votre cas specifique."
+      },
+      "2": {
+        "title": "Agissez en toute confiance",
+        "description": "Suivez des checklists etape par etape, comprenez vos documents et ne manquez plus jamais un delai."
+      }
+    }
+  },
+  "Features": {
+    "badge": "Fonctionnalites",
+    "headline": "Tout ce qu'il faut pour gerer l'administration francaise",
+    "subhead": "Alimente par les donnees officielles du gouvernement. Disponible dans votre langue.",
+    "items": {
+      "0": {
+        "title": "Assistant IA Q&R",
+        "description": "Posez n'importe quelle question sur les visas, la CAF, les impots ou la sante. Reponses instantanees et sourcees."
+      },
+      "1": {
+        "title": "Checklist de documents",
+        "description": "Obtenez la liste exacte des documents necessaires pour votre demarche specifique et votre prefecture."
+      },
+      "2": {
+        "title": "Interprete de documents",
+        "description": "Telechargez n'importe quel document administratif. Obtenez une explication claire de son contenu et des actions a mener."
+      },
+      "3": {
+        "title": "Suivi des echeances",
+        "description": "Ne manquez plus un renouvellement de visa, une declaration CAF ou une date fiscale. Rappels envoyes a temps."
+      }
+    }
+  },
+  "Pricing": {
+    "badge": "Tarifs",
+    "headline": "Des tarifs simples et transparents",
+    "subhead": "Commencez gratuitement. Passez a un forfait superieur selon vos besoins.",
+    "popular": "Le plus populaire",
+    "cta": "Rejoindre la liste",
+    "tiers": {
+      "free": {
+        "name": "Gratuit",
+        "price": "0 €",
+        "period": "/mois",
+        "description": "Commencez avec les questions de base.",
+        "features": {
+          "0": "5 questions IA par mois",
+          "1": "Informations de base sur les demarches",
+          "2": "Support communautaire"
+        }
+      },
+      "essential": {
+        "name": "Essentiel",
+        "price": "9,99 €",
+        "period": "/mois",
+        "description": "Tout ce dont vous avez besoin pour vos demarches.",
+        "features": {
+          "0": "Questions IA illimitees",
+          "1": "Checklists de documents",
+          "2": "Interprete de documents",
+          "3": "Rappels d'echeances"
+        }
+      },
+      "premium": {
+        "name": "Premium",
+        "price": "19,99 €",
+        "period": "/mois",
+        "description": "Accompagnement complet y compris administration professionnelle.",
+        "features": {
+          "0": "Tout dans Essentiel",
+          "1": "Generation de brouillons d'emails",
+          "2": "Admin professionnelle (auto-entrepreneur)",
+          "3": "Support prioritaire"
+        }
+      }
+    }
+  },
+  "Waitlist": {
+    "headline": "Obtenez un acces anticipe",
+    "subhead": "Soyez parmi les premiers a essayer AccueilAI. Les premiers membres beneficient de tarifs exclusifs.",
+    "placeholder": "Entrez votre email",
+    "cta": "Rejoindre la liste",
+    "privacy": "Pas de spam. Nous envoyons uniquement des mises a jour produit.",
+    "success": "Vous etes sur la liste !",
+    "successSub": "Nous vous notifierons au lancement d'AccueilAI. Verifiez votre boite de reception."
+  },
+  "FAQ": {
+    "headline": "Questions frequentes",
+    "items": {
+      "0": {
+        "q": "AccueilAI remplace-t-il un avocat ?",
+        "a": "Non. AccueilAI est un outil d'information qui vous aide a comprendre les procedures administratives francaises en utilisant les donnees officielles du gouvernement. Pour les situations juridiques complexes, nous recommandons de consulter un avocat qualifie."
+      },
+      "1": {
+        "q": "Quelles sources de donnees utilisez-vous ?",
+        "a": "Nous utilisons les sources officielles du gouvernement francais : la loi CESEDA via Legifrance, les guides de demarches de service-public.gouv.fr, la documentation CAF et des impots, et l'annuaire officiel des administrations."
+      },
+      "2": {
+        "q": "Quelles langues sont supportees ?",
+        "a": "Nous supportons actuellement le francais, l'anglais et le coreen. D'autres langues sont prevues en fonction de la demande."
+      },
+      "3": {
+        "q": "Combien ca coute ?",
+        "a": "AccueilAI offre un forfait gratuit avec 5 questions par mois. Notre forfait Essentiel a 9,99 €/mois inclut des questions illimitees, des checklists de documents et le suivi des echeances. A comparer avec une seule consultation d'avocat a 150-300 €."
+      },
+      "4": {
+        "q": "Quand AccueilAI sera-t-il lance ?",
+        "a": "Nous sommes actuellement en phase de developpement. Rejoignez la liste d'attente pour un acces anticipe et des tarifs exclusifs de lancement."
+      }
+    }
+  },
+  "Footer": {
+    "tagline": "Assistant administratif propulse par l'IA pour les expatries en France.",
+    "rights": "Tous droits reserves."
   }
 }
