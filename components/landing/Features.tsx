@@ -18,7 +18,7 @@ export function Features() {
   const t = useTranslations('Features');
 
   return (
-    <section className="border-t border-neutral-100 bg-neutral-50/50 py-20 sm:py-28">
+    <section id="features" className="border-t border-neutral-100 bg-neutral-50/50 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Badge
           variant="secondary"

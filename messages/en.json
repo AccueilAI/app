@@ -1,29 +1,32 @@
 {
   "Navbar": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
     "cta": "Join Waitlist"
   },
   "Hero": {
-    "headline": "Navigating French bureaucracy shouldn't require a law degree.",
-    "subhead": "AI-powered admin assistant for expats in France. Visa, CAF, taxes, healthcare — in your language.",
-    "cta": "Join the Waitlist",
-    "ctaSub": "Get Early Access",
+    "headline": "French bureaucracy, decoded.",
+    "subhead": "AI-powered admin assistant for expats in France. Visa, CAF, taxes, healthcare — finally in your language.",
+    "cta": "Get Early Access",
+    "ctaSub": "Free to join. No credit card required.",
     "trust": "Built on official French government data"
   },
   "PainPoints": {
-    "label": "The Problem",
-    "headline": "French admin is designed to frustrate you",
+    "label": "You've been there",
+    "headline": "Sound familiar?",
     "items": {
       "0": {
-        "title": "Documents you can't read",
-        "description": "Convocations, attestations, formulaires CERFA — pages of dense legal French with no translation available."
+        "title": "A 3-page letter from the préfecture. It's about your visa.",
+        "description": "Convocations, attestations, CERFA forms — dense legal French with zero translation. You screenshot it and pray Google Translate gets it right."
       },
       "1": {
-        "title": "Every prefecture is different",
-        "description": "The rules change depending on where you live. Online forums give conflicting, outdated advice."
+        "title": "Your friend's advice worked in Lyon. You're in Paris 14e.",
+        "description": "Every préfecture has its own unwritten rules. Online forums are full of conflicting, outdated info from 2019."
       },
       "2": {
-        "title": "Miss a deadline, lose everything",
-        "description": "One missed renewal date can mean losing your right to stay. The system doesn't send reminders."
+        "title": "Your titre de séjour expires in 47 days. Did anyone tell you?",
+        "description": "One missed renewal date can mean losing your right to stay in France. The system doesn't send reminders — you're on your own."
       }
     }
   },
@@ -32,16 +35,16 @@
     "headline": "From confused to confident in 3 steps",
     "steps": {
       "0": {
-        "title": "Describe your situation",
-        "description": "Tell us your nationality, visa type, and what you need help with. We support English, French, and Korean."
+        "title": "Tell us your situation",
+        "description": "Nationality, visa type, city, what you need help with. Takes 30 seconds."
       },
       "1": {
-        "title": "Get personalized guidance",
-        "description": "Our AI analyzes official French government data — CESEDA law, prefecture requirements, CAF rules — for your specific case."
+        "title": "Get answers, not guesses",
+        "description": "Our AI pulls from CESEDA law, préfecture requirements, and CAF rules — sourced and cited for your specific case."
       },
       "2": {
-        "title": "Take action with confidence",
-        "description": "Follow step-by-step checklists, understand your documents, and never miss a deadline again."
+        "title": "Act with confidence",
+        "description": "Step-by-step checklists, translated documents, deadline reminders. No more guessing."
       }
     }
   },
@@ -52,25 +55,25 @@
     "items": {
       "0": {
         "title": "AI Q&A Assistant",
-        "description": "Ask anything about visas, CAF, taxes, or healthcare. Get instant, sourced answers based on current French law."
+        "description": "Ask anything about visas, CAF, taxes, or healthcare. Get instant answers with legal sources cited."
       },
       "1": {
         "title": "Document Checklist",
-        "description": "Get a personalized list of exactly which documents you need for your specific procedure and prefecture."
+        "description": "Personalized list of exactly which documents you need — for your procedure, your préfecture, your situation."
       },
       "2": {
         "title": "Document Interpreter",
-        "description": "Upload any French administrative document. Get a clear explanation of what it says and what you need to do."
+        "description": "Upload any French admin document. Get a plain-language explanation and what to do next."
       },
       "3": {
         "title": "Deadline Tracker",
-        "description": "Never miss a visa renewal, CAF declaration, or tax filing date. We send reminders before it's too late."
+        "description": "Visa renewal, CAF declaration, tax filing — we remind you before it's too late."
       }
     }
   },
   "Pricing": {
     "badge": "Pricing",
-    "headline": "Simple, transparent pricing",
+    "headline": "One lawyer visit: €150–300. AccueilAI: €9.99/month.",
     "subhead": "Start free. Upgrade when you need more.",
     "popular": "Most Popular",
     "cta": "Join Waitlist",
@@ -82,7 +85,7 @@
         "description": "Get started with basic Q&A.",
         "features": {
           "0": "5 AI questions per month",
-          "1": "Basic procedure info",
+          "1": "Basic procedure guides",
           "2": "Community support"
         }
       },
@@ -93,9 +96,9 @@
         "description": "Everything you need for your admin journey.",
         "features": {
           "0": "Unlimited AI questions",
-          "1": "Document checklists",
+          "1": "Personalized document checklists",
           "2": "Document interpreter",
-          "3": "Deadline reminders"
+          "3": "Deadline reminders via email"
         }
       },
       "premium": {
@@ -105,7 +108,7 @@
         "description": "Full support including business admin.",
         "features": {
           "0": "Everything in Essential",
-          "1": "Email draft generation",
+          "1": "French email drafts for you",
           "2": "Business admin (auto-entrepreneur)",
           "3": "Priority support"
         }
@@ -114,40 +117,45 @@
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "Be the first to try AccueilAI when we launch. Early members get exclusive pricing.",
-    "placeholder": "Enter your email",
-    "cta": "Join Waitlist",
-    "privacy": "No spam, ever. We only send product updates.",
-    "success": "You're on the list!",
-    "successSub": "We'll notify you when AccueilAI launches. Check your inbox for a confirmation."
+    "subhead": "First 500 members lock in launch pricing forever. Don't miss it.",
+    "placeholder": "you@email.com",
+    "cta": "Reserve My Spot",
+    "privacy": "No spam, ever. Unsubscribe anytime.",
+    "success": "You're in! 🎉",
+    "successSub": "You're #{position} on the list. We'll email you when AccueilAI launches."
   },
   "FAQ": {
     "headline": "Frequently asked questions",
     "items": {
       "0": {
         "q": "Is AccueilAI a replacement for a lawyer?",
-        "a": "No. AccueilAI is an information tool that helps you understand French administrative procedures using official government data. For complex legal situations, we recommend consulting a qualified immigration lawyer."
+        "a": "No. AccueilAI is an information tool that helps you understand French administrative procedures using official government data. For complex legal situations, we always recommend consulting a qualified immigration lawyer."
       },
       "1": {
         "q": "What data sources do you use?",
-        "a": "We use official French government sources: CESEDA law via Légifrance, procedure guides from service-public.gouv.fr, CAF and tax office documentation, and the official government directory for office locations."
+        "a": "Official French government sources only: CESEDA immigration law via Légifrance, procedure guides from service-public.gouv.fr, CAF and tax office documentation, and the official government directory for office locations and hours."
       },
       "2": {
         "q": "Which languages are supported?",
-        "a": "We currently support English, French, and Korean. More languages are planned based on user demand."
+        "a": "English, French, and Korean at launch. More languages coming based on demand."
       },
       "3": {
-        "q": "How much does it cost?",
-        "a": "AccueilAI offers a free tier with 5 questions per month. Our Essential plan at €9.99/month includes unlimited questions, document checklists, and deadline tracking. Compare that to a single lawyer consultation at €150-300."
+        "q": "How accurate is the AI?",
+        "a": "Every answer includes the source link so you can verify. When the AI isn't confident, it tells you — and suggests consulting a professional. We never guess."
       },
       "4": {
         "q": "When will AccueilAI launch?",
-        "a": "We're currently in development. Join the waitlist to get early access and exclusive launch pricing."
+        "a": "We're in active development. Join the waitlist to get early access and lock in exclusive launch pricing."
       }
     }
   },
   "Footer": {
-    "tagline": "AI-powered administrative assistant for expats in France.",
+    "tagline": "AI-powered admin assistant for expats in France.",
+    "product": "Product",
+    "legal": "Legal",
+    "privacy_policy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "disclaimer": "Disclaimer",
     "rights": "All rights reserved."
   }
 }

@@ -11,6 +11,7 @@ export function WaitlistForm() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [position, setPosition] = useState<number | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,11 +27,13 @@ export function WaitlistForm() {
         body: JSON.stringify({ email }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         throw new Error(data.message || 'Something went wrong');
       }
 
+      setPosition(data.position ?? null);
       setStatus('success');
       setEmail('');
     } catch (err) {
@@ -56,7 +59,9 @@ export function WaitlistForm() {
             <p className="text-lg font-semibold text-emerald-900">
               {t('success')}
             </p>
-            <p className="text-sm text-emerald-700">{t('successSub')}</p>
+            <p className="text-sm text-emerald-700">
+              {t('successSub', { position: position ?? '?' })}
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-8">
