@@ -24,14 +24,15 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden pt-16">
-      {/* Top tricolor accent — blue left, red right */}
-      <div className="relative h-1">
-        <div className="absolute left-0 top-0 h-full w-[40%] bg-[#002395]" />
-        <div className="absolute right-0 top-0 h-full w-[40%] bg-[#ED2939]" />
+      {/* Top tricolor accent */}
+      <div className="flex h-1">
+        <div className="flex-1 bg-[#002395]" />
+        <div className="flex-1 bg-[#FAFAF8]" />
+        <div className="flex-1 bg-[#ED2939]" />
       </div>
 
       {/* Background */}
-      <div className="relative flex min-h-[80vh] items-center justify-center px-4 sm:px-6"
+      <div className="relative flex min-h-[540px] items-center justify-center px-4 py-16 sm:px-6"
         style={{
           background: 'radial-gradient(ellipse 120% 120% at 50% 40%, #EEF2F9 0%, #FAFAF8 100%)',
         }}
