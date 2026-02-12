@@ -11,12 +11,12 @@ import {
 } from 'lucide-react';
 
 const floatingCards = [
-  { icon: FileText, label: 'Visa Documents', color: '#2B4C8C', rotate: '-3deg', className: 'left-6 top-[35%] lg:left-10' },
-  { icon: Globe, label: 'Multi-Language', color: '#D4A574', rotate: '-5deg', className: 'left-10 top-[15%] lg:left-16' },
-  { icon: ShieldCheck, label: 'CAF Verified', color: '#2D8A6E', rotate: '2deg', className: 'right-6 top-[30%] lg:right-10' },
-  { icon: Landmark, label: 'Tax & URSSAF', color: '#2B4C8C', rotate: '4deg', className: 'right-8 bottom-[15%] lg:right-14' },
-  { icon: HeartPulse, label: 'Health Insurance', color: '#C53030', rotate: '3deg', className: 'left-16 bottom-[10%] lg:left-24' },
-  { icon: House, label: 'Housing (APL)', color: '#C9A84C', rotate: '-2deg', className: 'right-14 bottom-[8%] lg:right-20' },
+  { icon: FileText, label: 'Visa Documents', color: '#2B4C8C', rotate: '-3deg', className: 'left-[5%] top-[40%] lg:left-[8%]' },
+  { icon: Globe, label: 'Multi-Language', color: '#D4A574', rotate: '-5deg', className: 'left-[6%] top-[14%] lg:left-[10%]' },
+  { icon: ShieldCheck, label: 'CAF Verified', color: '#2D8A6E', rotate: '2deg', className: 'right-[5%] top-[28%] lg:right-[8%]' },
+  { icon: Landmark, label: 'Tax & URSSAF', color: '#2B4C8C', rotate: '4deg', className: 'right-[6%] bottom-[18%] lg:right-[9%]' },
+  { icon: HeartPulse, label: 'Health Insurance', color: '#C53030', rotate: '3deg', className: 'left-[8%] bottom-[12%] lg:left-[13%]' },
+  { icon: House, label: 'Housing (APL)', color: '#C9A84C', rotate: '-2deg', className: 'right-[7%] bottom-[10%] lg:right-[11%]' },
 ] as const;
 
 export function Hero() {
