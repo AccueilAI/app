@@ -1,0 +1,12 @@
+{
+  "Navbar": {
+    "cta": "Join Waitlist"
+  },
+  "Hero": {
+    "headline": "Navigating French bureaucracy shouldn't require a law degree.",
+    "subhead": "AI-powered admin assistant for expats in France. Visa, CAF, taxes, healthcare — in your language.",
+    "cta": "Join the Waitlist",
+    "ctaSub": "Get Early Access",
+    "trust": "Built on official French government data"
+  }
+}
