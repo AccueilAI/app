@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { Globe } from 'lucide-react';
 
 const localeLabels: Record<string, string> = {
   en: 'EN',
@@ -31,42 +31,51 @@ export function Navbar() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-neutral-200/60 bg-white/80 backdrop-blur-lg">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <a href={`/${locale}`} className="text-xl font-semibold tracking-tight">
-          Accueil<span className="text-blue-600">AI</span>
+        {/* Logo */}
+        <a href={`/${locale}`} className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#2B4C8C]">
+            <span className="font-serif text-lg text-white">A</span>
+          </div>
+          <span className="font-serif text-[22px] text-[#1A1A2E]">
+            AccueilAI
+          </span>
         </a>
 
-        <div className="hidden items-center gap-6 sm:flex">
+        {/* Nav links */}
+        <div className="hidden items-center gap-9 sm:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+              className="text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
             >
               {link.label}
             </a>
           ))}
         </div>
 
+        {/* Right side */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 rounded-lg border border-neutral-200 p-0.5">
-            {Object.entries(localeLabels).map(([loc, label]) => (
-              <button
-                key={loc}
-                onClick={() => switchLocale(loc)}
-                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
-                  locale === loc
-                    ? 'bg-neutral-900 text-white'
-                    : 'text-neutral-500 hover:text-neutral-900'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          {/* Locale pill */}
+          <button
+            onClick={() => {
+              const locales = Object.keys(localeLabels);
+              const next = locales[(locales.indexOf(locale) + 1) % locales.length];
+              switchLocale(next);
+            }}
+            className="flex items-center gap-1.5 rounded-full border border-[#E5E3DE] px-3.5 py-2 text-[13px] font-semibold text-[#5C5C6F] transition-colors hover:border-[#2B4C8C] hover:text-[#2B4C8C]"
+          >
+            <Globe className="h-4 w-4" />
+            {localeLabels[locale]}
+          </button>
 
-          <Button size="sm" asChild>
-            <a href="#waitlist">{t('cta')}</a>
-          </Button>
+          {/* CTA */}
+          <a
+            href="#waitlist"
+            className="rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+          >
+            {t('cta')}
+          </a>
         </div>
       </nav>
     </header>

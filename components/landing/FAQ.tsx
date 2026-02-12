@@ -11,24 +11,30 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-20 sm:py-28">
+    <section id="faq" className="bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
-        <h2 className="text-center text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
-          {t('headline')}
-        </h2>
+        <div className="text-center">
+          <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
+            FAQ
+          </p>
+          <h2 className="mt-4 font-serif text-[42px] leading-tight text-[#1A1A2E]">
+            {t('headline')}
+          </h2>
+        </div>
 
-        <div className="mt-12 divide-y divide-neutral-200">
+        <div className="mt-12 overflow-hidden rounded-[14px] border border-[#E8E6E1] bg-[#FAFAF8]">
           {Array.from({ length: FAQ_COUNT }, (_, i) => (
             <div key={i}>
+              {i > 0 && <div className="h-px bg-[#E8E6E1]" />}
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="flex w-full items-center justify-between py-5 text-left"
+                className="flex w-full items-center justify-between px-6 py-5 text-left"
               >
-                <span className="text-base font-medium text-neutral-900">
+                <span className="text-base font-semibold text-[#1A1A2E]">
                   {t(`items.${i}.q`)}
                 </span>
                 <ChevronDown
-                  className={`h-5 w-5 shrink-0 text-neutral-500 transition-transform ${
+                  className={`h-5 w-5 shrink-0 text-[#002395] transition-transform ${
                     open === i ? 'rotate-180' : ''
                   }`}
                 />
@@ -39,7 +45,7 @@ export function FAQ() {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="pb-5 text-sm leading-relaxed text-neutral-600">
+                  <p className="px-6 pb-5 text-[15px] leading-[1.6] text-[#5C5C6F]">
                     {t(`items.${i}.a`)}
                   </p>
                 </div>

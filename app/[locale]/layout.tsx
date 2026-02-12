@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { DM_Sans, DM_Serif_Display } from 'next/font/google';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -7,13 +7,14 @@ import { routing } from '@/i18n/routing';
 import { PostHogProvider } from '@/components/PostHogProvider';
 import '../globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const dmSerif = DM_Serif_Display({
+  variable: '--font-dm-serif',
+  weight: '400',
   subsets: ['latin'],
 });
 
@@ -101,7 +102,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${dmSans.variable} ${dmSerif.variable} font-sans antialiased`}
       >
         <PostHogProvider>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>

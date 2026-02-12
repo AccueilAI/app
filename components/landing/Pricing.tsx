@@ -1,6 +1,4 @@
 import { useTranslations } from 'next-intl';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 
 const tiers = [
@@ -13,74 +11,73 @@ export function Pricing() {
   const t = useTranslations('Pricing');
 
   return (
-    <section id="pricing" className="py-20 sm:py-28">
+    <section id="pricing" className="bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <Badge
-          variant="secondary"
-          className="mx-auto mb-4 block w-fit rounded-full px-3 py-1 text-xs font-medium"
-        >
-          {t('badge')}
-        </Badge>
-        <h2 className="mx-auto max-w-2xl text-center text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
-          {t('headline')}
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-center text-neutral-600">
-          {t('subhead')}
-        </p>
+        <div className="mx-auto max-w-[600px] text-center">
+          <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
+            {t('badge')}
+          </p>
+          <h2 className="mt-4 font-serif text-[42px] leading-tight text-[#1A1A2E]">
+            {t('headline')}
+          </h2>
+          <p className="mt-4 text-lg text-[#5C5C6F]">{t('subhead')}</p>
+        </div>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-3">
           {tiers.map(({ key, featured }) => (
             <div
               key={key}
-              className={`relative flex flex-col rounded-2xl p-6 ${
+              className={`relative flex flex-col rounded-2xl p-8 ${
                 featured
-                  ? 'bg-neutral-900 text-white shadow-xl ring-1 ring-neutral-900'
-                  : 'bg-white shadow-sm ring-1 ring-neutral-200'
+                  ? 'bg-[#002395] text-white'
+                  : 'border border-[#E8E6E1] bg-white'
               }`}
             >
               {featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-0.5 text-xs font-medium text-white">
+                <span className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
                   {t('popular')}
                 </span>
               )}
               <h3
-                className={`text-lg font-semibold ${featured ? 'text-white' : 'text-neutral-900'}`}
+                className={`text-base font-bold ${featured ? 'text-white/80' : 'text-[#5C5C6F]'}`}
               >
                 {t(`tiers.${key}.name`)}
               </h3>
               <div className="mt-3 flex items-baseline gap-1">
                 <span
-                  className={`text-4xl font-bold tracking-tight ${featured ? 'text-white' : 'text-neutral-900'}`}
+                  className={`text-4xl font-bold tracking-tight ${featured ? 'text-white' : 'text-[#1A1A2E]'}`}
                 >
                   {t(`tiers.${key}.price`)}
                 </span>
                 <span
-                  className={`text-sm ${featured ? 'text-neutral-400' : 'text-neutral-500'}`}
+                  className={`text-sm ${featured ? 'text-white/60' : 'text-[#5C5C6F]'}`}
                 >
                   {t(`tiers.${key}.period`)}
                 </span>
               </div>
               <p
-                className={`mt-3 text-sm ${featured ? 'text-neutral-300' : 'text-neutral-600'}`}
+                className={`mt-3 text-[15px] leading-relaxed ${featured ? 'text-white/80' : 'text-[#5C5C6F]'}`}
               >
                 {t(`tiers.${key}.description`)}
               </p>
 
-              <ul className="mt-6 flex-1 space-y-3">
+              <div
+                className={`my-6 h-px ${featured ? 'bg-white/20' : 'bg-[#E5E3DE]'}`}
+              />
+
+              <ul className="flex-1 space-y-3">
                 {[0, 1, 2, 3].map((i) => {
                   const feature = t.has(`tiers.${key}.features.${i}`)
                     ? t(`tiers.${key}.features.${i}`)
                     : null;
                   if (!feature) return null;
                   return (
-                    <li key={i} className="flex items-start gap-2 text-sm">
+                    <li key={i} className="flex items-start gap-2.5 text-sm">
                       <Check
-                        className={`mt-0.5 h-4 w-4 shrink-0 ${featured ? 'text-blue-400' : 'text-blue-600'}`}
+                        className={`mt-0.5 h-4 w-4 shrink-0 ${featured ? 'text-white/60' : 'text-[#2B4C8C]'}`}
                       />
                       <span
-                        className={
-                          featured ? 'text-neutral-200' : 'text-neutral-700'
-                        }
+                        className={featured ? 'text-white/90' : 'text-[#5C5C6F]'}
                       >
                         {feature}
                       </span>
@@ -89,13 +86,16 @@ export function Pricing() {
                 })}
               </ul>
 
-              <Button
-                className="mt-6 w-full rounded-full"
-                variant={featured ? 'secondary' : 'outline'}
-                asChild
+              <a
+                href="#waitlist"
+                className={`mt-8 block rounded-lg py-3.5 text-center text-[15px] font-semibold transition-colors ${
+                  featured
+                    ? 'bg-white text-[#002395] hover:bg-white/90'
+                    : 'border-[1.5px] border-[#2B4C8C] text-[#2B4C8C] hover:bg-[#2B4C8C]/5'
+                }`}
               >
-                <a href="#waitlist">{t('cta')}</a>
-              </Button>
+                {t('cta')}
+              </a>
             </div>
           ))}
         </div>
