@@ -7,68 +7,68 @@
   },
   "Hero": {
     "headline": "French Bureaucracy, Finally Decoded.",
-    "subhead": "AccueilAI translates complex French administrative procedures into clear, step-by-step guidance — in your language.",
+    "subhead": "Not Reddit. Not ChatGPT. AccueilAI gives you answers sourced from French law and official data — personalized to your visa, your city, your exact situation.",
     "cta": "Join the Waitlist",
     "ctaSub": "See How It Works",
     "trust": "Built on official French government data"
   },
   "PainPoints": {
-    "label": "You've been there",
+    "label": "7.7 Million Immigrants. Same Broken System.",
     "headline": "Sound familiar?",
-    "subhead": "Life in France is wonderful — until you have to deal with paperwork.",
+    "subhead": "France is home to 7.7 million immigrants — 11.3% of the population. Yet the admin system runs on 'ça dépend' and endless paperwork.",
     "items": {
       "0": {
-        "title": "A 3-page letter from the préfecture. It's about your visa.",
-        "description": "Convocations, attestations, CERFA forms — dense legal French with zero translation. You screenshot it and pray Google Translate gets it right."
+        "title": "You called the préfecture. 45 minutes on hold. Then they hung up.",
+        "description": "When you finally get through, they speak too fast, use jargon you don't know, and can't tell you what YOU specifically need. Going in person? Even scarier."
       },
       "1": {
-        "title": "Your friend's advice worked in Lyon. You're in Paris 14e.",
-        "description": "Every préfecture has its own unwritten rules. Online forums are full of conflicting, outdated info from 2019."
+        "title": "Reddit says one thing. An expat group says another. Both are from 2021.",
+        "description": "Expat forums are full of personal anecdotes that may or may not apply to your case. Fragmented, outdated, and impossible to verify. What worked in Lyon won't work in Paris 14e."
       },
       "2": {
-        "title": "Your titre de séjour expires in 47 days. Did anyone tell you?",
-        "description": "One missed renewal date can mean losing your right to stay in France. The system doesn't send reminders — you're on your own."
+        "title": "Your titre de séjour expires in 47 days. Nobody told you.",
+        "description": "One missed deadline can cost you your right to stay. Visa renewals, CAF declarations, tax filings, CPAM registration — the system sends zero reminders. You're on your own."
       }
     }
   },
   "HowItWorks": {
     "label": "How It Works",
-    "headline": "From confused to confident in 3 steps",
+    "headline": "Not ChatGPT. Not a forum. A real answer engine.",
     "steps": {
       "0": {
         "title": "Tell us your situation",
-        "description": "Nationality, visa type, city, what you need help with. Takes 30 seconds."
+        "description": "Visa type, nationality, city, what you need. 30 seconds. Every answer is personalized to YOUR specific case."
       },
       "1": {
-        "title": "Get answers, not guesses",
-        "description": "Our AI pulls from CESEDA law, préfecture requirements, and CAF rules — sourced and cited for your specific case."
+        "title": "Get sourced answers, not guesses",
+        "description": "Unlike ChatGPT, every answer cites CESEDA law, service-public.gouv.fr, and official government data. No hallucinations. No outdated info."
       },
       "2": {
         "title": "Act with confidence",
-        "description": "Step-by-step checklists, translated documents, deadline reminders. No more guessing."
+        "description": "Step-by-step checklists, document translation, deadline reminders. Visa, CAF, taxes, CPAM, housing, banking — all in one place."
       }
     }
   },
   "Features": {
     "badge": "Core Features",
-    "headline": "Everything you need to handle French admin",
-    "subhead": "Powered by official government data. Available in your language.",
+    "headline": "Every admin headache. One solution.",
+    "subhead": "Visa, housing, CAF, CPAM, taxes, banking, business, nationality — we aggregate the fragmented info so you don't have to.",
     "items": {
       "0": {
-        "title": "AI Q&A Assistant",
-        "description": "Ask anything about visas, CAF, taxes, or healthcare. Get instant answers with legal sources cited."
+        "title": "AI Chat — With Real Sources",
+        "description": "Ask about VLS-TS validation, titre de séjour renewal, CAF applications, tax filing, or CPAM registration. Every answer cites the exact law or official source. Not ChatGPT guesses."
       },
       "1": {
-        "title": "Document Checklist",
-        "description": "Personalized list of exactly which documents you need — for your procedure, your préfecture, your situation."
+        "title": "Personalized Document Checklists",
+        "description": "Your procedure, your préfecture, your situation. Exactly which documents to prepare — no more conflicting forum advice."
       },
       "2": {
         "title": "Document Interpreter",
-        "description": "Upload any French admin document. Get a plain-language explanation and what to do next."
+        "description": "Upload any French admin letter, CERFA form, or convocation. Get a plain-language explanation and exactly what to do next."
       },
       "3": {
         "title": "Deadline Tracker",
-        "description": "Visa renewal, CAF declaration, tax filing — we remind you before it's too late."
+        "description": "Titre de séjour renewal, CAF quarterly declaration, tax filing, Carte Vitale — we track every deadline and remind you before it's too late."
       }
     }
   },
@@ -118,7 +118,7 @@
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "First 500 members lock in launch pricing forever. Don't miss it.",
+    "subhead": "First 100 members lock in launch pricing forever. Don't miss it.",
     "placeholder": "you@email.com",
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
@@ -133,18 +133,22 @@
         "a": "No. AccueilAI is an information tool that helps you understand French administrative procedures using official government data. For complex legal situations, we always recommend consulting a qualified immigration lawyer."
       },
       "1": {
-        "q": "What data sources do you use?",
-        "a": "Official French government sources only: CESEDA immigration law via Légifrance, procedure guides from service-public.gouv.fr, CAF and tax office documentation, and the official government directory for office locations and hours."
+        "q": "How is this different from asking ChatGPT?",
+        "a": "ChatGPT gives generic answers with no sources and can't keep up with France's constantly changing regulations. AccueilAI analyzes CESEDA law, service-public.gouv.fr, and official CAF/CPAM documentation in real time — every answer includes source links. We also accumulate real user experience data, so we reflect not just what the law says, but how things actually work in practice."
       },
       "2": {
-        "q": "Which languages are supported?",
-        "a": "English, French, and Korean at launch. More languages coming based on demand."
+        "q": "What topics do you cover?",
+        "a": "Visa & residency (VLS-TS, titre de séjour, APS, Talent Passport), housing (rental contracts, deposits, justificatif de domicile), financial aid (CAF — APL/ALS/ALF, RSA, Prime d'activité), healthcare (CPAM, Carte Vitale, Mutuelle), taxes (first declaration, numéro fiscal, double taxation), telecom & utilities, freelance & business (auto-entrepreneur, SIRET, URSSAF), banking, daily life (driver's license exchange, vehicle registration), and nationality acquisition."
       },
       "3": {
         "q": "How accurate is the AI?",
         "a": "Every answer includes the source link so you can verify. When the AI isn't confident, it tells you — and suggests consulting a professional. We never guess."
       },
       "4": {
+        "q": "Which languages are supported?",
+        "a": "English, French, and Korean at launch. More languages coming based on demand."
+      },
+      "5": {
         "q": "When will AccueilAI launch?",
         "a": "We're in active development. Join the waitlist to get early access and lock in exclusive launch pricing."
       }

@@ -7,68 +7,68 @@
   },
   "Hero": {
     "headline": "La bureaucratie française, enfin décryptée.",
-    "subhead": "AccueilAI traduit les démarches administratives françaises en étapes claires et simples — dans votre langue.",
+    "subhead": "Ni les forums. Ni ChatGPT. AccueilAI vous donne des réponses sourcées du droit français et des données officielles — personnalisées à votre visa, votre ville, votre situation exacte.",
     "cta": "Rejoindre la liste d'attente",
     "ctaSub": "Découvrir le fonctionnement",
     "trust": "Basé sur les données officielles du gouvernement français"
   },
   "PainPoints": {
-    "label": "Vous connaissez ça",
+    "label": "7,7 millions d'immigrés. Un système toujours cassé.",
     "headline": "Ça vous dit quelque chose ?",
-    "subhead": "La vie en France est merveilleuse — jusqu'à ce qu'il faille gérer les démarches administratives.",
+    "subhead": "La France compte 7,7 millions d'immigrés — 11,3 % de la population. Pourtant, l'administration fonctionne au « ça dépend » et à la paperasse sans fin.",
     "items": {
       "0": {
-        "title": "Une lettre de 3 pages de la préfecture. C'est à propos de votre visa.",
-        "description": "Convocations, attestations, formulaires CERFA — du jargon juridique sans aucune traduction. Vous faites une capture d'écran en espérant que Google Translate s'en sorte."
+        "title": "Vous avez appelé la préfecture. 45 minutes d'attente. Puis ils ont raccroché.",
+        "description": "Quand vous passez enfin, ils parlent trop vite, utilisent un jargon incompréhensible et ne peuvent pas vous dire ce que VOUS devez faire exactement. Y aller en personne ? Encore plus intimidant."
       },
       "1": {
-        "title": "Le conseil de votre ami marchait à Lyon. Vous êtes à Paris 14e.",
-        "description": "Chaque préfecture a ses propres règles non écrites. Les forums en ligne débordent de conseils contradictoires datant de 2019."
+        "title": "Un forum dit une chose. Un groupe Facebook dit le contraire. Les deux datent de 2021.",
+        "description": "Les forums d'expatriés sont pleins d'anecdotes personnelles qui peuvent ou non s'appliquer à votre cas. Fragmenté, obsolète, invérifiable. Ce qui a marché à Lyon ne marchera pas à Paris 14e."
       },
       "2": {
-        "title": "Votre titre de séjour expire dans 47 jours. Quelqu'un vous a prévenu ?",
-        "description": "Un seul renouvellement manqué peut signifier la perte de votre droit de séjour. Le système n'envoie aucun rappel — vous êtes livré à vous-même."
+        "title": "Votre titre de séjour expire dans 47 jours. Personne ne vous a prévenu.",
+        "description": "Un seul délai manqué peut vous coûter votre droit de séjour. Renouvellement de visa, déclarations CAF, impôts, inscription CPAM — le système n'envoie aucun rappel. Vous êtes livré à vous-même."
       }
     }
   },
   "HowItWorks": {
     "label": "Comment ça marche",
-    "headline": "De la confusion à la confiance en 3 étapes",
+    "headline": "Ni ChatGPT. Ni un forum. Un vrai moteur de réponses.",
     "steps": {
       "0": {
         "title": "Décrivez votre situation",
-        "description": "Nationalité, type de visa, ville, ce dont vous avez besoin. 30 secondes suffisent."
+        "description": "Type de visa, nationalité, ville, ce dont vous avez besoin. 30 secondes. Chaque réponse est personnalisée à VOTRE cas précis."
       },
       "1": {
-        "title": "Des réponses, pas des suppositions",
-        "description": "Notre IA consulte la loi CESEDA, les exigences préfectorales et les règles CAF — sourcées et citées pour votre cas précis."
+        "title": "Des réponses sourcées, pas des suppositions",
+        "description": "Contrairement à ChatGPT, chaque réponse cite la loi CESEDA, service-public.gouv.fr et les données officielles. Aucune hallucination. Aucune info obsolète."
       },
       "2": {
         "title": "Agissez en toute confiance",
-        "description": "Checklists étape par étape, documents traduits, rappels d'échéances. Fini les devinettes."
+        "description": "Checklists étape par étape, traduction de documents, rappels d'échéances. Visa, CAF, impôts, CPAM, logement, banque — tout en un seul endroit."
       }
     }
   },
   "Features": {
     "badge": "Fonctionnalités",
-    "headline": "Tout ce qu'il faut pour gérer l'administration française",
-    "subhead": "Alimenté par les données officielles du gouvernement. Disponible dans votre langue.",
+    "headline": "Chaque galère administrative. Une seule solution.",
+    "subhead": "Visa, logement, CAF, CPAM, impôts, banque, entreprise, nationalité — on agrège l'information fragmentée pour que vous n'ayez pas à le faire.",
     "items": {
       "0": {
-        "title": "Assistant IA Q&R",
-        "description": "Posez n'importe quelle question sur les visas, la CAF, les impôts ou la santé. Réponses instantanées avec sources juridiques citées."
+        "title": "Chat IA — Avec de vraies sources",
+        "description": "Posez vos questions sur la validation VLS-TS, le renouvellement du titre de séjour, les demandes CAF, la déclaration d'impôts ou l'inscription CPAM. Chaque réponse cite la loi exacte ou la source officielle. Pas les suppositions de ChatGPT."
       },
       "1": {
-        "title": "Checklist de documents",
-        "description": "Liste personnalisée des documents nécessaires — pour votre démarche, votre préfecture, votre situation."
+        "title": "Checklists de documents personnalisées",
+        "description": "Votre démarche, votre préfecture, votre situation. Exactement quels documents préparer — fini les conseils contradictoires des forums."
       },
       "2": {
         "title": "Interprète de documents",
-        "description": "Téléchargez n'importe quel document administratif. Recevez une explication claire et les actions à mener."
+        "description": "Téléchargez n'importe quel courrier administratif, formulaire CERFA ou convocation. Recevez une explication en langage clair et les actions à mener."
       },
       "3": {
         "title": "Suivi des échéances",
-        "description": "Renouvellement de visa, déclaration CAF, échéance fiscale — nous vous rappelons avant qu'il ne soit trop tard."
+        "description": "Renouvellement du titre de séjour, déclaration trimestrielle CAF, échéance fiscale, Carte Vitale — on suit chaque échéance et on vous prévient avant qu'il ne soit trop tard."
       }
     }
   },
@@ -118,7 +118,7 @@
   },
   "Waitlist": {
     "headline": "Accès anticipé",
-    "subhead": "Les 500 premiers membres bénéficient du tarif de lancement à vie. Ne manquez pas ça.",
+    "subhead": "Les 100 premiers inscrits bénéficient du tarif de lancement à vie. Ne manquez pas ça.",
     "placeholder": "vous@email.com",
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",
@@ -133,18 +133,22 @@
         "a": "Non. AccueilAI est un outil d'information qui vous aide à comprendre les procédures administratives françaises à partir des données officielles du gouvernement. Pour les situations juridiques complexes, nous recommandons toujours de consulter un avocat spécialisé en immigration."
       },
       "1": {
-        "q": "Quelles sources de données utilisez-vous ?",
-        "a": "Uniquement les sources officielles du gouvernement français : la loi CESEDA via Légifrance, les guides de démarches de service-public.gouv.fr, la documentation CAF et fiscale, et l'annuaire officiel des administrations pour les adresses et horaires."
+        "q": "En quoi c'est différent de demander à ChatGPT ?",
+        "a": "ChatGPT donne des réponses génériques sans sources et ne suit pas les réglementations françaises en constante évolution. AccueilAI analyse la loi CESEDA, service-public.gouv.fr et la documentation officielle CAF/CPAM en temps réel — chaque réponse inclut les liens sources. Nous accumulons aussi les données d'expérience réelles des utilisateurs, pour refléter non seulement ce que dit la loi, mais comment les choses fonctionnent réellement en pratique."
       },
       "2": {
-        "q": "Quelles langues sont supportées ?",
-        "a": "Français, anglais et coréen au lancement. D'autres langues suivront selon la demande."
+        "q": "Quels sujets couvrez-vous ?",
+        "a": "Visa et séjour (VLS-TS, titre de séjour, APS, Talent Passport), logement (bail, dépôt de garantie, justificatif de domicile), aides financières (CAF — APL/ALS/ALF, RSA, Prime d'activité), santé (CPAM, Carte Vitale, Mutuelle), impôts (première déclaration, numéro fiscal, double imposition), télécom et services publics, freelance et entreprise (auto-entrepreneur, SIRET, URSSAF), banque, vie quotidienne (échange de permis de conduire, immatriculation), et acquisition de la nationalité."
       },
       "3": {
         "q": "Quelle est la fiabilité de l'IA ?",
         "a": "Chaque réponse inclut le lien source pour que vous puissiez vérifier. Quand l'IA n'est pas sûre, elle vous le dit — et vous suggère de consulter un professionnel. Nous ne devinons jamais."
       },
       "4": {
+        "q": "Quelles langues sont supportées ?",
+        "a": "Français, anglais et coréen au lancement. D'autres langues suivront selon la demande."
+      },
+      "5": {
         "q": "Quand AccueilAI sera-t-il lancé ?",
         "a": "Nous sommes en développement actif. Rejoignez la liste d'attente pour un accès anticipé et un tarif de lancement exclusif."
       }
