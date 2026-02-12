@@ -17,7 +17,7 @@ export function Pricing() {
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             {t('badge')}
           </p>
-          <h2 className="mt-4 font-serif text-[42px] leading-tight text-[#1A1A2E]">
+          <h2 className="mt-4 whitespace-pre-line font-serif text-[42px] leading-tight text-[#1A1A2E]">
             {t('headline')}
           </h2>
           <p className="mt-4 text-lg text-[#5C5C6F]">{t('subhead')}</p>
@@ -34,7 +34,7 @@ export function Pricing() {
               }`}
             >
               {featured && (
-                <span className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+                <span className="absolute right-6 top-6 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
                   {t('popular')}
                 </span>
               )}

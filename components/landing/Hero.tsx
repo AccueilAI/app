@@ -14,9 +14,9 @@ const floatingCards = [
   { icon: FileText, label: 'Visa Documents', color: '#2B4C8C', rotate: '-3deg', className: 'left-[5%] top-[40%] lg:left-[8%]' },
   { icon: Globe, label: 'Multi-Language', color: '#D4A574', rotate: '-5deg', className: 'left-[6%] top-[14%] lg:left-[10%]' },
   { icon: ShieldCheck, label: 'CAF Verified', color: '#2D8A6E', rotate: '2deg', className: 'right-[5%] top-[28%] lg:right-[8%]' },
-  { icon: Landmark, label: 'Tax & URSSAF', color: '#2B4C8C', rotate: '4deg', className: 'right-[6%] bottom-[18%] lg:right-[9%]' },
+  { icon: Landmark, label: 'Tax & URSSAF', color: '#2B4C8C', rotate: '4deg', className: 'right-[6%] bottom-[38%] lg:right-[12%]' },
   { icon: HeartPulse, label: 'Health Insurance', color: '#C53030', rotate: '3deg', className: 'left-[8%] bottom-[12%] lg:left-[13%]' },
-  { icon: House, label: 'Housing (APL)', color: '#C9A84C', rotate: '-2deg', className: 'right-[7%] bottom-[10%] lg:right-[11%]' },
+  { icon: House, label: 'Housing (APL)', color: '#C9A84C', rotate: '-2deg', className: 'right-[7%] bottom-[10%] lg:right-[9%]' },
 ] as const;
 
 export function Hero() {
@@ -68,16 +68,8 @@ export function Hero() {
 
         {/* Center content */}
         <div className="relative z-10 mx-auto max-w-[820px] text-center">
-          {/* Trust badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-5 py-2">
-            <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
-            <span className="text-[13px] font-semibold text-[#2B4C8C]">
-              {t('trust')}
-            </span>
-          </div>
-
           {/* Headline */}
-          <h1 className="mx-auto max-w-[720px] font-serif text-5xl leading-[1.15] text-[#1A1A2E] sm:text-[56px]">
+          <h1 className="mx-auto whitespace-pre-line font-serif text-5xl leading-[1.15] text-[#1A1A2E] sm:text-[56px]">
             {t('headline')}
           </h1>
 
@@ -85,6 +77,14 @@ export function Hero() {
           <p className="mx-auto mt-8 max-w-[560px] text-[19px] leading-[1.65] text-[#5C5C6F]">
             {t('subhead')}
           </p>
+
+          {/* Trust badge */}
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-5 py-2">
+            <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
+            <span className="text-[13px] font-semibold text-[#2B4C8C]">
+              {t('trust')}
+            </span>
+          </div>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

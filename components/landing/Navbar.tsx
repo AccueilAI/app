@@ -46,7 +46,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-neutral-200/60 bg-white/80 backdrop-blur-lg">
+    <header className="fixed top-0 z-50 w-full border-b border-[#D6DDE8]/60 bg-[#EEF2F9]/75 backdrop-blur-lg">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <a href={`/${locale}`} className="flex items-center gap-2.5">

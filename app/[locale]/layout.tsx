@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DM_Sans, DM_Serif_Display, Noto_Sans_KR } from 'next/font/google';
+import { DM_Sans, DM_Serif_Display, Gothic_A1 } from 'next/font/google';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -18,10 +18,10 @@ const dmSerif = DM_Serif_Display({
   subsets: ['latin'],
 });
 
-const notoSansKr = Noto_Sans_KR({
-  variable: '--font-noto-kr',
+const gothicA1 = Gothic_A1({
+  variable: '--font-gothic',
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 const BASE_URL = 'https://accueil.ai';
@@ -108,7 +108,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         />
       </head>
       <body
-        className={`${dmSans.variable} ${dmSerif.variable} ${notoSansKr.variable} font-sans antialiased`}
+        className={`${dmSans.variable} ${dmSerif.variable} ${gothicA1.variable} font-sans antialiased`}
       >
         <PostHogProvider>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>

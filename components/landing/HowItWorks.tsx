@@ -10,7 +10,7 @@ export function HowItWorks() {
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             {t('label')}
           </p>
-          <h2 className="mt-4 font-serif text-[42px] leading-tight text-[#1A1A2E]">
+          <h2 className="mt-4 whitespace-pre-line font-serif text-[42px] leading-tight text-[#1A1A2E]">
             {t('headline')}
           </h2>
         </div>

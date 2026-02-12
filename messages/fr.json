@@ -6,7 +6,7 @@
     "cta": "Rejoindre la liste"
   },
   "Hero": {
-    "headline": "La bureaucratie française, enfin décryptée.",
+    "headline": "L'administration vous épuise ?\nNous aussi. On va régler ça.",
     "subhead": "Ni les forums. Ni ChatGPT. AccueilAI vous donne des réponses sourcées du droit français et des données officielles — personnalisées à votre visa, votre ville, votre situation exacte.",
     "cta": "Rejoindre la liste d'attente",
     "ctaSub": "Découvrir le fonctionnement",
@@ -74,7 +74,7 @@
   },
   "Pricing": {
     "badge": "Tarifs",
-    "headline": "Une consultation d'avocat : 150–300 €. AccueilAI : 9,99 €/mois.",
+    "headline": "1 consultation avocat : 150–300 €\nAccueilAI : 9,99 €/mois",
     "subhead": "Commencez gratuitement. Passez à un forfait supérieur selon vos besoins.",
     "popular": "Le plus populaire",
     "cta": "Rejoindre la liste",
@@ -118,7 +118,7 @@
   },
   "Waitlist": {
     "headline": "Accès anticipé",
-    "subhead": "Les 100 premiers inscrits bénéficient du tarif de lancement à vie. Ne manquez pas ça.",
+    "subhead": "Les 100 premiers inscrits bénéficient du tarif de lancement. Ne manquez pas ça.",
     "placeholder": "vous@email.com",
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",

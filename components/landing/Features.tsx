@@ -23,7 +23,7 @@ export function Features() {
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             {t('badge')}
           </p>
-          <h2 className="mt-4 font-serif text-[42px] leading-[1.2] text-[#1A1A2E]">
+          <h2 className="mt-4 whitespace-pre-line font-serif text-[42px] leading-[1.2] text-[#1A1A2E]">
             {t('headline')}
           </h2>
           <p className="mt-4 text-lg text-[#5C5C6F]">{t('subhead')}</p>

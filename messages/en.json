@@ -6,7 +6,7 @@
     "cta": "Join Waitlist"
   },
   "Hero": {
-    "headline": "French Bureaucracy, Finally Decoded.",
+    "headline": "Tired of French paperwork?\nSame. So we built this.",
     "subhead": "Not Reddit. Not ChatGPT. AccueilAI gives you answers sourced from French law and official data — personalized to your visa, your city, your exact situation.",
     "cta": "Join the Waitlist",
     "ctaSub": "See How It Works",
@@ -33,7 +33,7 @@
   },
   "HowItWorks": {
     "label": "How It Works",
-    "headline": "Not ChatGPT. Not a forum. A real answer engine.",
+    "headline": "Not ChatGPT. Not a forum.\nA real answer engine.",
     "steps": {
       "0": {
         "title": "Tell us your situation",
@@ -51,7 +51,7 @@
   },
   "Features": {
     "badge": "Core Features",
-    "headline": "Every admin headache. One solution.",
+    "headline": "Every admin headache.\nOne solution.",
     "subhead": "Visa, housing, CAF, CPAM, taxes, banking, business, nationality — we aggregate the fragmented info so you don't have to.",
     "items": {
       "0": {
@@ -74,7 +74,7 @@
   },
   "Pricing": {
     "badge": "Pricing",
-    "headline": "One lawyer visit: €150–300. AccueilAI: €9.99/month.",
+    "headline": "One lawyer visit: €150–300\nAccueilAI: €9.99/month",
     "subhead": "Start free. Upgrade when you need more.",
     "popular": "Most Popular",
     "cta": "Join Waitlist",
@@ -118,7 +118,7 @@
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "First 100 members lock in launch pricing forever. Don't miss it.",
+    "subhead": "First 100 members lock in launch pricing. Don't miss it.",
     "placeholder": "you@email.com",
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
