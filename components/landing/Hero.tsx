@@ -68,6 +68,14 @@ export function Hero() {
 
         {/* Center content */}
         <div className="relative z-10 mx-auto max-w-[820px] text-center">
+          {/* Trust badge */}
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-5 py-2">
+            <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
+            <span className="text-[13px] font-semibold text-[#2B4C8C]">
+              {t('trust')}
+            </span>
+          </div>
+
           {/* Headline */}
           <h1 className="mx-auto whitespace-pre-line font-serif text-5xl leading-[1.15] text-[#1A1A2E] sm:text-[56px]">
             {t('headline')}
@@ -77,14 +85,6 @@ export function Hero() {
           <p className="mx-auto mt-8 max-w-[560px] text-[19px] leading-[1.65] text-[#5C5C6F]">
             {t('subhead')}
           </p>
-
-          {/* Trust badge */}
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-5 py-2">
-            <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
-            <span className="text-[13px] font-semibold text-[#2B4C8C]">
-              {t('trust')}
-            </span>
-          </div>
 
           {/* CTAs */}
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
