@@ -4,18 +4,18 @@ export function HowItWorks() {
   const t = useTranslations('HowItWorks');
 
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-white py-14 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-[600px] text-center">
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             {t('label')}
           </p>
-          <h2 className="mt-4 whitespace-pre-line font-serif text-[42px] leading-tight text-[#1A1A2E]">
+          <h2 className="mt-3 whitespace-pre-line font-serif text-2xl leading-tight text-[#1A1A2E] sm:mt-4 sm:text-[42px]">
             {t('headline')}
           </h2>
         </div>
 
-        <div className="relative mt-14 grid gap-12 sm:grid-cols-3 sm:gap-8">
+        <div className="relative mt-8 grid gap-8 sm:mt-14 sm:grid-cols-3 sm:gap-8">
           {/* Connection lines (desktop) */}
           <div className="absolute left-[calc(33.33%-60px)] top-7 hidden h-0.5 w-[120px] bg-[#002395] sm:block" />
           <div className="absolute left-[calc(66.66%-60px)] top-7 hidden h-0.5 w-[120px] bg-[#002395] sm:block" />

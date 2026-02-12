@@ -50,12 +50,12 @@ export function WaitlistForm() {
         <div className="flex-1 bg-[#ED2939]" />
       </div>
 
-      <div className="px-4 py-20 sm:py-28">
+      <div className="px-4 py-14 sm:py-28">
         <div className="mx-auto max-w-[600px] text-center">
-          <h2 className="font-serif text-[42px] leading-tight text-white">
+          <h2 className="font-serif text-2xl leading-tight text-white sm:text-[42px]">
             {t('headline')}
           </h2>
-          <p className="mt-5 text-lg leading-[1.6] text-[#C0C8E0]">
+          <p className="mt-3 text-[15px] leading-[1.6] text-[#C0C8E0] sm:mt-5 sm:text-lg">
             {t('subhead')}
           </p>
 

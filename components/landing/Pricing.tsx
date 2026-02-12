@@ -11,23 +11,23 @@ export function Pricing() {
   const t = useTranslations('Pricing');
 
   return (
-    <section id="pricing" className="bg-white py-20 sm:py-28">
+    <section id="pricing" className="bg-white py-14 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-[600px] text-center">
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             {t('badge')}
           </p>
-          <h2 className="mt-4 whitespace-pre-line font-serif text-[42px] leading-tight text-[#1A1A2E]">
+          <h2 className="mt-3 whitespace-pre-line font-serif text-2xl leading-tight text-[#1A1A2E] sm:mt-4 sm:text-[42px]">
             {t('headline')}
           </h2>
-          <p className="mt-4 text-lg text-[#5C5C6F]">{t('subhead')}</p>
+          <p className="mt-3 text-[15px] text-[#5C5C6F] sm:mt-4 sm:text-lg">{t('subhead')}</p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
           {tiers.map(({ key, featured }) => (
             <div
               key={key}
-              className={`relative flex flex-col rounded-2xl p-8 ${
+              className={`relative flex flex-col rounded-2xl p-6 sm:p-8 ${
                 featured
                   ? 'bg-[#002395] text-white'
                   : 'border border-[#E8E6E1] bg-white'
@@ -45,7 +45,7 @@ export function Pricing() {
               </h3>
               <div className="mt-3 flex items-baseline gap-1">
                 <span
-                  className={`text-4xl font-bold tracking-tight ${featured ? 'text-white' : 'text-[#1A1A2E]'}`}
+                  className={`text-3xl font-bold tracking-tight sm:text-4xl ${featured ? 'text-white' : 'text-[#1A1A2E]'}`}
                 >
                   {t(`tiers.${key}.price`)}
                 </span>

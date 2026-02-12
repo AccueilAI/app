@@ -11,18 +11,18 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="bg-white py-20 sm:py-28">
+    <section id="faq" className="bg-white py-14 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <div className="text-center">
           <p className="text-[13px] font-bold uppercase tracking-[2px] text-[#002395]">
             FAQ
           </p>
-          <h2 className="mt-4 font-serif text-[42px] leading-tight text-[#1A1A2E]">
+          <h2 className="mt-3 font-serif text-2xl leading-tight text-[#1A1A2E] sm:mt-4 sm:text-[42px]">
             {t('headline')}
           </h2>
         </div>
 
-        <div className="mt-12 overflow-hidden rounded-[14px] border border-[#E8E6E1] bg-[#FAFAF8]">
+        <div className="mt-8 overflow-hidden rounded-[14px] border border-[#E8E6E1] bg-[#FAFAF8] sm:mt-12">
           {Array.from({ length: FAQ_COUNT }, (_, i) => (
             <div key={i}>
               {i > 0 && <div className="h-px bg-[#E8E6E1]" />}

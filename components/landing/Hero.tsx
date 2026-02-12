@@ -32,7 +32,7 @@ export function Hero() {
       </div>
 
       {/* Background */}
-      <div className="relative flex min-h-[540px] items-center justify-center px-4 py-16 sm:px-6"
+      <div className="relative flex min-h-[400px] items-center justify-center px-4 py-10 sm:min-h-[540px] sm:px-6 sm:py-16"
         style={{
           background: 'radial-gradient(ellipse 120% 120% at 50% 40%, #EEF2F9 0%, #FAFAF8 100%)',
         }}
@@ -69,7 +69,7 @@ export function Hero() {
         {/* Center content */}
         <div className="relative z-10 mx-auto max-w-[820px] text-center">
           {/* Trust badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-5 py-2">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-4 py-1.5 sm:mb-8 sm:px-5 sm:py-2">
             <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
             <span className="text-[13px] font-semibold text-[#2B4C8C]">
               {t('trust')}
@@ -77,26 +77,26 @@ export function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="mx-auto whitespace-pre-line font-serif text-5xl leading-[1.15] text-[#1A1A2E] sm:text-[56px]">
+          <h1 className="mx-auto whitespace-pre-line font-serif text-[28px] leading-[1.2] text-[#1A1A2E] sm:text-5xl sm:leading-[1.15] lg:text-[56px]">
             {t('headline')}
           </h1>
 
           {/* Subhead */}
-          <p className="mx-auto mt-8 max-w-[560px] text-[19px] leading-[1.65] text-[#5C5C6F]">
+          <p className="mx-auto mt-4 max-w-[560px] text-[15px] leading-[1.6] text-[#5C5C6F] sm:mt-8 sm:text-[19px] sm:leading-[1.65]">
             {t('subhead')}
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-6 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center sm:gap-4">
             <a
               href="#waitlist"
-              className="rounded-lg bg-[#2B4C8C] px-8 py-3.5 text-[17px] font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+              className="rounded-lg bg-[#2B4C8C] px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-[#1E3A6E] sm:px-8 sm:py-3.5 sm:text-[17px]"
             >
               {t('cta')}
             </a>
             <a
               href="#features"
-              className="rounded-lg border-[1.5px] border-[#2B4C8C] px-8 py-3.5 text-[17px] font-semibold text-[#2B4C8C] transition-colors hover:bg-[#2B4C8C]/5"
+              className="rounded-lg border-[1.5px] border-[#2B4C8C] px-6 py-3 text-[15px] font-semibold text-[#2B4C8C] transition-colors hover:bg-[#2B4C8C]/5 sm:px-8 sm:py-3.5 sm:text-[17px]"
             >
               {t('ctaSub')}
             </a>
