@@ -120,6 +120,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scroll-padding-top: 4rem;
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
   }

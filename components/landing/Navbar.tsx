@@ -6,9 +6,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Globe, ChevronDown } from 'lucide-react';
 
 const locales = [
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Fran\u00e7ais' },
-  { code: 'ko', label: '\ud55c\uad6d\uc5b4' },
+  { code: 'en', label: 'English', short: 'EN' },
+  { code: 'fr', label: 'Fran\u00e7ais', short: 'FR' },
+  { code: 'ko', label: '\ud55c\uad6d\uc5b4', short: 'KO' },
 ] as const;
 
 export function Navbar() {
@@ -77,10 +77,11 @@ export function Navbar() {
           <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 rounded-full border border-[#E5E3DE] px-3.5 py-2 text-[13px] font-semibold text-[#5C5C6F] transition-colors hover:border-[#2B4C8C] hover:text-[#2B4C8C]"
+              className="flex items-center gap-1.5 rounded-full border border-[#E5E3DE] px-2.5 py-2 text-[13px] font-semibold text-[#5C5C6F] transition-colors hover:border-[#2B4C8C] hover:text-[#2B4C8C] sm:px-3.5"
             >
               <Globe className="h-4 w-4" />
-              {currentLocale?.label}
+              <span className="hidden sm:inline">{currentLocale?.label}</span>
+              <span className="sm:hidden">{currentLocale?.short}</span>
               <ChevronDown
                 className={`h-3.5 w-3.5 transition-transform ${langOpen ? 'rotate-180' : ''}`}
               />
@@ -108,7 +109,7 @@ export function Navbar() {
           {/* CTA */}
           <a
             href="#waitlist"
-            className="rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+            className="whitespace-nowrap rounded-lg bg-[#2B4C8C] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#1E3A6E] sm:px-5 sm:py-2.5 sm:text-sm"
           >
             {t('cta')}
           </a>
