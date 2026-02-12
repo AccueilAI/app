@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
 
-const BASE_URL = 'https://accueilai.com';
+const BASE_URL = 'https://accueil.ai';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return routing.locales.map((locale) => ({

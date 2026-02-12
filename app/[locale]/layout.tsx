@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const BASE_URL = 'https://accueilai.com';
+const BASE_URL = 'https://accueil.ai';
 
 type Props = {
   children: React.ReactNode;
