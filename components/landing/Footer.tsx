@@ -31,8 +31,8 @@ export function Footer() {
                 {t('product')}
               </p>
               <ul className="mt-4 space-y-3">
-                <li><a href="#features" className="hover:text-white">{t('features', { defaultValue: 'Features' })}</a></li>
-                <li><a href="#pricing" className="hover:text-white">{t('pricing', { defaultValue: 'Pricing' })}</a></li>
+                <li><a href="#features" className="hover:text-white">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
                 <li><a href="#faq" className="hover:text-white">FAQ</a></li>
                 <li><a href="#waitlist" className="hover:text-white">Waitlist</a></li>
               </ul>
