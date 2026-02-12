@@ -15,6 +15,7 @@
   "PainPoints": {
     "label": "Vous connaissez ça",
     "headline": "Ça vous dit quelque chose ?",
+    "subhead": "La vie en France est merveilleuse — jusqu'à ce qu'il faille gérer les démarches administratives.",
     "items": {
       "0": {
         "title": "Une lettre de 3 pages de la préfecture. C'est à propos de votre visa.",

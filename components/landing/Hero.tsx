@@ -7,9 +7,9 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden pt-16">
       {/* French tricolor top accent */}
-      <div className="flex">
+      <div className="flex bg-[#E8E6E1]">
         <div className="h-1 flex-1 bg-[#002395]" />
-        <div className="h-1 flex-1 bg-white" />
+        <div className="h-1 flex-1 bg-[#F5F5F3]" />
         <div className="h-1 flex-1 bg-[#ED2939]" />
       </div>
 
