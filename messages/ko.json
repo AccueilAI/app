@@ -3,7 +3,8 @@
     "features": "기능",
     "pricing": "요금제",
     "faq": "FAQ",
-    "cta": "대기자 등록"
+    "cta": "대기자 등록",
+    "chat": "AI에게 질문"
   },
   "Hero": {
     "headline": "프랑스 행정, 답답하셨죠?\n저도요. 그래서 끝내러 왔습니다.",
@@ -162,5 +163,28 @@
     "terms": "이용약관",
     "disclaimer": "면책조항",
     "rights": "All rights reserved."
+  },
+  "Chat": {
+    "pageTitle": "AI 어시스턴트",
+    "welcome": "프랑스 행정에 대해 무엇이든 물어보세요",
+    "welcomeSub": "비자, 주거, CAF, CPAM, 세금 — 프랑스 법률과 공식 데이터 기반의 답변을 받아보세요.",
+    "placeholder": "프랑스 행정 절차에 대해 질문하세요...",
+    "send": "전송",
+    "stop": "중지",
+    "disclaimer": "AccueilAI는 정보만 제공하며 법률 자문이 아닙니다. 항상 공식 출처를 확인하세요.",
+    "viewSources": "{count}개 출처 보기",
+    "hideSources": "출처 숨기기",
+    "error": "오류가 발생했습니다. 다시 시도해 주세요.",
+    "rateLimit": "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
+    "verified": "출처 검증 완료",
+    "partiallyVerified": "부분 검증",
+    "unverified": "미검증 내용 포함",
+    "flaggedClaims": "출처에서 확인되지 않은 내용:",
+    "suggestedQuestions": {
+      "0": "체류증 갱신은 어떻게 하나요?",
+      "1": "CAF 신청에 필요한 서류는?",
+      "2": "CPAM 등록 방법은?",
+      "3": "프랑스 첫 세금 신고는 어떻게?"
+    }
   }
 }

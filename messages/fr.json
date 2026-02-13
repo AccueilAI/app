@@ -3,7 +3,8 @@
     "features": "Fonctionnalités",
     "pricing": "Tarifs",
     "faq": "FAQ",
-    "cta": "Rejoindre la liste"
+    "cta": "Rejoindre la liste",
+    "chat": "Poser une question"
   },
   "Hero": {
     "headline": "L'administration vous épuise ?\nNous aussi. On va régler ça.",
@@ -162,5 +163,28 @@
     "terms": "Conditions d'utilisation",
     "disclaimer": "Avertissement",
     "rights": "Tous droits réservés."
+  },
+  "Chat": {
+    "pageTitle": "Assistant IA",
+    "welcome": "Posez vos questions sur l'administration",
+    "welcomeSub": "Visa, logement, CAF, CPAM, impôts — des réponses sourcées du droit français et des données officielles.",
+    "placeholder": "Posez votre question sur les démarches administratives...",
+    "send": "Envoyer",
+    "stop": "Arrêter",
+    "disclaimer": "AccueilAI fournit des informations uniquement, pas de conseils juridiques. Vérifiez toujours auprès des sources officielles.",
+    "viewSources": "Voir {count} sources",
+    "hideSources": "Masquer les sources",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "rateLimit": "Trop de requêtes. Veuillez patienter.",
+    "verified": "Vérifié par les sources",
+    "partiallyVerified": "Partiellement vérifié",
+    "unverified": "Affirmations non vérifiées",
+    "flaggedClaims": "Affirmations non trouvées dans les sources :",
+    "suggestedQuestions": {
+      "0": "Comment renouveler mon titre de séjour ?",
+      "1": "Quels documents pour la CAF ?",
+      "2": "Comment s'inscrire à la CPAM ?",
+      "3": "Première déclaration d'impôts en France ?"
+    }
   }
 }

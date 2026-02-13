@@ -3,7 +3,8 @@
     "features": "Features",
     "pricing": "Pricing",
     "faq": "FAQ",
-    "cta": "Join Waitlist"
+    "cta": "Join Waitlist",
+    "chat": "Ask AI"
   },
   "Hero": {
     "headline": "Tired of French paperwork?\nSame. So we built this.",
@@ -162,5 +163,28 @@
     "terms": "Terms of Service",
     "disclaimer": "Disclaimer",
     "rights": "All rights reserved."
+  },
+  "Chat": {
+    "pageTitle": "AI Assistant",
+    "welcome": "Ask anything about French admin",
+    "welcomeSub": "Visa, housing, CAF, CPAM, taxes — get answers sourced from French law and official data.",
+    "placeholder": "Ask about French administrative procedures...",
+    "send": "Send",
+    "stop": "Stop",
+    "disclaimer": "AccueilAI provides information only, not legal advice. Always verify with official sources.",
+    "viewSources": "View {count} sources",
+    "hideSources": "Hide sources",
+    "error": "Something went wrong. Please try again.",
+    "rateLimit": "Too many requests. Please wait a moment.",
+    "verified": "Source-verified",
+    "partiallyVerified": "Partially verified",
+    "unverified": "Unverified claims",
+    "flaggedClaims": "Claims not found in sources:",
+    "suggestedQuestions": {
+      "0": "How do I renew my titre de séjour?",
+      "1": "What documents do I need for CAF?",
+      "2": "How to register with CPAM?",
+      "3": "First tax declaration in France?"
+    }
   }
 }

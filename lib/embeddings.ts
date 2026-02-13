@@ -57,9 +57,57 @@ async function callWithRetry(
   throw new Error('Max retries exceeded');
 }
 
+// --- LRU Embedding Cache ---
+
+const CACHE_MAX_SIZE = 100;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry {
+  embedding: number[];
+  expiresAt: number;
+}
+
+const embeddingCache = new Map<string, CacheEntry>();
+
+function cacheKey(text: string): string {
+  return text.toLowerCase().trim();
+}
+
+function pruneCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of embeddingCache) {
+    if (now > entry.expiresAt) {
+      embeddingCache.delete(key);
+    }
+  }
+  // LRU eviction: remove oldest entries if over max size
+  while (embeddingCache.size > CACHE_MAX_SIZE) {
+    const firstKey = embeddingCache.keys().next().value;
+    if (firstKey !== undefined) embeddingCache.delete(firstKey);
+  }
+}
+
 export async function embedText(text: string): Promise<number[]> {
+  const key = cacheKey(text);
+  const cached = embeddingCache.get(key);
+
+  if (cached && Date.now() < cached.expiresAt) {
+    // Move to end for LRU ordering
+    embeddingCache.delete(key);
+    embeddingCache.set(key, cached);
+    return cached.embedding;
+  }
+
   const response = await callWithRetry([text]);
-  return response.data[0].embedding;
+  const embedding = response.data[0].embedding;
+
+  pruneCache();
+  embeddingCache.set(key, {
+    embedding,
+    expiresAt: Date.now() + CACHE_TTL_MS,
+  });
+
+  return embedding;
 }
 
 export async function embedBatch(texts: string[]): Promise<number[][]> {

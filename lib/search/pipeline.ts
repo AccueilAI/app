@@ -6,6 +6,7 @@ import {
   type SearchFilters,
 } from '@/lib/supabase/search';
 import { detectLanguage, translateToFrench, expandQuery } from './query-preprocessing';
+import { rerankDocuments } from './reranker';
 
 // --- Types ---
 
@@ -188,23 +189,37 @@ export async function ragSearch(
   const keywordQueries = [frenchQuery, ...expansions.slice(0, 2)];
   const combinedKeywordQuery = keywordQueries.join(' | ');
 
-  // 5. Run hybrid search with expanded French query + French embedding
-  const primaryResults = await hybridSearch(combinedKeywordQuery, frenchEmbedding, count, filters);
+  // 5. Fetch extra candidates for reranking (2x count, capped at 20)
+  const candidateCount = Math.min(count * 2, 20);
 
-  // 6. If original query was not French, also run vector search with original embedding and merge
+  // 6. Run hybrid search with expanded French query + French embedding
+  const primaryResults = await hybridSearch(combinedKeywordQuery, frenchEmbedding, candidateCount, filters);
+
+  // 7. If original query was not French, also run vector search with original embedding and merge
   let mergedResults: HybridSearchResult[];
   if (originalEmbedding) {
-    const secondaryResults = await vectorSearch(originalEmbedding, count, filters);
-    mergedResults = mergeWithRRF(primaryResults, secondaryResults, count);
+    const secondaryResults = await vectorSearch(originalEmbedding, candidateCount, filters);
+    mergedResults = mergeWithRRF(primaryResults, secondaryResults, candidateCount);
   } else {
     mergedResults = primaryResults;
   }
 
-  // 7. Expand cross-references for law_article results (up to 3 extra)
-  const crossRefResults = await expandCrossReferences(mergedResults, 3);
-  const allResults = [...mergedResults, ...crossRefResults];
+  // 8. Cross-encoder reranking (Cohere) — uses French query since docs are French
+  const reranked = await rerankDocuments(
+    frenchQuery,
+    mergedResults.map((r) => ({ ...r, id: r.id, content: r.content })),
+    count,
+  );
+  const rerankedResults: HybridSearchResult[] = reranked.map((r) => ({
+    ...(r.document as unknown as HybridSearchResult),
+    rrf_score: r.relevanceScore,
+  }));
 
-  // 8. Map to response format
+  // 9. Expand cross-references from top reranked results (up to 3 extra)
+  const crossRefResults = await expandCrossReferences(rerankedResults, 3);
+  const allResults = [...rerankedResults, ...crossRefResults];
+
+  // 10. Map to response format
   const results: SearchResultItem[] = allResults.map((r) => ({
     id: r.id,
     content: r.content,

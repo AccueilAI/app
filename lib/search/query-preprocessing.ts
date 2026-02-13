@@ -89,7 +89,6 @@ export async function translateToFrench(
 
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
-    temperature: 0.1,
     max_output_tokens: 256,
     instructions:
       'You are a translator specializing in French administrative and legal terminology. ' +
@@ -99,6 +98,52 @@ export async function translateToFrench(
   });
 
   return response.output_text?.trim() || text;
+}
+
+// --- Conversational Query Reformulation ---
+
+/**
+ * Rewrite a follow-up message as a standalone search query using conversation context.
+ * Skips reformulation for the first message (no prior context).
+ */
+export async function reformulateQuery(
+  messages: { role: string; content: string }[],
+): Promise<string> {
+  const lastMessage = messages[messages.length - 1];
+  if (!lastMessage || lastMessage.role !== 'user') {
+    return lastMessage?.content ?? '';
+  }
+
+  // First user message — no context needed
+  const priorMessages = messages.slice(0, -1);
+  if (priorMessages.length === 0) {
+    return lastMessage.content;
+  }
+
+  // Use last 6 messages for context (3 turns)
+  const recentHistory = priorMessages.slice(-6);
+
+  const historyBlock = recentHistory
+    .map((m) => `${m.role}: ${m.content.slice(0, 300)}`)
+    .join('\n');
+
+  const openai = getOpenAI();
+
+  const response = await openai.responses.create({
+    model: 'gpt-5-nano',
+    max_output_tokens: 256,
+    instructions:
+      'You are a query reformulation assistant for French administrative procedure search. ' +
+      'Given a conversation history and the latest user message, rewrite the latest message ' +
+      'as a STANDALONE search query that captures the full intent. ' +
+      'Include relevant entities and context from prior messages. ' +
+      'Output ONLY the reformulated query, nothing else. ' +
+      'If the latest message is already self-contained, return it unchanged. ' +
+      'Keep the query in the same language as the user message.',
+    input: `CONVERSATION HISTORY:\n${historyBlock}\n\nLATEST USER MESSAGE:\n${lastMessage.content}\n\nREFORMULATED STANDALONE QUERY:`,
+  });
+
+  return response.output_text?.trim() || lastMessage.content;
 }
 
 // --- Query Expansion ---
@@ -111,7 +156,6 @@ export async function expandQuery(query: string): Promise<string[]> {
 
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
-    temperature: 0.3,
     max_output_tokens: 256,
     instructions:
       'Given a French administrative query, provide 2-3 alternative phrasings using ' +

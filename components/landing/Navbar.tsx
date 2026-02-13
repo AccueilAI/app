@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { Globe, ChevronDown } from 'lucide-react';
+import { Globe, ChevronDown, Sparkles } from 'lucide-react';
 
 const locales = [
   { code: 'en', label: 'English', short: 'EN' },
@@ -60,6 +60,13 @@ export function Navbar() {
 
         {/* Nav links */}
         <div className="hidden items-center gap-9 sm:flex">
+          <a
+            href={`/${locale}/chat`}
+            className="flex items-center gap-1.5 text-[15px] font-semibold text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
+          >
+            <Sparkles className="h-4 w-4" />
+            {t('chat')}
+          </a>
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -73,6 +80,14 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* Mobile chat link */}
+          <a
+            href={`/${locale}/chat`}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E3DE] text-[#2B4C8C] transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9] sm:hidden"
+            aria-label={t('chat')}
+          >
+            <Sparkles className="h-4 w-4" />
+          </a>
           {/* Language dropdown */}
           <div ref={dropdownRef} className="relative">
             <button
