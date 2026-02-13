@@ -7,6 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1016 | 10:33 PM | ✅ | Korean font reverted from Gothic A1 back to Noto Sans KR with trust badge repositioned | ~408 |
+| #983 | 9:35 PM | 🔵 | Waitlist table schema uses simplified structure with bigint identity and RLS | ~427 |
 | #886 | 3:25 AM | 🟣 | Supabase migration file created for waitlist table | ~374 |
 | #885 | " | 🟣 | Waitlist table migration file created | ~289 |
 </claude-mem-context>

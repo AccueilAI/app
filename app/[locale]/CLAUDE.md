@@ -7,6 +7,28 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1017 | 10:33 PM | 🔴 | Korean font reverted to Noto Sans KR and trust badge position restored | ~317 |
+| #1016 | " | ✅ | Korean font reverted from Gothic A1 back to Noto Sans KR with trust badge repositioned | ~408 |
+| #1014 | 10:30 PM | ✅ | Font changed from Gothic A1 to Noto Sans KR for Korean language support | ~354 |
+| #1013 | " | ✅ | Korean font changed from Gothic A1 to Noto Sans KR | ~233 |
+| #1012 | 10:29 PM | 🟣 | UI polish updates: favicon tricolor, typography refinements, navbar backdrop, and headline rewrites | ~738 |
+| #1010 | 10:27 PM | ✅ | Korean font changed from Nanum Gothic to Gothic A1 with expanded weights | ~353 |
+| #1009 | " | ✅ | Korean font changed from Nanum Gothic to Gothic A1 | ~249 |
+| #975 | 9:26 PM | ✅ | Korean font changed from Noto Sans KR to Nanum Gothic | ~277 |
+| #974 | " | ✅ | Font changed from Noto Sans KR to Nanum Gothic for Korean typography | ~256 |
+| #968 | 9:17 PM | 🔵 | CLAUDE.md documentation updates across multiple directories with translation refinements | ~422 |
+| #941 | 7:49 PM | 🔴 | Tricolor visibility fixed and Korean font support added | ~462 |
+| #933 | 7:45 PM | ✅ | Noto Sans KR font added to body className for Korean typography support | ~346 |
+| #932 | " | ✅ | Noto Sans KR font import added for Korean language support | ~239 |
+| #930 | 7:39 PM | 🟣 | Complete design system overhaul with DM fonts, navy/red palette, and French visual identity | ~721 |
+| #923 | 7:36 PM | ✅ | Typography changed from Geist fonts to DM Sans and DM Serif Display | ~320 |
+| #904 | 3:34 AM | 🟣 | SEO metadata with i18n, Open Graph, JSON-LD schema, and PostHog analytics integration | ~651 |
+| #897 | 3:33 AM | 🔵 | Root layout previously reviewed, no changes needed | ~258 |
+| #857 | 3:09 AM | ✅ | Landing page completed with all 8 sections: Pricing, WaitlistForm, FAQ, Footer added | ~327 |
+| #849 | 3:07 AM | 🔵 | Landing page composition includes four sections: Hero, PainPoints, HowItWorks, Features | ~328 |
+| #846 | 3:06 AM | ✅ | Landing page now includes PainPoints, HowItWorks, and Features sections | ~239 |
+| #843 | " | 🟣 | Features section component with icon grid and i18n support | ~461 |
+| #831 | 3:02 AM | 🟣 | CLAUDE.md configuration file created with comprehensive project guidelines | ~794 |
 | #824 | 3:01 AM | 🔵 | Landing page structure with Navbar and Hero components | ~201 |
 | #823 | " | 🔵 | AccueilAI locale-aware root layout with static generation | ~330 |
 </claude-mem-context>

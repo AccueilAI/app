@@ -7,5 +7,28 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #827 | 3:02 AM | 🔵 | Tailwind CSS v4 with OKLCH color system and dark mode support | ~352 |
+| #1017 | 10:33 PM | 🔴 | Korean font reverted to Noto Sans KR and trust badge position restored | ~317 |
+| #1016 | " | ✅ | Korean font reverted from Gothic A1 back to Noto Sans KR with trust badge repositioned | ~408 |
+| #1015 | 10:30 PM | ✅ | Korean font fallback updated to Noto Sans KR from Gothic | ~288 |
+| #1012 | 10:29 PM | 🟣 | UI polish updates: favicon tricolor, typography refinements, navbar backdrop, and headline rewrites | ~738 |
+| #977 | 9:26 PM | ✅ | Korean font changed from Noto Sans KR to Nanum Gothic in font stack | ~283 |
+| #968 | 9:17 PM | 🔵 | CLAUDE.md documentation updates across multiple directories with translation refinements | ~422 |
+| #955 | 8:04 PM | 🟣 | Hero section redesigned with gradient background, floating service cards, and glow effects | ~495 |
+| #951 | 8:03 PM | 🟣 | Apple touch icon enhanced with gradient background and French tricolor accent | ~367 |
+| #950 | " | ✅ | Favicon icon enhanced with gradient background and refined border radius | ~254 |
+| #948 | 7:54 PM | 🟣 | Branded favicon and app icons implemented with navy AccueilAI branding | ~430 |
+| #946 | " | 🟣 | Apple touch icon generated dynamically with brand colors | ~358 |
+| #945 | " | ✅ | Default Next.js favicon removed for custom branding | ~174 |
+| #944 | 7:53 PM | 🟣 | Dynamic favicon generated with AccueilAI brand identity | ~342 |
+| #941 | 7:49 PM | 🔴 | Tricolor visibility fixed and Korean font support added | ~462 |
+| #934 | 7:45 PM | ✅ | Font stack updated to include Noto Sans KR for Korean language support | ~332 |
+| #930 | 7:39 PM | 🟣 | Complete design system overhaul with DM fonts, navy/red palette, and French visual identity | ~721 |
+| #924 | 7:37 PM | ✅ | Typography system changed from Geist to DM Sans and DM Serif fonts | ~344 |
+| #921 | 7:12 PM | 🔵 | Robots.txt configuration for SEO with sitemap reference | ~246 |
+| #920 | " | 🔵 | Production domain configured as accueilai.com in robots.txt | ~223 |
+| #919 | " | ✅ | Domain updated from accueilai.com to accueil.ai in sitemap | ~250 |
+| #901 | 3:34 AM | 🟣 | Dynamic XML sitemap with multilingual support implemented | ~420 |
+| #900 | 3:33 AM | 🟣 | robots.txt configuration added for search engine crawling | ~308 |
+| #831 | 3:02 AM | 🟣 | CLAUDE.md configuration file created with comprehensive project guidelines | ~794 |
+| #827 | " | 🔵 | Tailwind CSS v4 with OKLCH color system and dark mode support | ~352 |
 </claude-mem-context>

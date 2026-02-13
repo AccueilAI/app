@@ -7,5 +7,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1043 | 10:44 PM | ✅ | Mobile font sizes and spacing reduced across all landing components | ~390 |
+| #869 | 3:20 AM | 🟣 | Supabase waitlist table schema created with RLS configuration | ~447 |
 </claude-mem-context>

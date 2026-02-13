@@ -84,6 +84,16 @@ Default to Server Components. Only add `'use client'` when the component uses br
 
 **Layout params are async:** In Next.js 16, `params` is a `Promise`. Always `await params` before using.
 
+## External Documentation References
+
+When working with external APIs or tools, always check the official documentation first via `WebFetch` — do not rely on training data alone.
+
+| Domain | Documentation URL | When to check |
+|--------|------------------|---------------|
+| **OpenAI API** | https://developers.openai.com/api/docs | Embeddings, Responses API, GPT-5.2, RAG, structured output, tool use |
+| **Claude Code** | https://code.claude.com/docs | Claude Code features, hooks, MCP servers, settings, slash commands |
+| **Claude Code Teams** | https://code.claude.com/docs/en/agent-teams | TeamCreate, SendMessage, task delegation, multi-agent orchestration |
+
 ## Agent & Skill Usage Guidelines
 
 Use Context7 MCP (`--c7`) to look up latest docs for next-intl, shadcn/ui, Next.js 16, and Tailwind v4 before implementing unfamiliar patterns. These libraries move fast — do not rely on training data alone.

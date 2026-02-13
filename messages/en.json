@@ -123,7 +123,7 @@
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
     "success": "You're in! 🎉",
-    "successSub": "You're #{position} on the list. We'll email you when AccueilAI launches."
+    "successSub": "We'll email you when AccueilAI launches."
   },
   "FAQ": {
     "headline": "Frequently asked questions",

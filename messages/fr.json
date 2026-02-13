@@ -123,7 +123,7 @@
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",
     "success": "Vous êtes inscrit ! 🎉",
-    "successSub": "Vous êtes le #{position} sur la liste. Nous vous préviendrons au lancement d'AccueilAI."
+    "successSub": "Nous vous préviendrons par email au lancement d'AccueilAI."
   },
   "FAQ": {
     "headline": "Questions fréquentes",

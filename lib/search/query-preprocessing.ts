@@ -1,0 +1,139 @@
+import OpenAI from 'openai';
+
+let openaiClient: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (openaiClient) return openaiClient;
+  openaiClient = new OpenAI();
+  return openaiClient;
+}
+
+// --- Language Detection ---
+
+// Common French words unlikely to appear in English
+const FRENCH_MARKERS = new Set([
+  'le', 'la', 'les', 'un', 'une', 'des', 'du', 'de', 'et', 'est', 'en',
+  'au', 'aux', 'ce', 'cette', 'ces', 'je', 'tu', 'il', 'elle', 'nous',
+  'vous', 'ils', 'elles', 'mon', 'ton', 'son', 'ma', 'ta', 'sa', 'mes',
+  'ses', 'notre', 'votre', 'leur', 'que', 'qui', 'quoi', 'dans', 'pour',
+  'sur', 'avec', 'par', 'pas', 'plus', 'mais', 'ou', 'donc', 'car',
+  'comment', 'travail', 'titre', 'carte', 'droit', 'demande',
+]);
+
+// Common English words that are NOT also common French words
+const ENGLISH_MARKERS = new Set([
+  'the', 'is', 'are', 'was', 'were', 'has', 'have', 'had', 'do', 'does',
+  'did', 'will', 'would', 'could', 'should', 'can', 'may', 'might',
+  'shall', 'this', 'that', 'these', 'those', 'it', 'its', 'my', 'your',
+  'his', 'her', 'our', 'their', 'what', 'which', 'who', 'how', 'when',
+  'where', 'why', 'not', 'but', 'and', 'with', 'from', 'about', 'into',
+  'through', 'during', 'before', 'after', 'above', 'below', 'between',
+  'work', 'visa', 'permit', 'residence', 'tax', 'health', 'insurance',
+]);
+
+// Hangul Unicode range: U+AC00 to U+D7AF (syllables) + U+1100 to U+11FF (Jamo)
+const HANGUL_REGEX = /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/;
+
+/**
+ * Simple heuristic language detection for en/fr/ko.
+ * Returns 'ko' for Korean text, then scores French vs English markers.
+ */
+export function detectLanguage(text: string): string {
+  // Check for Korean characters first
+  const hangulCount = (text.match(/[\uAC00-\uD7AF]/g) ?? []).length;
+  if (hangulCount > 0 && hangulCount / text.length > 0.1) {
+    return 'ko';
+  }
+  if (HANGUL_REGEX.test(text) && text.length < 20) {
+    return 'ko';
+  }
+
+  // Tokenize and score French vs English
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-zA-Z\u00C0-\u024F\uAC00-\uD7AF\s]/g, '')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  let frScore = 0;
+  let enScore = 0;
+
+  for (const word of words) {
+    if (FRENCH_MARKERS.has(word)) frScore++;
+    if (ENGLISH_MARKERS.has(word)) enScore++;
+  }
+
+  // Check for French-specific diacritics as a tiebreaker
+  const frenchDiacritics = /[éèêëàâäôùûüîïçœæ]/i;
+  if (frenchDiacritics.test(text)) frScore += 2;
+
+  if (frScore > enScore) return 'fr';
+  if (enScore > frScore) return 'en';
+
+  // Default to French since our corpus is French
+  return 'fr';
+}
+
+// --- Translation ---
+
+/**
+ * Translate a query to French using Responses API (gpt-5-nano). Skips if already French.
+ */
+export async function translateToFrench(
+  text: string,
+  sourceLang: string,
+): Promise<string> {
+  if (sourceLang === 'fr') return text;
+
+  const openai = getOpenAI();
+
+  const response = await openai.responses.create({
+    model: 'gpt-5-nano',
+    temperature: 0.1,
+    max_output_tokens: 256,
+    instructions:
+      'You are a translator specializing in French administrative and legal terminology. ' +
+      'Translate the user query to French. Output ONLY the French translation, nothing else. ' +
+      'Use precise administrative terms (e.g., "titre de séjour" not "permis de résidence").',
+    input: text,
+  });
+
+  return response.output_text?.trim() || text;
+}
+
+// --- Query Expansion ---
+
+/**
+ * Generate 2-3 French administrative synonym expansions for a query.
+ */
+export async function expandQuery(query: string): Promise<string[]> {
+  const openai = getOpenAI();
+
+  const response = await openai.responses.create({
+    model: 'gpt-5-nano',
+    temperature: 0.3,
+    max_output_tokens: 256,
+    instructions:
+      'Given a French administrative query, provide 2-3 alternative phrasings using ' +
+      'official French legal/administrative terminology. Return ONLY a JSON array of strings. ' +
+      'Example: ["visa de travail", "titre de séjour salarié", "autorisation de travail"]',
+    input: query,
+  });
+
+  const raw = response.output_text?.trim() ?? '[]';
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
+      return parsed as string[];
+    }
+  } catch {
+    // If model returns malformed JSON, try to extract strings manually
+    const matches = raw.match(/"([^"]+)"/g);
+    if (matches) {
+      return matches.map((m) => m.replace(/"/g, '')).slice(0, 3);
+    }
+  }
+
+  return [];
+}

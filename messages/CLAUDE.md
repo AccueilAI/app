@@ -7,5 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1002 | 10:19 PM | ✅ | Korean Hero headline tone adjusted to empathetic and collaborative messaging | ~342 |
+| #937 | 7:48 PM | ✅ | PainPoints section subheading added to English translations | ~319 |
+| #911 | 5:20 PM | 🔵 | Waitlist success messages include dynamic position placeholder | ~322 |
 | #829 | 3:02 AM | 🔵 | English translation messages for Navbar and Hero components | ~299 |
 </claude-mem-context>

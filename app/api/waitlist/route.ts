@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase/client';
 import { getResend } from '@/lib/resend';
 
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
@@ -52,72 +52,93 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabase = getSupabase();
+  try {
+    const supabase = getSupabase();
 
-  // Check for duplicate
-  const { data: existing } = await supabase
-    .from('waitlist')
-    .select('id')
-    .eq('email', email)
-    .single();
+    // Check for duplicate — maybeSingle returns null (no error) when 0 rows
+    const { data: existing } = await supabase
+      .from('waitlist')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
 
-  if (existing) {
-    return NextResponse.json(
-      { success: false, message: 'This email is already on the waitlist.' },
-      { status: 409 },
-    );
-  }
+    if (existing) {
+      return NextResponse.json(
+        { success: false, message: 'This email is already on the waitlist.' },
+        { status: 409 },
+      );
+    }
 
-  // Insert into waitlist
-  const { error: insertError } = await supabase
-    .from('waitlist')
-    .insert({ email, language: body.language ?? null });
+    // Get current max position so the new entry continues the sequence
+    const { count: currentCount } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
 
-  if (insertError) {
-    console.error('Supabase insert error:', insertError);
+    const position = (currentCount ?? 0) + 1;
+
+    // Insert into waitlist
+    const { error: insertError } = await supabase
+      .from('waitlist')
+      .insert({ email, language: body.language ?? null });
+
+    if (insertError) {
+      // Unique constraint violation — race condition with concurrent request
+      if (insertError.code === '23505') {
+        return NextResponse.json(
+          { success: false, message: 'This email is already on the waitlist.' },
+          { status: 409 },
+        );
+      }
+      console.error('Supabase insert error:', insertError);
+      return NextResponse.json(
+        { success: false, message: 'Something went wrong. Please try again.' },
+        { status: 500 },
+      );
+    }
+
+    // Send welcome email (non-blocking — don't fail the request if email fails)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const resend = getResend();
+        resend.emails
+          .send({
+            from: 'AccueilAI <onboarding@resend.dev>',
+            to: email,
+            subject: 'Welcome to the AccueilAI waitlist!',
+            html: `
+              <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+                <h2 style="color: #171717;">You're on the list!</h2>
+                <p style="color: #525252; line-height: 1.6;">
+                  Thanks for joining the AccueilAI waitlist. You're <strong>#${position}</strong> in line.
+                </p>
+                <p style="color: #525252; line-height: 1.6;">
+                  We're building an AI-powered assistant to help expats navigate French bureaucracy
+                  — visas, CAF, taxes, healthcare — in your language.
+                </p>
+                <p style="color: #525252; line-height: 1.6;">
+                  We'll notify you as soon as early access is ready. Stay tuned!
+                </p>
+                <p style="color: #a3a3a3; font-size: 12px; margin-top: 32px;">
+                  AccueilAI · AI-powered admin assistant for expats in France
+                </p>
+              </div>
+            `,
+          })
+          .catch((err) => console.error('Resend email error:', err));
+      } catch (emailErr) {
+        console.error('Resend init error:', emailErr);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      position,
+    });
+  } catch (err) {
+    console.error('Waitlist API error:', err);
     return NextResponse.json(
       { success: false, message: 'Something went wrong. Please try again.' },
       { status: 500 },
     );
   }
-
-  // Get position
-  const { count } = await supabase
-    .from('waitlist')
-    .select('*', { count: 'exact', head: true });
-
-  // Send welcome email (non-blocking — don't fail the request if email fails)
-  if (process.env.RESEND_API_KEY) {
-    const resend = getResend();
-    resend.emails
-      .send({
-        from: 'AccueilAI <onboarding@resend.dev>',
-        to: email,
-        subject: 'Welcome to the AccueilAI waitlist!',
-        html: `
-          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-            <h2 style="color: #171717;">You're on the list!</h2>
-            <p style="color: #525252; line-height: 1.6;">
-              Thanks for joining the AccueilAI waitlist. You're <strong>#${count ?? '?'}</strong> in line.
-            </p>
-            <p style="color: #525252; line-height: 1.6;">
-              We're building an AI-powered assistant to help expats navigate French bureaucracy
-              — visas, CAF, taxes, healthcare — in your language.
-            </p>
-            <p style="color: #525252; line-height: 1.6;">
-              We'll notify you as soon as early access is ready. Stay tuned!
-            </p>
-            <p style="color: #a3a3a3; font-size: 12px; margin-top: 32px;">
-              AccueilAI · AI-powered admin assistant for expats in France
-            </p>
-          </div>
-        `,
-      })
-      .catch((err) => console.error('Resend email error:', err));
-  }
-
-  return NextResponse.json({
-    success: true,
-    position: count ?? 0,
-  });
 }

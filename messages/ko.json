@@ -123,7 +123,7 @@
     "cta": "자리 확보하기",
     "privacy": "스팸은 보내지 않습니다. 언제든 수신 거부 가능.",
     "success": "등록 완료! 🎉",
-    "successSub": "대기자 #{position}번째입니다. AccueilAI 출시 시 이메일로 알려드리겠습니다."
+    "successSub": "AccueilAI 출시 시 이메일로 알려드리겠습니다."
   },
   "FAQ": {
     "headline": "자주 묻는 질문",

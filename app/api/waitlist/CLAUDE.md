@@ -7,5 +7,5 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1043 | 10:44 PM | ✅ | Mobile font sizes and spacing reduced across all landing components | ~390 |
+| #874 | 3:21 AM | 🔵 | Waitlist API route with rate limiting, duplicate checking, and email confirmation | ~568 |
 </claude-mem-context>

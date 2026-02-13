@@ -64,7 +64,7 @@ export function WaitlistForm() {
               <CheckCircle2 className="h-10 w-10 text-emerald-400" />
               <p className="text-lg font-semibold text-white">{t('success')}</p>
               <p className="text-sm text-[#C0C8E0]">
-                {t('successSub', { position: position ?? '?' })}
+                {t('successSub')}
               </p>
             </div>
           ) : (
