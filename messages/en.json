@@ -5,7 +5,10 @@
     "faq": "FAQ",
     "cta": "Join Waitlist",
     "chat": "Ask AI",
-    "signIn": "Sign In"
+    "experiences": "Experiences",
+    "documents": "Documents",
+    "signIn": "Sign In",
+    "deadlines": "Deadlines"
   },
   "Auth": {
     "signIn": "Sign In",
@@ -217,6 +220,155 @@
       "1": "What documents do I need for CAF?",
       "2": "How to register with CPAM?",
       "3": "First tax declaration in France?"
+    }
+  },
+  "Experiences": {
+    "pageTitle": "Community Experiences",
+    "pageSubtitle": "Real experiences from people who've been through French admin. Share yours to help others.",
+    "shareButton": "Share Your Experience",
+    "form": {
+      "title": "Share Your Experience",
+      "procedureType": "Procedure Type",
+      "prefecture": "Prefecture / Office",
+      "city": "City",
+      "waitTime": "Processing Time (days)",
+      "difficulty": "Difficulty",
+      "documents": "Documents Used",
+      "documentsPlaceholder": "Type a document name and press Enter",
+      "tips": "Tips & Advice",
+      "tipsPlaceholder": "What would you tell someone going through the same process?",
+      "outcome": "Outcome",
+      "experienceDate": "When did this happen?",
+      "submit": "Submit Experience",
+      "submitting": "Submitting...",
+      "success": "Experience shared! Thank you for helping the community.",
+      "cancel": "Cancel"
+    },
+    "procedureTypes": {
+      "visa_renewal": "Visa Renewal",
+      "first_visa": "First Visa Application",
+      "caf": "CAF (Housing Aid)",
+      "cpam": "CPAM (Healthcare)",
+      "tax_declaration": "Tax Declaration",
+      "prefecture_rdv": "Prefecture Appointment",
+      "housing": "Housing",
+      "banking": "Banking",
+      "nationality": "Nationality",
+      "other": "Other"
+    },
+    "outcomes": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending",
+      "other": "Other"
+    },
+    "card": {
+      "helpful": "Helpful",
+      "daysWait": "{count} days",
+      "difficulty": "Difficulty"
+    },
+    "empty": {
+      "noExperiences": "No experiences shared yet.",
+      "beFirst": "Be the first to share your experience!"
+    },
+    "filter": {
+      "all": "All",
+      "filterBy": "Filter by"
+    },
+    "auth": {
+      "loginRequired": "Sign in to share your experience and help the community.",
+      "loginToShare": "Sign in to share"
+    }
+  },
+  "Documents": {
+    "pageTitle": "Document Analyzer",
+    "pageSubtitle": "Upload any French administrative document — CERFA forms, official letters, convocations — and get a plain-language explanation with action items.",
+    "upload": {
+      "dropzone": "Drag and drop your document here",
+      "or": "or",
+      "selectFile": "Select a file",
+      "maxSize": "Max 10 MB",
+      "supportedFormats": "PDF, JPEG, PNG",
+      "analyze": "Analyze Document"
+    },
+    "analyzing": "Analyzing your document...",
+    "analysisTitle": "Analysis Result",
+    "checklist": "Action Checklist",
+    "documentType": "Document Type",
+    "history": {
+      "title": "Previous Analyses",
+      "empty": "No previous analyses."
+    },
+    "auth": {
+      "loginRequired": "Sign in to analyze your documents."
+    },
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is 10 MB.",
+      "unsupportedFormat": "Unsupported file format. Please upload a PDF, JPEG, or PNG.",
+      "analysisFailed": "Analysis failed. Please try again.",
+      "dailyLimit": "You've reached the daily limit of 5 analyses."
+    }
+  },
+  "Deadlines": {
+    "pageTitle": "Deadline Tracker",
+    "pageSubtitle": "Track your French administrative deadlines and get email reminders before they expire.",
+    "form": {
+      "title": "Title",
+      "type": "Deadline Type",
+      "date": "Deadline Date",
+      "description": "Description (optional)",
+      "reminder": "Remind me (days before)",
+      "submit": "Add Deadline",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "deadlineTypes": {
+      "visa_renewal": "Visa Renewal",
+      "caf_declaration": "CAF Declaration",
+      "tax": "Tax Filing",
+      "cpam": "CPAM",
+      "prefecture_rdv": "Prefecture Appointment",
+      "other": "Other"
+    },
+    "status": {
+      "upcoming": "Upcoming",
+      "overdue": "Overdue",
+      "completed": "Completed",
+      "daysLeft": "{count} days left",
+      "daysOverdue": "{count} days overdue",
+      "dueToday": "Due today"
+    },
+    "empty": {
+      "noDeadlines": "No deadlines yet.",
+      "addFirst": "Add your first deadline to start tracking."
+    },
+    "reminder": {
+      "reminderSent": "Reminder sent"
+    },
+    "auth": {
+      "loginRequired": "Sign in to track your deadlines."
+    },
+    "confirmDelete": "Are you sure you want to delete this deadline?"
+  },
+  "Dashboard": {
+    "tabs": {
+      "profile": "Profile",
+      "experiences": "My Experiences",
+      "documents": "My Documents"
+    },
+    "myExperiences": {
+      "title": "My Experiences",
+      "empty": "You haven't shared any experiences yet.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Are you sure you want to delete this experience?"
+    },
+    "myDocuments": {
+      "title": "My Documents",
+      "empty": "No document analyses yet.",
+      "viewAnalysis": "View Analysis"
     }
   }
 }

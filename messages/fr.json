@@ -5,7 +5,10 @@
     "faq": "FAQ",
     "cta": "Rejoindre la liste",
     "chat": "Poser une question",
-    "signIn": "Connexion"
+    "experiences": "Expériences",
+    "documents": "Documents",
+    "signIn": "Connexion",
+    "deadlines": "Échéances"
   },
   "Auth": {
     "signIn": "Connexion",
@@ -217,6 +220,155 @@
       "1": "Quels documents pour la CAF ?",
       "2": "Comment s'inscrire à la CPAM ?",
       "3": "Première déclaration d'impôts en France ?"
+    }
+  },
+  "Experiences": {
+    "pageTitle": "Expériences communautaires",
+    "pageSubtitle": "Des expériences réelles de personnes ayant navigué l'administration française. Partagez la vôtre pour aider les autres.",
+    "shareButton": "Partager votre expérience",
+    "form": {
+      "title": "Partager votre expérience",
+      "procedureType": "Type de démarche",
+      "prefecture": "Préfecture / Bureau",
+      "city": "Ville",
+      "waitTime": "Délai de traitement (jours)",
+      "difficulty": "Difficulté",
+      "documents": "Documents utilisés",
+      "documentsPlaceholder": "Tapez le nom d'un document et appuyez sur Entrée",
+      "tips": "Conseils",
+      "tipsPlaceholder": "Que diriez-vous à quelqu'un qui fait la même démarche ?",
+      "outcome": "Résultat",
+      "experienceDate": "Quand était-ce ?",
+      "submit": "Soumettre",
+      "submitting": "Envoi en cours...",
+      "success": "Expérience partagée ! Merci de contribuer à la communauté.",
+      "cancel": "Annuler"
+    },
+    "procedureTypes": {
+      "visa_renewal": "Renouvellement de visa",
+      "first_visa": "Première demande de visa",
+      "caf": "CAF (Aide au logement)",
+      "cpam": "CPAM (Assurance maladie)",
+      "tax_declaration": "Déclaration d'impôts",
+      "prefecture_rdv": "Rendez-vous préfecture",
+      "housing": "Logement",
+      "banking": "Banque",
+      "nationality": "Nationalité",
+      "other": "Autre"
+    },
+    "outcomes": {
+      "approved": "Approuvé",
+      "rejected": "Refusé",
+      "pending": "En attente",
+      "other": "Autre"
+    },
+    "card": {
+      "helpful": "Utile",
+      "daysWait": "{count} jours",
+      "difficulty": "Difficulté"
+    },
+    "empty": {
+      "noExperiences": "Aucune expérience partagée pour le moment.",
+      "beFirst": "Soyez le premier à partager votre expérience !"
+    },
+    "filter": {
+      "all": "Tous",
+      "filterBy": "Filtrer par"
+    },
+    "auth": {
+      "loginRequired": "Connectez-vous pour partager votre expérience et aider la communauté.",
+      "loginToShare": "Se connecter pour partager"
+    }
+  },
+  "Documents": {
+    "pageTitle": "Analyseur de documents",
+    "pageSubtitle": "Téléchargez n'importe quel document administratif français — formulaire CERFA, courrier officiel, convocation — et obtenez une explication claire avec les actions à mener.",
+    "upload": {
+      "dropzone": "Glissez-déposez votre document ici",
+      "or": "ou",
+      "selectFile": "Sélectionner un fichier",
+      "maxSize": "10 Mo maximum",
+      "supportedFormats": "PDF, JPEG, PNG",
+      "analyze": "Analyser le document"
+    },
+    "analyzing": "Analyse de votre document en cours...",
+    "analysisTitle": "Résultat de l'analyse",
+    "checklist": "Liste d'actions",
+    "documentType": "Type de document",
+    "history": {
+      "title": "Analyses précédentes",
+      "empty": "Aucune analyse précédente."
+    },
+    "auth": {
+      "loginRequired": "Connectez-vous pour analyser vos documents."
+    },
+    "errors": {
+      "fileTooLarge": "Le fichier est trop volumineux. Taille maximale : 10 Mo.",
+      "unsupportedFormat": "Format non supporté. Veuillez télécharger un PDF, JPEG ou PNG.",
+      "analysisFailed": "L'analyse a échoué. Veuillez réessayer.",
+      "dailyLimit": "Vous avez atteint la limite de 5 analyses par jour."
+    }
+  },
+  "Deadlines": {
+    "pageTitle": "Suivi des échéances",
+    "pageSubtitle": "Suivez vos échéances administratives françaises et recevez des rappels par email avant expiration.",
+    "form": {
+      "title": "Titre",
+      "type": "Type d'échéance",
+      "date": "Date d'échéance",
+      "description": "Description (optionnel)",
+      "reminder": "Me rappeler (jours avant)",
+      "submit": "Ajouter une échéance",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "deadlineTypes": {
+      "visa_renewal": "Renouvellement de visa",
+      "caf_declaration": "Déclaration CAF",
+      "tax": "Déclaration d'impôts",
+      "cpam": "CPAM",
+      "prefecture_rdv": "Rendez-vous préfecture",
+      "other": "Autre"
+    },
+    "status": {
+      "upcoming": "À venir",
+      "overdue": "En retard",
+      "completed": "Terminé",
+      "daysLeft": "{count} jours restants",
+      "daysOverdue": "{count} jours de retard",
+      "dueToday": "Aujourd'hui"
+    },
+    "empty": {
+      "noDeadlines": "Aucune échéance pour le moment.",
+      "addFirst": "Ajoutez votre première échéance pour commencer le suivi."
+    },
+    "reminder": {
+      "reminderSent": "Rappel envoyé"
+    },
+    "auth": {
+      "loginRequired": "Connectez-vous pour suivre vos échéances."
+    },
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette échéance ?"
+  },
+  "Dashboard": {
+    "tabs": {
+      "profile": "Profil",
+      "experiences": "Mes expériences",
+      "documents": "Mes documents"
+    },
+    "myExperiences": {
+      "title": "Mes expériences",
+      "empty": "Vous n'avez pas encore partagé d'expériences.",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette expérience ?"
+    },
+    "myDocuments": {
+      "title": "Mes documents",
+      "empty": "Aucune analyse de document pour le moment.",
+      "viewAnalysis": "Voir l'analyse"
     }
   }
 }

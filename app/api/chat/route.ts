@@ -12,6 +12,7 @@ import {
   MAX_COMPLETION_TOKENS,
 } from '@/lib/chat/token-manager';
 import { verifyResponse } from '@/lib/chat/hallucination-detector';
+import { detectProcedureTypes, searchExperiences, formatExperiencesForPrompt } from '@/lib/experiences/search';
 import { chatRateLimit, chatDailyLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
         const maxSystemTokens = Math.floor(MAX_INPUT_TOKENS * 0.75);
         const trimmedResults = trimRagContext(
           searchResponse.results,
-          (items) => buildSystemPrompt(items, language),
+          (items) => buildSystemPrompt(items, language, ''),
           maxSystemTokens,
         );
         if (trimmedResults.length < searchResponse.results.length) {
@@ -171,8 +172,19 @@ export async function POST(request: NextRequest) {
         }));
         controller.enqueue(sseEvent('sources', { sources }));
 
-        // 4. Build system prompt with (possibly trimmed) RAG context
-        const systemPrompt = buildSystemPrompt(trimmedResults, language);
+        // 3.5. Search community experiences
+        let experienceContext = '';
+        const detectedTypes = detectProcedureTypes(searchQuery);
+        if (detectedTypes.length > 0) {
+          const experiences = await searchExperiences(detectedTypes, 5);
+          if (experiences.length > 0) {
+            experienceContext = formatExperiencesForPrompt(experiences);
+            console.log('[chat] Experience context:', experiences.length, 'experiences for types:', detectedTypes);
+          }
+        }
+
+        // 4. Build system prompt with (possibly trimmed) RAG context + experiences
+        const systemPrompt = buildSystemPrompt(trimmedResults, language, experienceContext);
 
         // 5. Compact conversation history if exceeding token budget
         const systemTokenEstimate = estimateTokens([], systemPrompt);

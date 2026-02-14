@@ -5,7 +5,10 @@
     "faq": "FAQ",
     "cta": "대기자 등록",
     "chat": "AI에게 질문",
-    "signIn": "로그인"
+    "experiences": "경험 공유",
+    "documents": "서류 분석",
+    "signIn": "로그인",
+    "deadlines": "기한 관리"
   },
   "Auth": {
     "signIn": "로그인",
@@ -217,6 +220,155 @@
       "1": "CAF 신청에 필요한 서류는?",
       "2": "CPAM 등록 방법은?",
       "3": "프랑스 첫 세금 신고는 어떻게?"
+    }
+  },
+  "Experiences": {
+    "pageTitle": "커뮤니티 경험",
+    "pageSubtitle": "프랑스 행정을 직접 경험한 분들의 이야기. 당신의 경험도 공유해 주세요.",
+    "shareButton": "경험 공유하기",
+    "form": {
+      "title": "경험 공유하기",
+      "procedureType": "절차 유형",
+      "prefecture": "관할 기관",
+      "city": "도시",
+      "waitTime": "처리 소요일",
+      "difficulty": "난이도",
+      "documents": "사용한 서류",
+      "documentsPlaceholder": "서류명을 입력하고 Enter를 누르세요",
+      "tips": "팁 & 조언",
+      "tipsPlaceholder": "같은 절차를 밟는 분에게 어떤 조언을 하시겠어요?",
+      "outcome": "결과",
+      "experienceDate": "경험 시기",
+      "submit": "공유하기",
+      "submitting": "제출 중...",
+      "success": "경험이 공유되었습니다! 커뮤니티에 기여해 주셔서 감사합니다.",
+      "cancel": "취소"
+    },
+    "procedureTypes": {
+      "visa_renewal": "비자 갱신",
+      "first_visa": "첫 비자 신청",
+      "caf": "CAF (주거 지원)",
+      "cpam": "CPAM (건강보험)",
+      "tax_declaration": "세금 신고",
+      "prefecture_rdv": "경시청 예약",
+      "housing": "주거",
+      "banking": "은행",
+      "nationality": "국적 취득",
+      "other": "기타"
+    },
+    "outcomes": {
+      "approved": "승인",
+      "rejected": "거절",
+      "pending": "진행 중",
+      "other": "기타"
+    },
+    "card": {
+      "helpful": "도움됨",
+      "daysWait": "{count}일",
+      "difficulty": "난이도"
+    },
+    "empty": {
+      "noExperiences": "아직 공유된 경험이 없습니다.",
+      "beFirst": "첫 번째로 경험을 공유해 주세요!"
+    },
+    "filter": {
+      "all": "전체",
+      "filterBy": "필터"
+    },
+    "auth": {
+      "loginRequired": "로그인하면 경험을 공유하고 커뮤니티에 기여할 수 있습니다.",
+      "loginToShare": "로그인하여 공유"
+    }
+  },
+  "Documents": {
+    "pageTitle": "서류 분석기",
+    "pageSubtitle": "프랑스 행정 서류 — CERFA 양식, 공문, 소환장 등을 업로드하면 쉬운 말로 해석하고 해야 할 일을 알려드립니다.",
+    "upload": {
+      "dropzone": "서류를 여기에 끌어다 놓으세요",
+      "or": "또는",
+      "selectFile": "파일 선택",
+      "maxSize": "최대 10 MB",
+      "supportedFormats": "PDF, JPEG, PNG",
+      "analyze": "서류 분석하기"
+    },
+    "analyzing": "서류를 분석하고 있습니다...",
+    "analysisTitle": "분석 결과",
+    "checklist": "조치 체크리스트",
+    "documentType": "서류 유형",
+    "history": {
+      "title": "이전 분석 기록",
+      "empty": "이전 분석 기록이 없습니다."
+    },
+    "auth": {
+      "loginRequired": "서류를 분석하려면 로그인해 주세요."
+    },
+    "errors": {
+      "fileTooLarge": "파일이 너무 큽니다. 최대 10 MB까지 가능합니다.",
+      "unsupportedFormat": "지원하지 않는 형식입니다. PDF, JPEG, PNG 파일을 업로드해 주세요.",
+      "analysisFailed": "분석에 실패했습니다. 다시 시도해 주세요.",
+      "dailyLimit": "오늘의 분석 한도(5회)를 모두 사용했습니다."
+    }
+  },
+  "Deadlines": {
+    "pageTitle": "기한 관리",
+    "pageSubtitle": "프랑스 행정 기한을 추적하고 만료 전 이메일 알림을 받으세요.",
+    "form": {
+      "title": "제목",
+      "type": "기한 유형",
+      "date": "기한 날짜",
+      "description": "설명 (선택사항)",
+      "reminder": "알림 (며칠 전)",
+      "submit": "기한 추가",
+      "edit": "수정",
+      "delete": "삭제",
+      "save": "저장",
+      "cancel": "취소"
+    },
+    "deadlineTypes": {
+      "visa_renewal": "비자 갱신",
+      "caf_declaration": "CAF 신고",
+      "tax": "세금 신고",
+      "cpam": "CPAM",
+      "prefecture_rdv": "경시청 예약",
+      "other": "기타"
+    },
+    "status": {
+      "upcoming": "예정",
+      "overdue": "기한 초과",
+      "completed": "완료",
+      "daysLeft": "{count}일 남음",
+      "daysOverdue": "{count}일 초과",
+      "dueToday": "오늘 마감"
+    },
+    "empty": {
+      "noDeadlines": "아직 등록된 기한이 없습니다.",
+      "addFirst": "첫 기한을 추가하여 추적을 시작하세요."
+    },
+    "reminder": {
+      "reminderSent": "알림 발송됨"
+    },
+    "auth": {
+      "loginRequired": "기한을 관리하려면 로그인해 주세요."
+    },
+    "confirmDelete": "이 기한을 삭제하시겠습니까?"
+  },
+  "Dashboard": {
+    "tabs": {
+      "profile": "프로필",
+      "experiences": "내 경험",
+      "documents": "내 서류"
+    },
+    "myExperiences": {
+      "title": "내 경험",
+      "empty": "아직 공유한 경험이 없습니다.",
+      "edit": "수정",
+      "delete": "삭제",
+      "confirmDelete": "이 경험을 삭제하시겠습니까?"
+    },
+    "myDocuments": {
+      "title": "내 서류",
+      "empty": "아직 분석한 서류가 없습니다.",
+      "viewAnalysis": "분석 보기"
     }
   }
 }

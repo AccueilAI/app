@@ -33,3 +33,17 @@ export const chatDailyLimit = new Ratelimit({
   limiter: Ratelimit.fixedWindow(3, '1 d'),
   prefix: 'dl:chat',
 });
+
+// Document analysis: 5 per day per authenticated user
+export const documentAnalysisLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(5, '1 d'),
+  prefix: 'rl:doc-analysis',
+});
+
+// Deadline CRUD: 20 requests per 60 seconds
+export const deadlineRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(20, '60 s'),
+  prefix: 'rl:deadline',
+});

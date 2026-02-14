@@ -4,7 +4,7 @@ import { routing } from '@/i18n/routing';
 const BASE_URL = 'https://accueil.ai';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ['', '/chat'];
+  const pages = ['', '/chat', '/experiences', '/documents', '/deadlines'];
 
   return pages.flatMap((page) =>
     routing.locales.map((locale) => ({

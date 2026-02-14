@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { Globe, ChevronDown, Sparkles } from 'lucide-react';
+import { Globe, ChevronDown, Sparkles, Users, FileSearch, CalendarClock } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { UserMenu } from '@/components/auth/UserMenu';
@@ -76,6 +76,31 @@ export function Navbar() {
               <Sparkles className="h-4 w-4" />
               {t('chat')}
             </a>
+            <a
+              href={`/${locale}/experiences`}
+              className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
+            >
+              <Users className="h-4 w-4" />
+              {t('experiences')}
+            </a>
+            {user && (
+              <>
+                <a
+                  href={`/${locale}/documents`}
+                  className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
+                >
+                  <FileSearch className="h-4 w-4" />
+                  {t('documents')}
+                </a>
+                <a
+                  href={`/${locale}/deadlines`}
+                  className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
+                >
+                  <CalendarClock className="h-4 w-4" />
+                  {t('deadlines')}
+                </a>
+              </>
+            )}
             {navLinks.map((link) => (
               <a
                 key={link.href}
