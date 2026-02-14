@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase/client';
+import { feedbackRateLimit } from '@/lib/rate-limit';
+import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 
 interface FeedbackBody {
   messageId: string;
@@ -25,8 +27,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const { key, sessionId, isNewSession } = getRateLimitKey(request);
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+
+  const { success } = await feedbackRateLimit.limit(key);
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 },
+    );
+  }
 
   const ipHash = await hashIP(ip);
 
@@ -50,7 +61,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true });
+  if (isNewSession) {
+    response.headers.set('Set-Cookie', sessionCookieHeader(sessionId));
+  }
+  return response;
 }
 
 async function hashIP(ip: string): Promise<string> {

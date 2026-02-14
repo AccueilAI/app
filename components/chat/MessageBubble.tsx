@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { SourceCitations } from './SourceCitations';
 import { VerificationBadge } from './VerificationBadge';
@@ -10,9 +12,10 @@ interface MessageBubbleProps {
   message: ChatMessage;
   /** The user query that triggered this assistant response (for feedback logging) */
   userQuery?: string;
+  isStreaming?: boolean;
 }
 
-export function MessageBubble({ message, userQuery }: MessageBubbleProps) {
+export function MessageBubble({ message, userQuery, isStreaming }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
 
@@ -57,7 +60,21 @@ export function MessageBubble({ message, userQuery }: MessageBubbleProps) {
               : 'rounded-bl-md bg-[#EEF2F9] text-[#1A1A2E]'
           }`}
         >
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          {!isUser && isStreaming && !message.content ? (
+            <div className="flex items-center gap-1.5 py-1">
+              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:0ms]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:150ms]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:300ms]" />
+            </div>
+          ) : isUser ? (
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : (
+            <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1.5 prose-headings:text-[#1A1A2E] prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-a:text-[#2B4C8C] prose-a:underline prose-hr:my-3 prose-strong:text-[#1A1A2E]">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          )}
         </div>
         {!isUser && message.sources && message.sources.length > 0 && (
           <SourceCitations sources={message.sources} />

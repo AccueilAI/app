@@ -45,6 +45,7 @@ export function ChatInput({
           ref={textareaRef}
           rows={1}
           value={value}
+          maxLength={2000}
           onChange={(e) => {
             onChange(e.target.value);
             resize();

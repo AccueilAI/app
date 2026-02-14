@@ -39,10 +39,13 @@ export function Navbar() {
 
   const currentLocale = locales.find((l) => l.code === locale);
 
+  const isLanding = pathname === `/${locale}` || pathname === `/${locale}/`;
+  const anchor = (hash: string) => (isLanding ? hash : `/${locale}/${hash}`);
+
   const navLinks = [
-    { href: '#features', label: t('features') },
-    { href: '#pricing', label: t('pricing') },
-    { href: '#faq', label: t('faq') },
+    { href: anchor('#features'), label: t('features') },
+    { href: anchor('#pricing'), label: t('pricing') },
+    { href: anchor('#faq'), label: t('faq') },
   ];
 
   return (
@@ -123,7 +126,7 @@ export function Navbar() {
 
           {/* CTA */}
           <a
-            href="#waitlist"
+            href={anchor('#waitlist')}
             className="whitespace-nowrap rounded-lg bg-[#2B4C8C] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#1E3A6E] sm:px-5 sm:py-2.5 sm:text-sm"
           >
             {t('cta')}

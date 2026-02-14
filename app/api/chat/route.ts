@@ -6,6 +6,8 @@ import { buildSystemPrompt } from '@/lib/chat/system-prompt';
 import { getSupabase } from '@/lib/supabase/client';
 import { compactHistory, estimateTokens } from '@/lib/chat/token-manager';
 import { verifyResponse } from '@/lib/chat/hallucination-detector';
+import { chatRateLimit } from '@/lib/rate-limit';
+import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import type { ChatRequestBody, ChatSource } from '@/lib/chat/types';
 
 // --- OpenAI Singleton ---
@@ -15,25 +17,6 @@ function getOpenAI(): OpenAI {
   if (openaiClient) return openaiClient;
   openaiClient = new OpenAI();
   return openaiClient;
-}
-
-// --- Rate Limiting ---
-
-const RATE_LIMIT_WINDOW = 60 * 1000;
-const RATE_LIMIT_MAX = 10;
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
 }
 
 // --- SSE Helpers ---
@@ -47,11 +30,13 @@ function sseEvent(event: string, data: unknown): Uint8Array {
 // --- Route Handler ---
 
 export async function POST(request: NextRequest) {
-  // Rate limit by IP
+  // Session + rate limiting
+  const { key, sessionId, isNewSession } = getRateLimitKey(request);
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
 
-  if (isRateLimited(ip)) {
+  const { success } = await chatRateLimit.limit(key);
+  if (!success) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
       { status: 429 },
@@ -89,6 +74,30 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Input length limits
+  const MAX_MESSAGE_LENGTH = 2000;
+  const MAX_MESSAGES = 50;
+
+  if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
+    return NextResponse.json(
+      { error: `Message exceeds ${MAX_MESSAGE_LENGTH} character limit.` },
+      { status: 400 },
+    );
+  }
+
+  if (body.messages.length > MAX_MESSAGES) {
+    return NextResponse.json(
+      { error: `Conversation exceeds ${MAX_MESSAGES} message limit.` },
+      { status: 400 },
+    );
+  }
+
+  // Truncate older messages to limit total token cost
+  body.messages = body.messages.map((m) => ({
+    ...m,
+    content: m.content.slice(0, MAX_MESSAGE_LENGTH),
+  }));
+
   const language = body.language || 'en';
 
   // Create SSE stream
@@ -96,13 +105,16 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       try {
         // 1. Reformulate query with conversation context, then RAG search
+        console.log('[chat] Reformulating query...');
         const searchQuery = await reformulateQuery(
           body.messages.map((m) => ({ role: m.role, content: m.content })),
         );
+        console.log('[chat] Search query:', searchQuery);
         const searchResponse = await ragSearch(searchQuery, {
           language,
           count: 8,
         });
+        console.log('[chat] RAG results:', searchResponse.results.length);
 
         // 2. Send sources event
         const sources: ChatSource[] = searchResponse.results.map((r) => ({
@@ -134,20 +146,31 @@ export async function POST(request: NextRequest) {
 
         // 5. Stream response
         const openai = getOpenAI();
-        const responseStream = openai.responses.stream({
+        console.log('[chat] Starting OpenAI stream...');
+        console.log('[chat] Input messages:', conversationInput.length, 'System prompt tokens:', systemTokenEstimate);
+        const completionStream = await openai.chat.completions.create({
           model: 'gpt-5-nano',
-          instructions: systemPrompt,
-          input: conversationInput,
-          max_output_tokens: 2048,
+          messages: [
+            { role: 'system' as const, content: systemPrompt },
+            ...conversationInput,
+          ],
+          max_tokens: 2048,
+          stream: true,
         });
 
         let assistantResponse = '';
-        for await (const event of responseStream) {
-          if (event.type === 'response.output_text.delta') {
-            assistantResponse += event.delta;
-            controller.enqueue(sseEvent('token', { text: event.delta }));
+        let finishReason = '';
+        for await (const chunk of completionStream) {
+          const delta = chunk.choices[0]?.delta?.content;
+          if (delta) {
+            assistantResponse += delta;
+            controller.enqueue(sseEvent('token', { text: delta }));
+          }
+          if (chunk.choices[0]?.finish_reason) {
+            finishReason = chunk.choices[0].finish_reason;
           }
         }
+        console.log('[chat] Stream done. Response length:', assistantResponse.length, 'chars, finish_reason:', finishReason);
 
         // 6. Verify response against sources (hallucination detection)
         const sourcesTextForVerification = sources
@@ -171,7 +194,8 @@ export async function POST(request: NextRequest) {
           ip,
         }).catch((err) => console.error('Chat log error:', err));
       } catch (err) {
-        console.error('Chat stream error:', err);
+        console.error('[chat] Stream error:', err);
+        console.error('[chat] Error details:', (err as Error).message, (err as Error).stack);
         controller.enqueue(
           sseEvent('error', {
             message: 'An error occurred while generating a response.',
@@ -183,13 +207,16 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive',
-    },
-  });
+  const headers: HeadersInit = {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  };
+  if (isNewSession) {
+    headers['Set-Cookie'] = sessionCookieHeader(sessionId);
+  }
+
+  return new Response(stream, { headers });
 }
 
 // --- Conversation Logging ---

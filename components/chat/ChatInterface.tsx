@@ -19,12 +19,14 @@ export function ChatInterface() {
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, []);
 
+  // Scroll on new messages and during streaming content updates
+  const lastContent = messages[messages.length - 1]?.content;
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages.length, lastContent, scrollToBottom]);
 
   const handleSend = useCallback(
     async (text?: string) => {
@@ -78,6 +80,7 @@ export function ChatInterface() {
 
         const decoder = new TextDecoder();
         let buffer = '';
+        let eventType = '';
 
         while (true) {
           const { done, value } = await reader.read();
@@ -87,7 +90,6 @@ export function ChatInterface() {
           const lines = buffer.split('\n');
           buffer = lines.pop() ?? '';
 
-          let eventType = '';
           for (const line of lines) {
             if (line.startsWith('event: ')) {
               eventType = line.slice(7);
@@ -196,6 +198,7 @@ export function ChatInterface() {
                 <MessageBubble
                   key={msg.id}
                   message={msg}
+                  isStreaming={isStreaming && i === messages.length - 1}
                   userQuery={
                     msg.role === 'assistant'
                       ? messages

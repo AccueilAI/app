@@ -1,32 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase/client';
 import { getResend } from '@/lib/resend';
-
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX = 3;
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
+import { waitlistRateLimit } from '@/lib/rate-limit';
+import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'unknown';
+  const { key, sessionId, isNewSession } = getRateLimitKey(request);
 
-  if (isRateLimited(ip)) {
+  const { success } = await waitlistRateLimit.limit(key);
+  if (!success) {
     return NextResponse.json(
       { success: false, message: 'Too many requests. Please try again later.' },
       { status: 429 },
@@ -130,10 +114,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       position,
     });
+    if (isNewSession) {
+      response.headers.set('Set-Cookie', sessionCookieHeader(sessionId));
+    }
+    return response;
   } catch (err) {
     console.error('Waitlist API error:', err);
     return NextResponse.json(
