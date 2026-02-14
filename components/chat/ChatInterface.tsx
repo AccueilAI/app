@@ -165,7 +165,7 @@ export function ChatInterface() {
   const isEmpty = messages.length === 0;
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] flex-col bg-[#FAFAF8]">
+    <div className="flex h-dvh flex-col bg-[#FAFAF8] pt-16">
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl px-4 py-6">

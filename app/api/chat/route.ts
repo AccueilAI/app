@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
             { role: 'system' as const, content: systemPrompt },
             ...conversationInput,
           ],
-          max_tokens: 2048,
+          max_completion_tokens: 2048,
           stream: true,
         });
 

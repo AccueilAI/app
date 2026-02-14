@@ -4,6 +4,6 @@ let client: Resend | null = null;
 
 export function getResend(): Resend {
   if (client) return client;
-  client = new Resend(process.env.RESEND_API_KEY);
+  client = new Resend(process.env.RESEND_API_KEY?.trim());
   return client;
 }
