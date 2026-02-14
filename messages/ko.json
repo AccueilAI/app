@@ -203,6 +203,12 @@
     "partiallyVerified": "부분 검증",
     "unverified": "미검증 내용 포함",
     "flaggedClaims": "출처에서 확인되지 않은 내용:",
+    "dailyLimitTitle": "무료 질문 소진",
+    "dailyLimitMessage": "오늘의 무료 질문 3회를 모두 사용했습니다. 대기자 명단에 등록하면 출시 시 무제한 이용이 가능합니다.",
+    "dailyLimitCta": "대기자 명단 등록",
+    "dailyLimitSignIn": "이미 계정이 있으신가요? 로그인",
+    "dailyLimitInput": "오늘의 무료 이용 횟수가 끝났습니다. 대기자 명단에 등록해 주세요.",
+    "remaining": "{count, plural, other {오늘 무료 질문 #회 남음}}",
     "suggestedQuestions": {
       "0": "체류증 갱신은 어떻게 하나요?",
       "1": "CAF 신청에 필요한 서류는?",

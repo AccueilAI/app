@@ -203,6 +203,12 @@
     "partiallyVerified": "Partially verified",
     "unverified": "Unverified claims",
     "flaggedClaims": "Claims not found in sources:",
+    "dailyLimitTitle": "Free questions used up",
+    "dailyLimitMessage": "You've used your 3 free questions for today. Join the waitlist to get unlimited access when we launch.",
+    "dailyLimitCta": "Join the waitlist",
+    "dailyLimitSignIn": "Already have an account? Sign in",
+    "dailyLimitInput": "Daily free limit reached. Join the waitlist for unlimited access.",
+    "remaining": "{count, plural, one {# free question remaining today} other {# free questions remaining today}}",
     "suggestedQuestions": {
       "0": "How do I renew my titre de séjour?",
       "1": "What documents do I need for CAF?",

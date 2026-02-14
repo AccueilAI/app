@@ -26,3 +26,10 @@ export const waitlistRateLimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(3, '60 s'),
   prefix: 'rl:waitlist',
 });
+
+// Chat daily limit: 3 messages per day for unauthenticated users
+export const chatDailyLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(3, '1 d'),
+  prefix: 'dl:chat',
+});

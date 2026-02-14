@@ -203,6 +203,12 @@
     "partiallyVerified": "Partiellement vérifié",
     "unverified": "Affirmations non vérifiées",
     "flaggedClaims": "Affirmations non trouvées dans les sources :",
+    "dailyLimitTitle": "Questions gratuites épuisées",
+    "dailyLimitMessage": "Vous avez utilisé vos 3 questions gratuites aujourd'hui. Inscrivez-vous pour un accès illimité au lancement.",
+    "dailyLimitCta": "Rejoindre la liste d'attente",
+    "dailyLimitSignIn": "Déjà un compte ? Se connecter",
+    "dailyLimitInput": "Limite quotidienne atteinte. Rejoignez la liste d'attente pour un accès illimité.",
+    "remaining": "{count, plural, one {# question gratuite restante aujourd'hui} other {# questions gratuites restantes aujourd'hui}}",
     "suggestedQuestions": {
       "0": "Comment renouveler mon titre de séjour ?",
       "1": "Quels documents pour la CAF ?",

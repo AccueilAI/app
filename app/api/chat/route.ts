@@ -12,7 +12,7 @@ import {
   MAX_COMPLETION_TOKENS,
 } from '@/lib/chat/token-manager';
 import { verifyResponse } from '@/lib/chat/hallucination-detector';
-import { chatRateLimit } from '@/lib/rate-limit';
+import { chatRateLimit, chatDailyLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { ChatRequestBody, ChatSource } from '@/lib/chat/types';
@@ -106,6 +106,29 @@ export async function POST(request: NextRequest) {
   }));
 
   const language = body.language || 'en';
+
+  // Check authentication for daily limit
+  let userId: string | null = null;
+  let dailyRemaining: number | null = null;
+  try {
+    const authSupabase = await createClient();
+    const { data: { user: authUser } } = await authSupabase.auth.getUser();
+    userId = authUser?.id ?? null;
+  } catch {
+    // Auth check failed — treat as unauthenticated
+  }
+
+  // Daily limit for unauthenticated users (3 messages/day)
+  if (!userId) {
+    const { success: dailyOk, remaining } = await chatDailyLimit.limit(key);
+    dailyRemaining = remaining;
+    if (!dailyOk) {
+      return NextResponse.json(
+        { error: 'daily_limit', remaining: 0 },
+        { status: 429 },
+      );
+    }
+  }
 
   // Create SSE stream
   const stream = new ReadableStream({
@@ -201,20 +224,12 @@ export async function POST(request: NextRequest) {
         );
         controller.enqueue(sseEvent('verification', verification));
 
-        // 8. Done
-        controller.enqueue(sseEvent('done', {}));
+        // 8. Done — include remaining daily count for unauthenticated users
+        controller.enqueue(
+          sseEvent('done', dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
+        );
 
-        // 9. Get authenticated user (optional — chat works without auth)
-        let userId: string | null = null;
-        try {
-          const authSupabase = await createClient();
-          const { data: { user: authUser } } = await authSupabase.auth.getUser();
-          userId = authUser?.id ?? null;
-        } catch {
-          // Auth check failed — continue without user_id
-        }
-
-        // 10. Log conversation to Supabase (fire-and-forget)
+        // 9. Log conversation to Supabase (fire-and-forget)
         logConversation({
           userMessage: lastMessage.content.trim(),
           assistantMessage: assistantResponse,

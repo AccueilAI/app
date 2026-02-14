@@ -2,20 +2,64 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { LoginModal } from '@/components/auth/LoginModal';
 import type { ChatMessage } from '@/lib/chat/types';
+
+const STORAGE_KEY = 'accueil_chat_messages';
+const FREE_LIMIT = 3;
+
+function loadMessages(): ChatMessage[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(messages: ChatMessage[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+  } catch {
+    // storage full or unavailable
+  }
+}
 
 export function ChatInterface() {
   const t = useTranslations('Chat');
   const locale = useLocale();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dailyLimitReached, setDailyLimitReached] = useState(false);
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialized = useRef(false);
+
+  // Load messages from localStorage on mount
+  useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      const saved = loadMessages();
+      if (saved.length > 0) setMessages(saved);
+    }
+  }, []);
+
+  // Persist messages to localStorage on change
+  useEffect(() => {
+    if (initialized.current && messages.length > 0) {
+      saveMessages(messages);
+    }
+  }, [messages]);
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
@@ -31,7 +75,7 @@ export function ChatInterface() {
   const handleSend = useCallback(
     async (text?: string) => {
       const content = (text ?? input).trim();
-      if (!content || isStreaming) return;
+      if (!content || isStreaming || dailyLimitReached) return;
 
       setInput('');
       setError(null);
@@ -71,8 +115,20 @@ export function ChatInterface() {
         });
 
         if (!res.ok) {
-          const status = res.status;
-          throw new Error(status === 429 ? 'rate_limit' : 'request_failed');
+          if (res.status === 429) {
+            const body = await res.json().catch(() => ({}));
+            if (body.error === 'daily_limit') {
+              setDailyLimitReached(true);
+              setRemaining(0);
+              // remove the empty assistant message
+              setMessages((prev) =>
+                prev.filter((m) => m.id !== assistantId),
+              );
+              return;
+            }
+            throw new Error('rate_limit');
+          }
+          throw new Error('request_failed');
         }
 
         const reader = res.body?.getReader();
@@ -122,6 +178,13 @@ export function ChatInterface() {
                         : m,
                     ),
                   );
+                } else if (eventType === 'done') {
+                  if (parsed.remaining !== undefined) {
+                    setRemaining(parsed.remaining);
+                    if (parsed.remaining <= 0) {
+                      setDailyLimitReached(true);
+                    }
+                  }
                 } else if (eventType === 'error') {
                   setError(parsed.message ?? t('error'));
                 }
@@ -150,7 +213,7 @@ export function ChatInterface() {
         abortRef.current = null;
       }
     },
-    [input, isStreaming, messages, t],
+    [input, isStreaming, dailyLimitReached, messages, locale, t],
   );
 
   function handleStop() {
@@ -163,6 +226,7 @@ export function ChatInterface() {
   );
 
   const isEmpty = messages.length === 0;
+  const showLimitBanner = dailyLimitReached && !user;
 
   return (
     <div className="flex h-dvh flex-col bg-[#FAFAF8] pt-16">
@@ -210,6 +274,38 @@ export function ChatInterface() {
               ))}
             </div>
           )}
+
+          {/* Daily limit banner */}
+          {showLimitBanner && (
+            <div className="mx-auto mt-8 max-w-md rounded-2xl border border-[#E5E3DE] bg-white p-6 text-center shadow-sm">
+              <div className="mb-3 flex justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF2F9]">
+                  <Sparkles className="h-5 w-5 text-[#2B4C8C]" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-[#1A1A2E]">
+                {t('dailyLimitTitle')}
+              </h3>
+              <p className="mt-2 text-sm text-[#5C5C6F]">
+                {t('dailyLimitMessage')}
+              </p>
+              <div className="mt-5 flex flex-col gap-2.5">
+                <a
+                  href={`/${locale}#waitlist`}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+                >
+                  {t('dailyLimitCta')}
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+                <button
+                  onClick={() => setLoginOpen(true)}
+                  className="text-sm font-medium text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
+                >
+                  {t('dailyLimitSignIn')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -224,15 +320,29 @@ export function ChatInterface() {
               </button>
             </div>
           )}
-          <ChatInput
-            value={input}
-            onChange={setInput}
-            onSend={() => handleSend()}
-            onStop={handleStop}
-            isStreaming={isStreaming}
-          />
+          {/* Remaining counter */}
+          {!user && remaining !== null && remaining > 0 && !showLimitBanner && (
+            <p className="mb-2 text-center text-xs text-[#8E8E9A]">
+              {t('remaining', { count: remaining })}
+            </p>
+          )}
+          {showLimitBanner ? (
+            <div className="flex items-center justify-center rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] px-4 py-3 text-sm text-[#8E8E9A]">
+              {t('dailyLimitInput')}
+            </div>
+          ) : (
+            <ChatInput
+              value={input}
+              onChange={setInput}
+              onSend={() => handleSend()}
+              onStop={handleStop}
+              isStreaming={isStreaming}
+            />
+          )}
         </div>
       </div>
+
+      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </div>
   );
 }
