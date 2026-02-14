@@ -4,7 +4,30 @@
     "pricing": "Tarifs",
     "faq": "FAQ",
     "cta": "Rejoindre la liste",
-    "chat": "Poser une question"
+    "chat": "Poser une question",
+    "signIn": "Connexion"
+  },
+  "Auth": {
+    "signIn": "Connexion",
+    "signOut": "Déconnexion",
+    "signInWith": "Continuer avec {provider}",
+    "signInTitle": "Connexion à AccueilAI",
+    "signInSub": "Sauvegardez vos conversations et obtenez une aide personnalisée.",
+    "profile": "Profil",
+    "error": "L'authentification a échoué. Veuillez réessayer.",
+    "signingIn": "Connexion en cours...",
+    "profileTitle": "Votre profil",
+    "profileSub": "Personnalisez votre expérience pour de meilleures recommandations.",
+    "displayName": "Nom affiché",
+    "nationality": "Nationalité",
+    "visaType": "Type de visa",
+    "arrivalDate": "Date d'arrivée en France",
+    "prefecture": "Préfecture",
+    "preferredLanguage": "Langue préférée",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saved": "Modifications enregistrées !",
+    "loginRequired": "Veuillez vous connecter pour voir votre profil."
   },
   "Hero": {
     "headline": "L'administration vous épuise ?\nNous aussi. On va régler ça.",

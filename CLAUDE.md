@@ -90,7 +90,9 @@ When working with external APIs or tools, always check the official documentatio
 
 | Domain | Documentation URL | When to check |
 |--------|------------------|---------------|
-| **OpenAI API** | https://developers.openai.com/api/docs | Embeddings, Responses API, GPT-5.2, RAG, structured output, tool use |
+| **OpenAI API** | https://developers.openai.com/api/docs | Embeddings, Responses API, GPT-5.2, RAG, structured output, tool use — always use latest API patterns and models |
+| **Supabase** | https://supabase.com/docs | Auth, RLS policies, migrations, client setup, API keys — **mandatory** before any Supabase implementation or modification |
+| **Supabase API Keys** | https://supabase.com/docs/guides/api/api-keys | Use publishable keys (`sb_publishable_...`) not legacy anon JWT keys |
 | **Claude Code** | https://code.claude.com/docs | Claude Code features, hooks, MCP servers, settings, slash commands |
 | **Claude Code Teams** | https://code.claude.com/docs/en/agent-teams | TeamCreate, SendMessage, task delegation, multi-agent orchestration |
 

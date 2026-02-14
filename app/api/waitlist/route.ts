@@ -53,21 +53,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get current max position so the new entry continues the sequence
-    const { count: currentCount } = await supabase
+    // Insert into waitlist and get the assigned id as position
+    const { data: inserted, error: insertError } = await supabase
       .from('waitlist')
-      .select('*', { count: 'exact', head: true });
+      .insert({ email, language: body.language ?? null })
+      .select('id')
+      .single();
 
-    const position = (currentCount ?? 0) + 1;
-
-    // Insert into waitlist
-    const { error: insertError } = await supabase
-      .from('waitlist')
-      .insert({ email, language: body.language ?? null });
-
-    if (insertError) {
+    if (insertError || !inserted) {
       // Unique constraint violation — race condition with concurrent request
-      if (insertError.code === '23505') {
+      if (insertError?.code === '23505') {
         return NextResponse.json(
           { success: false, message: 'This email is already on the waitlist.' },
           { status: 409 },
@@ -79,6 +74,8 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       );
     }
+
+    const position = inserted.id;
 
     // Send welcome email (non-blocking — don't fail the request if email fails)
     if (process.env.RESEND_API_KEY) {

@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { PostHogProvider } from '@/components/PostHogProvider';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 import '../globals.css';
 
 const dmSans = DM_Sans({
@@ -111,7 +112,9 @@ export default async function LocaleLayout({ children, params }: Props) {
         className={`${dmSans.variable} ${dmSerif.variable} ${notoSansKr.variable} font-sans antialiased`}
       >
         <PostHogProvider>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <AuthProvider>
+            <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          </AuthProvider>
         </PostHogProvider>
       </body>
     </html>

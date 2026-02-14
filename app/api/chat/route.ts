@@ -4,10 +4,17 @@ import { ragSearch } from '@/lib/search/pipeline';
 import { reformulateQuery } from '@/lib/search/query-preprocessing';
 import { buildSystemPrompt } from '@/lib/chat/system-prompt';
 import { getSupabase } from '@/lib/supabase/client';
-import { compactHistory, estimateTokens } from '@/lib/chat/token-manager';
+import {
+  compactHistory,
+  estimateTokens,
+  trimRagContext,
+  MAX_INPUT_TOKENS,
+  MAX_COMPLETION_TOKENS,
+} from '@/lib/chat/token-manager';
 import { verifyResponse } from '@/lib/chat/hallucination-detector';
 import { chatRateLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
+import { createClient } from '@/lib/supabase/server';
 import type { ChatRequestBody, ChatSource } from '@/lib/chat/types';
 
 // --- OpenAI Singleton ---
@@ -116,8 +123,22 @@ export async function POST(request: NextRequest) {
         });
         console.log('[chat] RAG results:', searchResponse.results.length);
 
-        // 2. Send sources event
-        const sources: ChatSource[] = searchResponse.results.map((r) => ({
+        // 2. Trim RAG results to fit within token budget
+        // Reserve half the input budget for system prompt, rest for conversation
+        const maxSystemTokens = Math.floor(MAX_INPUT_TOKENS * 0.75);
+        const trimmedResults = trimRagContext(
+          searchResponse.results,
+          (items) => buildSystemPrompt(items, language),
+          maxSystemTokens,
+        );
+        if (trimmedResults.length < searchResponse.results.length) {
+          console.log(
+            `[chat] Trimmed RAG results: ${searchResponse.results.length} → ${trimmedResults.length} to fit token budget`,
+          );
+        }
+
+        // 3. Send sources event
+        const sources: ChatSource[] = trimmedResults.map((r) => ({
           content: r.content,
           source: r.source,
           doc_type: r.doc_type,
@@ -127,14 +148,12 @@ export async function POST(request: NextRequest) {
         }));
         controller.enqueue(sseEvent('sources', { sources }));
 
-        // 3. Build system prompt with RAG context
-        const systemPrompt = buildSystemPrompt(
-          searchResponse.results,
-          language,
-        );
+        // 4. Build system prompt with (possibly trimmed) RAG context
+        const systemPrompt = buildSystemPrompt(trimmedResults, language);
 
-        // 4. Compact conversation history if exceeding token budget
+        // 5. Compact conversation history if exceeding token budget
         const systemTokenEstimate = estimateTokens([], systemPrompt);
+        console.log('[chat] System prompt tokens:', systemTokenEstimate, 'RAG results:', trimmedResults.length);
         const compacted = await compactHistory(
           body.messages.map((m) => ({ role: m.role, content: m.content })),
           systemTokenEstimate,
@@ -144,17 +163,17 @@ export async function POST(request: NextRequest) {
           content: m.content,
         }));
 
-        // 5. Stream response
+        // 6. Stream response
         const openai = getOpenAI();
-        console.log('[chat] Starting OpenAI stream...');
-        console.log('[chat] Input messages:', conversationInput.length, 'System prompt tokens:', systemTokenEstimate);
+        const totalInputTokens = systemTokenEstimate + estimateTokens(conversationInput);
+        console.log('[chat] Starting OpenAI stream. System:', systemTokenEstimate, 'Conversation:', estimateTokens(conversationInput), 'Total input:', totalInputTokens, 'Max output:', MAX_COMPLETION_TOKENS);
         const completionStream = await openai.chat.completions.create({
           model: 'gpt-5-nano',
           messages: [
             { role: 'system' as const, content: systemPrompt },
             ...conversationInput,
           ],
-          max_completion_tokens: 2048,
+          max_completion_tokens: MAX_COMPLETION_TOKENS,
           stream: true,
         });
 
@@ -172,7 +191,7 @@ export async function POST(request: NextRequest) {
         }
         console.log('[chat] Stream done. Response length:', assistantResponse.length, 'chars, finish_reason:', finishReason);
 
-        // 6. Verify response against sources (hallucination detection)
+        // 7. Verify response against sources (hallucination detection)
         const sourcesTextForVerification = sources
           .map((s, i) => `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`)
           .join('\n\n');
@@ -182,16 +201,27 @@ export async function POST(request: NextRequest) {
         );
         controller.enqueue(sseEvent('verification', verification));
 
-        // 7. Done
+        // 8. Done
         controller.enqueue(sseEvent('done', {}));
 
-        // 8. Log conversation to Supabase (fire-and-forget)
+        // 9. Get authenticated user (optional — chat works without auth)
+        let userId: string | null = null;
+        try {
+          const authSupabase = await createClient();
+          const { data: { user: authUser } } = await authSupabase.auth.getUser();
+          userId = authUser?.id ?? null;
+        } catch {
+          // Auth check failed — continue without user_id
+        }
+
+        // 10. Log conversation to Supabase (fire-and-forget)
         logConversation({
           userMessage: lastMessage.content.trim(),
           assistantMessage: assistantResponse,
           language,
           sourceCount: sources.length,
           ip,
+          userId,
         }).catch((err) => console.error('Chat log error:', err));
       } catch (err) {
         console.error('[chat] Stream error:', err);
@@ -227,6 +257,7 @@ async function logConversation(params: {
   language: string;
   sourceCount: number;
   ip: string;
+  userId: string | null;
 }) {
   const supabase = getSupabase();
   await supabase.from('chat_logs').insert({
@@ -235,6 +266,7 @@ async function logConversation(params: {
     language: params.language,
     source_count: params.sourceCount,
     ip_hash: await hashIP(params.ip),
+    user_id: params.userId,
     created_at: new Date().toISOString(),
   });
 }

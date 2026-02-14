@@ -4,7 +4,30 @@
     "pricing": "Pricing",
     "faq": "FAQ",
     "cta": "Join Waitlist",
-    "chat": "Ask AI"
+    "chat": "Ask AI",
+    "signIn": "Sign In"
+  },
+  "Auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signInWith": "Continue with {provider}",
+    "signInTitle": "Sign in to AccueilAI",
+    "signInSub": "Save your conversations and get personalized help.",
+    "profile": "Profile",
+    "error": "Authentication failed. Please try again.",
+    "signingIn": "Signing in...",
+    "profileTitle": "Your Profile",
+    "profileSub": "Personalize your experience for better recommendations.",
+    "displayName": "Display Name",
+    "nationality": "Nationality",
+    "visaType": "Visa Type",
+    "arrivalDate": "Arrival Date in France",
+    "prefecture": "Prefecture",
+    "preferredLanguage": "Preferred Language",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Changes saved!",
+    "loginRequired": "Please sign in to view your profile."
   },
   "Hero": {
     "headline": "Tired of French paperwork?\nSame. So we built this.",

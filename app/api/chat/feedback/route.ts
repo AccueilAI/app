@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase/client';
 import { feedbackRateLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
+import { createClient } from '@/lib/supabase/server';
 
 interface FeedbackBody {
   messageId: string;
@@ -41,6 +42,16 @@ export async function POST(request: NextRequest) {
 
   const ipHash = await hashIP(ip);
 
+  // Optional: get authenticated user
+  let userId: string | null = null;
+  try {
+    const authSupabase = await createClient();
+    const { data: { user } } = await authSupabase.auth.getUser();
+    userId = user?.id ?? null;
+  } catch {
+    // Auth check failed — continue without user_id
+  }
+
   const supabase = getSupabase();
   const { error } = await supabase.from('chat_feedback').insert({
     message_id: body.messageId,
@@ -50,6 +61,7 @@ export async function POST(request: NextRequest) {
     source_count: body.sourceCount ?? null,
     language: body.language ?? null,
     ip_hash: ipHash,
+    user_id: userId,
     created_at: new Date().toISOString(),
   });
 

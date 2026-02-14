@@ -5,6 +5,11 @@ const ENCODING = encodingForModel('gpt-4o'); // o200k_base, same family as gpt-5
 const PER_MESSAGE_OVERHEAD = 4; // role markers, delimiters
 const REPLY_PRIMING = 2;
 
+// Model limits
+const MODEL_CONTEXT_LIMIT = 16_384;
+const MAX_COMPLETION_TOKENS = 2048;
+const MAX_INPUT_TOKENS = MODEL_CONTEXT_LIMIT - MAX_COMPLETION_TOKENS; // 14336
+
 /**
  * Estimate token count for a set of messages.
  * Uses local tiktoken for fast estimation without API calls.
@@ -26,7 +31,6 @@ export function estimateTokens(
 
 // --- Conversation Compaction ---
 
-const CONVERSATION_TOKEN_BUDGET = 12_000; // token budget for conversation history
 const KEEP_RECENT_TURNS = 4; // keep last 4 messages verbatim (2 user + 2 assistant)
 
 interface Message {
@@ -35,20 +39,18 @@ interface Message {
 }
 
 /**
- * Compact conversation history if it exceeds the token budget.
+ * Compact conversation history to fit within the model's input budget.
  *
  * Strategy: sliding window + LLM summarization
- * - If under budget: return messages as-is
+ * - Calculate available budget = MAX_INPUT_TOKENS - systemTokenEstimate
+ * - If conversation fits: return as-is
  * - If over budget: summarize older messages, keep recent turns verbatim
- *
- * Returns a compacted message array suitable for LLM input.
  */
 export async function compactHistory(
   messages: Message[],
   systemTokenEstimate: number,
 ): Promise<Message[]> {
-  // Budget = total budget minus system prompt tokens minus output buffer
-  const available = CONVERSATION_TOKEN_BUDGET - systemTokenEstimate;
+  const available = MAX_INPUT_TOKENS - systemTokenEstimate;
 
   const conversationTokens = estimateTokens(messages);
   if (conversationTokens <= available) {
@@ -80,6 +82,33 @@ export async function compactHistory(
     ...recentMessages,
   ];
 }
+
+/**
+ * Trim RAG context to fit within token budget.
+ * Progressively removes results until system prompt fits.
+ */
+export function trimRagContext<T extends { content: string }>(
+  results: T[],
+  buildPrompt: (items: T[]) => string,
+  maxSystemTokens: number,
+): T[] {
+  let items = [...results];
+
+  while (items.length > 0) {
+    const prompt = buildPrompt(items);
+    const tokens = estimateTokens([], prompt);
+    if (tokens <= maxSystemTokens) {
+      return items;
+    }
+    // Remove the last (lowest-ranked) result
+    items = items.slice(0, -1);
+  }
+
+  return items;
+}
+
+/** Maximum tokens the system prompt should use */
+export { MAX_INPUT_TOKENS, MAX_COMPLETION_TOKENS };
 
 // --- Summarization ---
 
