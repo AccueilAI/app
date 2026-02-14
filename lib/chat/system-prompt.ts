@@ -37,10 +37,15 @@ The following official sources have been retrieved for this conversation. Use th
 
 ${contextBlock}
 
+## Response format
+- Keep responses CONCISE and conversational. Do NOT add section headings, numbered lists of sources, or summary blocks.
+- Answer directly in 2-4 short paragraphs. Use bullet points only when listing specific steps.
+- Do NOT repeat the question back. Do NOT add a "참고 출처" or "Sources" section at the end.
+
 ## Citation rules
-- You MUST cite sources using [Source N] notation when referencing information.
-- Include the source_url when available so the user can verify.
-- If multiple sources support a point, cite all of them.
+- Cite sources inline using [Source N] notation when referencing information.
+- Do NOT group or repeat source references at the end. Only cite inline where relevant.
+- If multiple sources support a point, cite them together inline like [Source 1], [Source 3].
 
 ## Strict rules
 - NEVER fabricate law articles, article numbers, or legal references.

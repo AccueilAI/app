@@ -75,13 +75,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Get actual position by counting total rows
-    const { count } = await supabase
+    const { count, error: countError } = await supabase
       .from('waitlist')
       .select('*', { count: 'exact', head: true });
     const position = count ?? 1;
+    console.log('[waitlist] Count query result:', { count, countError, position });
 
     // Send welcome email (non-blocking — don't fail the request if email fails)
     const lang = (body.language ?? 'en') as 'en' | 'fr' | 'ko';
+    console.log('[waitlist] RESEND_API_KEY present:', !!process.env.RESEND_API_KEY);
     if (process.env.RESEND_API_KEY) {
       const subjects = {
         en: 'Welcome to the AccueilAI waitlist!',
@@ -90,6 +92,7 @@ export async function POST(request: NextRequest) {
       };
       try {
         const resend = getResend();
+        console.log('[waitlist] Sending email to:', email, 'lang:', lang, 'position:', position);
         resend.emails
           .send({
             from: 'AccueilAI <hello@accueil.ai>',
@@ -97,10 +100,13 @@ export async function POST(request: NextRequest) {
             subject: subjects[lang] ?? subjects.en,
             react: WaitlistWelcome({ position, language: lang }),
           })
-          .catch((err) => console.error('Resend email error:', err));
+          .then((result) => console.log('[waitlist] Resend result:', JSON.stringify(result)))
+          .catch((err) => console.error('[waitlist] Resend email error:', err));
       } catch (emailErr) {
-        console.error('Resend init error:', emailErr);
+        console.error('[waitlist] Resend init error:', emailErr);
       }
+    } else {
+      console.log('[waitlist] No RESEND_API_KEY — skipping email');
     }
 
     const response = NextResponse.json({

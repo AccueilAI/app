@@ -129,3 +129,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Outside @layer so it overrides Tailwind/shadcn preflight */
+button:not(:disabled),
+[role="button"],
+a,
+summary,
+select {
+  cursor: pointer;
+}

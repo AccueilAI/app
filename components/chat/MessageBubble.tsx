@@ -11,8 +11,23 @@ import type { ChatMessage, ChatSource } from '@/lib/chat/types';
 /**
  * Replace [Source N] references in markdown with clickable links.
  * If the source has a URL, creates a markdown link that opens in a new tab.
- * Also handles [Source N, Source M] comma-separated patterns.
+ * If not, creates a link to the source's origin (constructed from source name).
  */
+function getSourceUrl(src: ChatSource): string | null {
+  if (src.source_url) return src.source_url;
+  // Construct fallback URLs from source name
+  if (src.source?.startsWith('service-public')) {
+    return 'https://www.service-public.fr';
+  }
+  if (src.source?.startsWith('welcome-to-france')) {
+    return 'https://www.welcome-to-france.com';
+  }
+  if (src.doc_type === 'law_article' && src.article_number) {
+    return `https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(src.article_number)}`;
+  }
+  return null;
+}
+
 function linkifySources(text: string, sources?: ChatSource[]): string {
   if (!sources || sources.length === 0) return text;
   return text.replace(
@@ -20,23 +35,18 @@ function linkifySources(text: string, sources?: ChatSource[]): string {
     (match, startStr, endStr) => {
       const start = parseInt(startStr, 10);
       if (endStr) {
-        // Range: [Source 1-3]
         const end = parseInt(endStr, 10);
         const links: string[] = [];
         for (let i = start; i <= end; i++) {
           const src = sources[i - 1];
-          if (src?.source_url) {
-            links.push(`[Source ${i}](${src.source_url})`);
-          } else {
-            links.push(`Source ${i}`);
-          }
+          const url = src ? getSourceUrl(src) : null;
+          links.push(url ? `[Source ${i}](${url})` : `Source ${i}`);
         }
-        return `[${links.join(', ')}]`;
+        return links.join(', ');
       }
       const src = sources[start - 1];
-      if (src?.source_url) {
-        return `[Source ${start}](${src.source_url})`;
-      }
+      const url = src ? getSourceUrl(src) : null;
+      if (url) return `[Source ${start}](${url})`;
       return match;
     },
   );

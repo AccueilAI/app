@@ -148,6 +148,7 @@
     "privacy": "스팸은 보내지 않습니다. 언제든 수신 거부 가능.",
     "success": "등록 완료! 🎉",
     "successSub": "AccueilAI 출시 시 이메일로 알려드리겠습니다.",
+    "successPosition": "대기자 명단 {position}번째입니다. 출시 시 이메일로 알려드리겠습니다.",
     "alreadyRegistered": "이미 등록되어 있습니다! 👋",
     "alreadyRegisteredSub": "이메일이 저장되어 있습니다. 얼리 엑세스가 준비되면 바로 알려드리겠습니다."
   },

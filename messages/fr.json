@@ -148,6 +148,7 @@
     "privacy": "Pas de spam. Désabonnement à tout moment.",
     "success": "Vous êtes inscrit ! 🎉",
     "successSub": "Nous vous préviendrons par email au lancement d'AccueilAI.",
+    "successPosition": "Vous êtes #{position} sur la liste. Nous vous préviendrons au lancement.",
     "alreadyRegistered": "Vous êtes déjà inscrit ! 👋",
     "alreadyRegisteredSub": "Votre email est enregistré. Nous vous préviendrons dès que l'accès anticipé sera prêt."
   },
