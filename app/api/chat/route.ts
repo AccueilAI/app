@@ -197,6 +197,7 @@ export async function POST(request: NextRequest) {
             ...conversationInput,
           ],
           max_completion_tokens: MAX_COMPLETION_TOKENS,
+          reasoning_effort: 'low',
           stream: true,
         });
 

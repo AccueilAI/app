@@ -5,10 +5,11 @@ const ENCODING = encodingForModel('gpt-4o'); // o200k_base, same family as gpt-5
 const PER_MESSAGE_OVERHEAD = 4; // role markers, delimiters
 const REPLY_PRIMING = 2;
 
-// Model limits
-const MODEL_CONTEXT_LIMIT = 16_384;
-const MAX_COMPLETION_TOKENS = 2048;
-const MAX_INPUT_TOKENS = MODEL_CONTEXT_LIMIT - MAX_COMPLETION_TOKENS; // 14336
+// Model limits — gpt-5-nano: 400K context, 128K max output (reasoning model)
+// Reasoning tokens count against max_completion_tokens, so budget generously
+const MODEL_CONTEXT_LIMIT = 400_000;
+const MAX_COMPLETION_TOKENS = 16_384; // reasoning + visible output
+const MAX_INPUT_TOKENS = 30_000; // conservative input budget for cost efficiency
 
 /**
  * Estimate token count for a set of messages.
