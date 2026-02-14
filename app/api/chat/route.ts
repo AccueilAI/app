@@ -186,31 +186,32 @@ export async function POST(request: NextRequest) {
           content: m.content,
         }));
 
-        // 6. Stream response
+        // 6. Stream response (Responses API)
         const openai = getOpenAI();
         const totalInputTokens = systemTokenEstimate + estimateTokens(conversationInput);
         console.log('[chat] Starting OpenAI stream. System:', systemTokenEstimate, 'Conversation:', estimateTokens(conversationInput), 'Total input:', totalInputTokens, 'Max output:', MAX_COMPLETION_TOKENS);
-        const completionStream = await openai.chat.completions.create({
+        const completionStream = await openai.responses.create({
           model: 'gpt-5-nano',
-          messages: [
-            { role: 'system' as const, content: systemPrompt },
-            ...conversationInput,
-          ],
-          max_completion_tokens: MAX_COMPLETION_TOKENS,
-          reasoning_effort: 'low',
+          instructions: systemPrompt,
+          input: conversationInput,
+          max_output_tokens: MAX_COMPLETION_TOKENS,
+          reasoning: { effort: 'low' },
           stream: true,
         });
 
         let assistantResponse = '';
         let finishReason = '';
-        for await (const chunk of completionStream) {
-          const delta = chunk.choices[0]?.delta?.content;
-          if (delta) {
-            assistantResponse += delta;
-            controller.enqueue(sseEvent('token', { text: delta }));
-          }
-          if (chunk.choices[0]?.finish_reason) {
-            finishReason = chunk.choices[0].finish_reason;
+        for await (const event of completionStream) {
+          if (event.type === 'response.output_text.delta') {
+            assistantResponse += event.delta;
+            controller.enqueue(sseEvent('token', { text: event.delta }));
+          } else if (event.type === 'response.completed') {
+            finishReason = event.response?.status ?? 'completed';
+          } else if (
+            event.type === 'response.failed' ||
+            event.type === 'response.incomplete'
+          ) {
+            finishReason = 'error';
           }
         }
         console.log('[chat] Stream done. Response length:', assistantResponse.length, 'chars, finish_reason:', finishReason);

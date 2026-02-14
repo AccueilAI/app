@@ -6,7 +6,41 @@ import remarkGfm from 'remark-gfm';
 import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { SourceCitations } from './SourceCitations';
 import { VerificationBadge } from './VerificationBadge';
-import type { ChatMessage } from '@/lib/chat/types';
+import type { ChatMessage, ChatSource } from '@/lib/chat/types';
+
+/**
+ * Replace [Source N] references in markdown with clickable links.
+ * If the source has a URL, creates a markdown link that opens in a new tab.
+ * Also handles [Source N, Source M] comma-separated patterns.
+ */
+function linkifySources(text: string, sources?: ChatSource[]): string {
+  if (!sources || sources.length === 0) return text;
+  return text.replace(
+    /\[Source\s*(\d+)(?:\s*[-–]\s*(\d+))?\]/gi,
+    (match, startStr, endStr) => {
+      const start = parseInt(startStr, 10);
+      if (endStr) {
+        // Range: [Source 1-3]
+        const end = parseInt(endStr, 10);
+        const links: string[] = [];
+        for (let i = start; i <= end; i++) {
+          const src = sources[i - 1];
+          if (src?.source_url) {
+            links.push(`[Source ${i}](${src.source_url})`);
+          } else {
+            links.push(`Source ${i}`);
+          }
+        }
+        return `[${links.join(', ')}]`;
+      }
+      const src = sources[start - 1];
+      if (src?.source_url) {
+        return `[Source ${start}](${src.source_url})`;
+      }
+      return match;
+    },
+  );
+}
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -70,8 +104,23 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : (
             <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1.5 prose-headings:text-[#1A1A2E] prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-a:text-[#2B4C8C] prose-a:underline prose-hr:my-3 prose-strong:text-[#1A1A2E]">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children, ...props }) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="cursor-pointer text-[#2B4C8C] underline hover:text-[#1E3A6E]"
+                      {...props}
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {linkifySources(message.content, message.sources)}
               </ReactMarkdown>
             </div>
           )}
@@ -90,7 +139,7 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
                     ? 'bg-green-100 text-green-600'
                     : feedback
                       ? 'cursor-default text-[#D0D0D8]'
-                      : 'text-[#8A8A9A] hover:bg-[#EEF2F9] hover:text-[#2B4C8C]'
+                      : 'cursor-pointer text-[#8A8A9A] hover:bg-[#EEF2F9] hover:text-[#2B4C8C]'
                 }`}
                 aria-label="Helpful"
               >
@@ -104,7 +153,7 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
                     ? 'bg-red-100 text-red-600'
                     : feedback
                       ? 'cursor-default text-[#D0D0D8]'
-                      : 'text-[#8A8A9A] hover:bg-[#EEF2F9] hover:text-[#2B4C8C]'
+                      : 'cursor-pointer text-[#8A8A9A] hover:bg-[#EEF2F9] hover:text-[#2B4C8C]'
                 }`}
                 aria-label="Not helpful"
               >

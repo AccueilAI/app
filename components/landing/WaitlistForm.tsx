@@ -8,7 +8,7 @@ export function WaitlistForm() {
   const t = useTranslations('Waitlist');
   const locale = useLocale();
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'already' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [position, setPosition] = useState<number | null>(null);
 
@@ -29,6 +29,11 @@ export function WaitlistForm() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        if (data.error === 'already_registered') {
+          setStatus('already');
+          setEmail('');
+          return;
+        }
         throw new Error(data.message || 'Something went wrong');
       }
 
@@ -59,12 +64,14 @@ export function WaitlistForm() {
             {t('subhead')}
           </p>
 
-          {status === 'success' ? (
+          {status === 'success' || status === 'already' ? (
             <div className="mt-10 flex flex-col items-center gap-3 rounded-2xl bg-white/10 p-10">
               <CheckCircle2 className="h-10 w-10 text-emerald-400" />
-              <p className="text-lg font-semibold text-white">{t('success')}</p>
+              <p className="text-lg font-semibold text-white">
+                {status === 'already' ? t('alreadyRegistered') : t('success')}
+              </p>
               <p className="text-sm text-[#C0C8E0]">
-                {t('successSub')}
+                {status === 'already' ? t('alreadyRegisteredSub') : t('successSub')}
               </p>
             </div>
           ) : (
@@ -85,7 +92,7 @@ export function WaitlistForm() {
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="flex h-12 items-center justify-center gap-2 rounded-lg bg-[#ED2939] px-8 text-[15px] font-semibold text-white transition-colors hover:bg-[#D41F2F] disabled:opacity-60"
+                  className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#ED2939] px-8 text-[15px] font-semibold text-white transition-colors hover:bg-[#D41F2F] disabled:opacity-60"
                 >
                   {status === 'loading' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

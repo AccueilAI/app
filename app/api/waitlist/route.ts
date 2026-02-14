@@ -3,6 +3,7 @@ import { getSupabase } from '@/lib/supabase/client';
 import { getResend } from '@/lib/resend';
 import { waitlistRateLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
+import WaitlistWelcome from '@/emails/waitlist-welcome';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -48,23 +49,21 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(
-        { success: false, message: 'This email is already on the waitlist.' },
+        { success: false, error: 'already_registered' },
         { status: 409 },
       );
     }
 
-    // Insert into waitlist and get the assigned id as position
-    const { data: inserted, error: insertError } = await supabase
+    // Insert into waitlist
+    const { error: insertError } = await supabase
       .from('waitlist')
-      .insert({ email, language: body.language ?? null })
-      .select('id')
-      .single();
+      .insert({ email, language: body.language ?? null });
 
-    if (insertError || !inserted) {
+    if (insertError) {
       // Unique constraint violation — race condition with concurrent request
-      if (insertError?.code === '23505') {
+      if (insertError.code === '23505') {
         return NextResponse.json(
-          { success: false, message: 'This email is already on the waitlist.' },
+          { success: false, error: 'already_registered' },
           { status: 409 },
         );
       }
@@ -75,35 +74,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const position = inserted.id;
+    // Get actual position by counting total rows
+    const { count } = await supabase
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
+    const position = count ?? 1;
 
     // Send welcome email (non-blocking — don't fail the request if email fails)
+    const lang = (body.language ?? 'en') as 'en' | 'fr' | 'ko';
     if (process.env.RESEND_API_KEY) {
+      const subjects = {
+        en: 'Welcome to the AccueilAI waitlist!',
+        fr: "Bienvenue sur la liste d'attente AccueilAI !",
+        ko: 'AccueilAI 대기자 명단에 등록되었습니다!',
+      };
       try {
         const resend = getResend();
         resend.emails
           .send({
             from: 'AccueilAI <hello@accueil.ai>',
             to: email,
-            subject: 'Welcome to the AccueilAI waitlist!',
-            html: `
-              <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-                <h2 style="color: #171717;">You're on the list!</h2>
-                <p style="color: #525252; line-height: 1.6;">
-                  Thanks for joining the AccueilAI waitlist. You're <strong>#${position}</strong> in line.
-                </p>
-                <p style="color: #525252; line-height: 1.6;">
-                  We're building an AI-powered assistant to help expats navigate French bureaucracy
-                  — visas, CAF, taxes, healthcare — in your language.
-                </p>
-                <p style="color: #525252; line-height: 1.6;">
-                  We'll notify you as soon as early access is ready. Stay tuned!
-                </p>
-                <p style="color: #a3a3a3; font-size: 12px; margin-top: 32px;">
-                  AccueilAI · AI-powered admin assistant for expats in France
-                </p>
-              </div>
-            `,
+            subject: subjects[lang] ?? subjects.en,
+            react: WaitlistWelcome({ position, language: lang }),
           })
           .catch((err) => console.error('Resend email error:', err));
       } catch (emailErr) {

@@ -147,7 +147,9 @@
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
     "success": "You're in! 🎉",
-    "successSub": "We'll email you when AccueilAI launches."
+    "successSub": "We'll email you when AccueilAI launches.",
+    "alreadyRegistered": "You're already on the list! 👋",
+    "alreadyRegisteredSub": "We have your email saved. We'll notify you as soon as early access is ready."
   },
   "FAQ": {
     "headline": "Frequently asked questions",

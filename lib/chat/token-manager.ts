@@ -6,10 +6,12 @@ const PER_MESSAGE_OVERHEAD = 4; // role markers, delimiters
 const REPLY_PRIMING = 2;
 
 // Model limits — gpt-5-nano: 400K context, 128K max output (reasoning model)
-// Reasoning tokens count against max_completion_tokens, so budget generously
+// Reasoning tokens count against max_output_tokens, so budget generously
 const MODEL_CONTEXT_LIMIT = 400_000;
-const MAX_COMPLETION_TOKENS = 16_384; // reasoning + visible output
+const MAX_OUTPUT_TOKENS = 16_384; // reasoning + visible output
 const MAX_INPUT_TOKENS = 30_000; // conservative input budget for cost efficiency
+/** @deprecated alias — use MAX_OUTPUT_TOKENS */
+const MAX_COMPLETION_TOKENS = MAX_OUTPUT_TOKENS;
 
 /**
  * Estimate token count for a set of messages.

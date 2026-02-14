@@ -249,7 +249,7 @@ export function ChatInterface() {
                   <button
                     key={i}
                     onClick={() => handleSend(q)}
-                    className="rounded-full border border-[#D0D0D8] bg-white px-4 py-2 text-sm text-[#1A1A2E] transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9]"
+                    className="cursor-pointer rounded-full border border-[#D0D0D8] bg-white px-4 py-2 text-sm text-[#1A1A2E] transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9]"
                   >
                     {q}
                   </button>
@@ -292,14 +292,14 @@ export function ChatInterface() {
               <div className="mt-5 flex flex-col gap-2.5">
                 <a
                   href={`/${locale}#waitlist`}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
                 >
                   {t('dailyLimitCta')}
                   <ArrowRight className="h-4 w-4" />
                 </a>
                 <button
                   onClick={() => setLoginOpen(true)}
-                  className="text-sm font-medium text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
+                  className="cursor-pointer text-sm font-medium text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
                 >
                   {t('dailyLimitSignIn')}
                 </button>

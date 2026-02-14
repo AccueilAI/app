@@ -16,7 +16,7 @@ export function SourceCitations({ sources }: { sources: ChatSource[] }) {
     <div className="mt-2">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-xs font-medium text-[#5C5C6F] transition-colors hover:text-[#2B4C8C]"
+        className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-[#5C5C6F] transition-colors hover:text-[#2B4C8C]"
       >
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
@@ -52,7 +52,7 @@ export function SourceCitations({ sources }: { sources: ChatSource[] }) {
                         href={source.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="shrink-0 text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
+                        className="shrink-0 cursor-pointer text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>

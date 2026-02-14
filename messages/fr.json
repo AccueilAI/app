@@ -147,7 +147,9 @@
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",
     "success": "Vous êtes inscrit ! 🎉",
-    "successSub": "Nous vous préviendrons par email au lancement d'AccueilAI."
+    "successSub": "Nous vous préviendrons par email au lancement d'AccueilAI.",
+    "alreadyRegistered": "Vous êtes déjà inscrit ! 👋",
+    "alreadyRegisteredSub": "Votre email est enregistré. Nous vous préviendrons dès que l'accès anticipé sera prêt."
   },
   "FAQ": {
     "headline": "Questions fréquentes",
