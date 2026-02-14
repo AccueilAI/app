@@ -53,7 +53,7 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder={t('placeholder')}
           disabled={disabled}
-          className="flex-1 resize-none bg-transparent text-sm leading-6 text-[#1A1A2E] outline-none placeholder:text-[#8A8A9A] disabled:opacity-50"
+          className="flex-1 resize-none bg-transparent py-1 text-sm leading-6 text-[#1A1A2E] outline-none placeholder:text-[#8A8A9A] disabled:opacity-50"
         />
         {isStreaming ? (
           <button

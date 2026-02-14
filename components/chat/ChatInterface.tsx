@@ -7,14 +7,14 @@ import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
+import { createClient } from '@/lib/supabase/browser';
 import type { ChatMessage } from '@/lib/chat/types';
 
-const STORAGE_KEY = 'accueil_chat_messages';
-const FREE_LIMIT = 3;
+const ANON_STORAGE_KEY = 'accueil_chat_anon';
 
-function loadMessages(): ChatMessage[] {
+function loadAnonMessages(): ChatMessage[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(ANON_STORAGE_KEY);
     if (!raw) return [];
     return JSON.parse(raw);
   } catch {
@@ -22,11 +22,42 @@ function loadMessages(): ChatMessage[] {
   }
 }
 
-function saveMessages(messages: ChatMessage[]) {
+function saveAnonMessages(messages: ChatMessage[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    localStorage.setItem(ANON_STORAGE_KEY, JSON.stringify(messages));
   } catch {
     // storage full or unavailable
+  }
+}
+
+async function loadUserMessages(): Promise<ChatMessage[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('chat_logs')
+      .select('user_message, assistant_message, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error || !data || data.length === 0) return [];
+
+    // Reverse to chronological order, convert to ChatMessage pairs
+    return data.reverse().flatMap((row) => [
+      {
+        id: crypto.randomUUID(),
+        role: 'user' as const,
+        content: row.user_message,
+        timestamp: new Date(row.created_at).getTime(),
+      },
+      {
+        id: crypto.randomUUID(),
+        role: 'assistant' as const,
+        content: row.assistant_message,
+        timestamp: new Date(row.created_at).getTime(),
+      },
+    ]);
+  } catch {
+    return [];
   }
 }
 
@@ -45,21 +76,32 @@ export function ChatInterface() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
 
-  // Load messages from localStorage on mount
+  // Load messages when auth state changes
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      const saved = loadMessages();
-      if (saved.length > 0) setMessages(saved);
-    }
-  }, []);
+    setMessages([]);
+    setDailyLimitReached(false);
+    setRemaining(null);
+    setError(null);
 
-  // Persist messages to localStorage on change
-  useEffect(() => {
-    if (initialized.current && messages.length > 0) {
-      saveMessages(messages);
+    if (user) {
+      // Authenticated: load from DB
+      loadUserMessages().then((msgs) => {
+        setMessages(msgs);
+        initialized.current = true;
+      });
+    } else {
+      // Anonymous: load from localStorage
+      setMessages(loadAnonMessages());
+      initialized.current = true;
     }
-  }, [messages]);
+  }, [user?.id]);
+
+  // Persist to localStorage only for anonymous users
+  useEffect(() => {
+    if (initialized.current && !user && messages.length > 0) {
+      saveAnonMessages(messages);
+    }
+  }, [messages, user]);
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
