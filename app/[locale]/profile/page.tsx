@@ -8,6 +8,11 @@ import { LoginModal } from '@/components/auth/LoginModal';
 import { createClient } from '@/lib/supabase/browser';
 import { MyExperiences } from '@/components/dashboard/MyExperiences';
 import { MyDocuments } from '@/components/dashboard/MyDocuments';
+import {
+  SearchableCombobox,
+  type ComboboxOption,
+} from '@/components/ui/searchable-combobox';
+import { COUNTRIES } from '@/lib/data/countries';
 
 type TabId = 'profile' | 'experiences' | 'documents';
 
@@ -40,6 +45,9 @@ export default function ProfilePage() {
     prefecture: '',
     language: locale,
   });
+  const [prefectureOptions, setPrefectureOptions] = useState<ComboboxOption[]>(
+    [],
+  );
 
   useEffect(() => {
     if (profile) {
@@ -53,6 +61,14 @@ export default function ProfilePage() {
       });
     }
   }, [profile, locale]);
+
+  // Load prefecture options
+  useEffect(() => {
+    fetch('/api/prefectures')
+      .then((r) => r.json())
+      .then((data: ComboboxOption[]) => setPrefectureOptions(data))
+      .catch(() => {});
+  }, []);
 
   // Sync hash with active tab
   useEffect(() => {
@@ -174,23 +190,17 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="nationality"
-                  className="mb-1.5 block text-sm font-medium text-[#1A1A2E]"
-                >
+                <label className="mb-1.5 block text-sm font-medium text-[#1A1A2E]">
                   {t('nationality')}
                 </label>
-                <input
-                  id="nationality"
-                  type="text"
+                <SearchableCombobox
+                  options={COUNTRIES}
                   value={form.nationality}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      nationality: e.target.value,
-                    }))
+                  onChange={(val) =>
+                    setForm((prev) => ({ ...prev, nationality: val }))
                   }
-                  className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
+                  placeholder={t('nationality')}
+                  searchPlaceholder={t('searchNationality')}
                 />
               </div>
 
@@ -248,23 +258,17 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="prefecture"
-                  className="mb-1.5 block text-sm font-medium text-[#1A1A2E]"
-                >
+                <label className="mb-1.5 block text-sm font-medium text-[#1A1A2E]">
                   {t('prefecture')}
                 </label>
-                <input
-                  id="prefecture"
-                  type="text"
+                <SearchableCombobox
+                  options={prefectureOptions}
                   value={form.prefecture}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      prefecture: e.target.value,
-                    }))
+                  onChange={(val) =>
+                    setForm((prev) => ({ ...prev, prefecture: val }))
                   }
-                  className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
+                  placeholder={t('prefecture')}
+                  searchPlaceholder={t('searchPrefecture')}
                 />
               </div>
 

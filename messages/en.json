@@ -26,6 +26,8 @@
     "visaType": "Visa Type",
     "arrivalDate": "Arrival Date in France",
     "prefecture": "Prefecture",
+    "searchNationality": "Search country...",
+    "searchPrefecture": "Search prefecture...",
     "preferredLanguage": "Preferred Language",
     "save": "Save Changes",
     "saving": "Saving...",

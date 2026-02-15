@@ -26,6 +26,8 @@
     "visaType": "비자 유형",
     "arrivalDate": "프랑스 도착일",
     "prefecture": "관할 경시청",
+    "searchNationality": "국가 검색...",
+    "searchPrefecture": "경시청 검색...",
     "preferredLanguage": "선호 언어",
     "save": "저장",
     "saving": "저장 중...",
