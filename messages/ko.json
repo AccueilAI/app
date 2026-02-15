@@ -220,6 +220,78 @@
       "1": "CAF 신청에 필요한 서류는?",
       "2": "CPAM 등록 방법은?",
       "3": "프랑스 첫 세금 신고는 어떻게?"
+    },
+    "progress": {
+      "searching_rag": "지식 베이스 검색 중...",
+      "searching_web": "웹에서 최신 정보 검색 중...",
+      "looking_up": "세부 정보 조회 중...",
+      "generating": "답변 생성 중...",
+      "verifying": "출처 검증 중..."
+    },
+    "followUp": {
+      "title": "관련 질문"
+    },
+    "actions": {
+      "copy": "복사",
+      "copied": "복사됨!",
+      "regenerate": "다시 생성"
+    },
+    "sidebar": {
+      "newChat": "새 대화",
+      "conversations": "대화 목록",
+      "today": "오늘",
+      "thisWeek": "이번 주",
+      "older": "이전",
+      "deleteConfirm": "이 대화를 삭제하시겠습니까?",
+      "noConversations": "대화가 없습니다",
+      "searchPlaceholder": "대화 검색..."
+    },
+    "onboarding": {
+      "title": "무엇을 도와드릴까요?",
+      "categories": {
+        "visa": "비자 & 체류",
+        "housing": "주거 & CAF",
+        "health": "의료 & CPAM",
+        "tax": "세금",
+        "work": "취업 허가",
+        "other": "기타"
+      },
+      "examples": {
+        "visa": {
+          "0": "체류증 갱신은 어떻게 하나요?",
+          "1": "Talent Passport에 필요한 서류는?",
+          "2": "비자 갱신에 얼마나 걸리나요?"
+        },
+        "housing": {
+          "0": "CAF 주거 보조금 신청 방법은?",
+          "1": "APL이란 무엇이고 누가 받을 수 있나요?",
+          "2": "보증금 관련 필요 서류는?"
+        },
+        "health": {
+          "0": "CPAM 등록 방법은?",
+          "1": "carte vitale이란?",
+          "2": "mutuelle은 어떻게 작동하나요?"
+        },
+        "tax": {
+          "0": "프랑스 첫 세금 신고는 어떻게?",
+          "1": "프랑스 세금 거주자인가요?",
+          "2": "해외 소득 신고 방법은?"
+        },
+        "work": {
+          "0": "학생 비자로 일할 수 있나요?",
+          "1": "취업 허가는 어떻게 받나요?",
+          "2": "외국인 자영업은 가능한가요?"
+        },
+        "other": {
+          "0": "프랑스 은행 계좌 개설 방법은?",
+          "1": "프랑스 운전면허 취득 방법은?",
+          "2": "아이 학교 등록은 어떻게?"
+        }
+      }
+    },
+    "webSource": {
+      "title": "웹 출처",
+      "viewAll": "모든 출처 보기"
     }
   },
   "Experiences": {

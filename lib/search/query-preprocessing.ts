@@ -90,6 +90,7 @@ export async function translateToFrench(
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
     max_output_tokens: 256,
+    reasoning: { effort: 'low' },
     instructions:
       'You are a translator specializing in French administrative and legal terminology. ' +
       'Translate the user query to French. Output ONLY the French translation, nothing else. ' +
@@ -117,6 +118,7 @@ export async function reformulateQuery(
   // First user message — no context needed
   const priorMessages = messages.slice(0, -1);
   if (priorMessages.length === 0) {
+    console.log('[query] First message, no reformulation needed');
     return lastMessage.content;
   }
 
@@ -127,11 +129,13 @@ export async function reformulateQuery(
     .map((m) => `${m.role}: ${m.content.slice(0, 300)}`)
     .join('\n');
 
+  const t0 = Date.now();
   const openai = getOpenAI();
 
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
     max_output_tokens: 256,
+    reasoning: { effort: 'low' },
     instructions:
       'You are a query reformulation assistant for French administrative procedure search. ' +
       'Given a conversation history and the latest user message, rewrite the latest message ' +
@@ -143,7 +147,11 @@ export async function reformulateQuery(
     input: `CONVERSATION HISTORY:\n${historyBlock}\n\nLATEST USER MESSAGE:\n${lastMessage.content}\n\nREFORMULATED STANDALONE QUERY:`,
   });
 
-  return response.output_text?.trim() || lastMessage.content;
+  const result = response.output_text?.trim() || lastMessage.content;
+  console.log(
+    `[query] Reformulated in ${Date.now() - t0}ms (${priorMessages.length} prior msgs): "${result.slice(0, 100)}"`,
+  );
+  return result;
 }
 
 // --- Query Expansion ---
@@ -152,11 +160,13 @@ export async function reformulateQuery(
  * Generate 2-3 French administrative synonym expansions for a query.
  */
 export async function expandQuery(query: string): Promise<string[]> {
+  const t0 = Date.now();
   const openai = getOpenAI();
 
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
     max_output_tokens: 256,
+    reasoning: { effort: 'low' },
     instructions:
       'Given a French administrative query, provide 2-3 alternative phrasings using ' +
       'official French legal/administrative terminology. Return ONLY a JSON array of strings. ' +
@@ -169,15 +179,19 @@ export async function expandQuery(query: string): Promise<string[]> {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
+      console.log(`[query] Expanded in ${Date.now() - t0}ms: ${(parsed as string[]).length} terms`);
       return parsed as string[];
     }
   } catch {
     // If model returns malformed JSON, try to extract strings manually
     const matches = raw.match(/"([^"]+)"/g);
     if (matches) {
-      return matches.map((m) => m.replace(/"/g, '')).slice(0, 3);
+      const extracted = matches.map((m) => m.replace(/"/g, '')).slice(0, 3);
+      console.log(`[query] Expanded (fallback) in ${Date.now() - t0}ms: ${extracted.length} terms`);
+      return extracted;
     }
   }
 
+  console.log(`[query] Expand failed in ${Date.now() - t0}ms: raw="${raw.slice(0, 80)}"`);
   return [];
 }

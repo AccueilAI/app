@@ -36,7 +36,9 @@ export async function verifyResponse(
   response: string,
   sourcesText: string,
 ): Promise<VerificationResult> {
+  const t0 = Date.now();
   if (!response.trim()) {
+    console.log('[verify] Skipped: empty response');
     return { status: 'verified', confidence: 1, flaggedClaims: [] };
   }
 
@@ -44,7 +46,7 @@ export async function verifyResponse(
 
   try {
     const result = await openai.responses.create({
-      model: 'gpt-5-nano',
+      model: 'gpt-5-mini',
       max_output_tokens: 512,
       instructions: `You are a fact-checker for French administrative procedure information.
 Compare the RESPONSE against the SOURCE DOCUMENTS and identify factual claims in the response that are NOT supported by the sources.
@@ -104,9 +106,12 @@ Be conservative — only flag claims you are confident are NOT in the sources.`,
           ? 'error'
           : 'warning';
 
+    console.log(
+      `[verify] ${status} in ${Date.now() - t0}ms | confidence=${confidence.toFixed(2)} | flagged=${flaggedClaims.length}${flaggedClaims.length > 0 ? ` [${flaggedClaims.map((c) => c.severity).join(',')}]` : ''}`,
+    );
     return { status, confidence, flaggedClaims };
   } catch (err) {
-    console.error('Hallucination detection error:', err);
+    console.error(`[verify] Error in ${Date.now() - t0}ms:`, (err as Error).message);
     // Don't block the user experience on verification failure
     return { status: 'verified', confidence: 0, flaggedClaims: [] };
   }

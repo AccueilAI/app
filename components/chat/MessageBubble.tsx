@@ -6,6 +6,10 @@ import remarkGfm from 'remark-gfm';
 import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { SourceCitations } from './SourceCitations';
 import { VerificationBadge } from './VerificationBadge';
+import { StreamProgress } from './StreamProgress';
+import { MessageActions } from './MessageActions';
+import { FollowUpChips } from './FollowUpChips';
+import { WebSourceCards } from './WebSourceCards';
 import type { ChatMessage, ChatSource } from '@/lib/chat/types';
 
 /**
@@ -57,9 +61,12 @@ interface MessageBubbleProps {
   /** The user query that triggered this assistant response (for feedback logging) */
   userQuery?: string;
   isStreaming?: boolean;
+  isLast?: boolean;
+  onRegenerate?: () => void;
+  onSend?: (text: string) => void;
 }
 
-export function MessageBubble({ message, userQuery, isStreaming }: MessageBubbleProps) {
+export function MessageBubble({ message, userQuery, isStreaming, isLast, onRegenerate, onSend }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
 
@@ -105,15 +112,23 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
           }`}
         >
           {!isUser && isStreaming && !message.content ? (
-            <div className="flex items-center gap-1.5 py-1">
-              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:0ms]" />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:150ms]" />
-              <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:300ms]" />
-            </div>
+            message.progress ? (
+              <StreamProgress stage={message.progress} />
+            ) : (
+              <div className="flex items-center gap-1.5 py-1">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:0ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:150ms]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-[#8A8A9A] [animation-delay:300ms]" />
+              </div>
+            )
           ) : isUser ? (
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : (
-            <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1.5 prose-headings:text-[#1A1A2E] prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-a:text-[#2B4C8C] prose-a:underline prose-hr:my-3 prose-strong:text-[#1A1A2E]">
+            <>
+              {message.webSources && message.webSources.length > 0 && (
+                <WebSourceCards sources={message.webSources} />
+              )}
+              <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1.5 prose-headings:text-[#1A1A2E] prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-a:text-[#2B4C8C] prose-a:underline prose-hr:my-3 prose-strong:text-[#1A1A2E]">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -132,7 +147,8 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
               >
                 {linkifySources(message.content, message.sources)}
               </ReactMarkdown>
-            </div>
+              </div>
+            </>
           )}
         </div>
         {!isUser && message.sources && message.sources.length > 0 && (
@@ -141,6 +157,9 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
         {!isUser && message.content && (
           <div className="mt-1.5 flex items-center gap-2">
             <div className="flex gap-1">
+              {onRegenerate && (
+                <MessageActions content={message.content} onRegenerate={onRegenerate} />
+              )}
               <button
                 onClick={() => handleFeedback('up')}
                 disabled={!!feedback}
@@ -174,6 +193,9 @@ export function MessageBubble({ message, userQuery, isStreaming }: MessageBubble
               <VerificationBadge verification={message.verification} />
             )}
           </div>
+        )}
+        {!isUser && isLast && !isStreaming && message.followUps && message.followUps.length > 0 && onSend && (
+          <FollowUpChips questions={message.followUps} onSend={onSend} />
         )}
       </div>
     </div>

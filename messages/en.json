@@ -220,6 +220,78 @@
       "1": "What documents do I need for CAF?",
       "2": "How to register with CPAM?",
       "3": "First tax declaration in France?"
+    },
+    "progress": {
+      "searching_rag": "Searching knowledge base...",
+      "searching_web": "Searching web for latest info...",
+      "looking_up": "Looking up details...",
+      "generating": "Generating answer...",
+      "verifying": "Verifying sources..."
+    },
+    "followUp": {
+      "title": "Related questions"
+    },
+    "actions": {
+      "copy": "Copy",
+      "copied": "Copied!",
+      "regenerate": "Regenerate"
+    },
+    "sidebar": {
+      "newChat": "New chat",
+      "conversations": "Conversations",
+      "today": "Today",
+      "thisWeek": "This week",
+      "older": "Older",
+      "deleteConfirm": "Delete this conversation?",
+      "noConversations": "No conversations yet",
+      "searchPlaceholder": "Search conversations..."
+    },
+    "onboarding": {
+      "title": "What can I help with?",
+      "categories": {
+        "visa": "Visa & Residence",
+        "housing": "Housing & CAF",
+        "health": "Healthcare & CPAM",
+        "tax": "Taxes",
+        "work": "Work Permits",
+        "other": "Other"
+      },
+      "examples": {
+        "visa": {
+          "0": "How do I renew my titre de séjour?",
+          "1": "What documents for a Talent Passport?",
+          "2": "How long does visa renewal take?"
+        },
+        "housing": {
+          "0": "How to apply for CAF housing aid?",
+          "1": "What is APL and who qualifies?",
+          "2": "Documents needed for rental deposit?"
+        },
+        "health": {
+          "0": "How to register with CPAM?",
+          "1": "What is the carte vitale?",
+          "2": "How does mutuelle work?"
+        },
+        "tax": {
+          "0": "First tax declaration in France?",
+          "1": "Am I tax resident in France?",
+          "2": "How to declare foreign income?"
+        },
+        "work": {
+          "0": "Can I work while on a student visa?",
+          "1": "How to get an autorisation de travail?",
+          "2": "Self-employment as a foreigner?"
+        },
+        "other": {
+          "0": "How to open a French bank account?",
+          "1": "Getting a French driving license?",
+          "2": "Registering a child in school?"
+        }
+      }
+    },
+    "webSource": {
+      "title": "Web sources",
+      "viewAll": "View all sources"
     }
   },
   "Experiences": {

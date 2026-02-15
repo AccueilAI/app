@@ -12,11 +12,18 @@ import {
   MAX_COMPLETION_TOKENS,
 } from '@/lib/chat/token-manager';
 import { verifyResponse } from '@/lib/chat/hallucination-detector';
-import { detectProcedureTypes, searchExperiences, formatExperiencesForPrompt } from '@/lib/experiences/search';
+import {
+  detectProcedureTypes,
+  searchExperiences,
+  formatExperiencesForPrompt,
+} from '@/lib/experiences/search';
 import { chatRateLimit, chatDailyLimit } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import type { ChatRequestBody, ChatSource } from '@/lib/chat/types';
+import { getFunctionTools, executeTool } from '@/lib/chat/tools';
+import { extractWebSources } from '@/lib/chat/web-sources';
+import { generateFollowUps } from '@/lib/chat/follow-ups';
+import type { ChatRequestBody, ChatSource, ProgressStage } from '@/lib/chat/types';
 
 // --- OpenAI Singleton ---
 
@@ -34,6 +41,14 @@ const encoder = new TextEncoder();
 function sseEvent(event: string, data: unknown): Uint8Array {
   return encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 }
+
+function sseProgress(stage: ProgressStage): Uint8Array {
+  return sseEvent('progress', { stage });
+}
+
+// --- Constants ---
+
+const MAX_TOOL_ROUNDS = 3;
 
 // --- Route Handler ---
 
@@ -107,13 +122,16 @@ export async function POST(request: NextRequest) {
   }));
 
   const language = body.language || 'en';
+  const conversationId = body.conversationId ?? null;
 
   // Check authentication for daily limit
   let userId: string | null = null;
   let dailyRemaining: number | null = null;
   try {
     const authSupabase = await createClient();
-    const { data: { user: authUser } } = await authSupabase.auth.getUser();
+    const {
+      data: { user: authUser },
+    } = await authSupabase.auth.getUser();
     userId = authUser?.id ?? null;
   } catch {
     // Auth check failed — treat as unauthenticated
@@ -134,32 +152,45 @@ export async function POST(request: NextRequest) {
   // Create SSE stream
   const stream = new ReadableStream({
     async start(controller) {
+      const t0 = Date.now();
+      const timings: Record<string, number> = {};
+      const mark = (label: string) => { timings[label] = Date.now() - t0; };
+
       try {
-        // 1. Reformulate query with conversation context, then RAG search
-        console.log('[chat] Reformulating query...');
+        console.log(
+          `[chat] === START === user=${userId ?? 'anon'} lang=${language} msgs=${body.messages.length} convId=${conversationId ?? 'new'}`,
+        );
+        console.log(
+          `[chat] Query: "${lastMessage.content.slice(0, 120)}"`,
+        );
+
+        // 1. RAG Search
+        controller.enqueue(sseProgress('searching_rag'));
         const searchQuery = await reformulateQuery(
           body.messages.map((m) => ({ role: m.role, content: m.content })),
         );
-        console.log('[chat] Search query:', searchQuery);
+        mark('reformulate');
+        console.log('[chat] Reformulated query:', searchQuery);
         const searchResponse = await ragSearch(searchQuery, {
           language,
           count: 8,
         });
-        console.log('[chat] RAG results:', searchResponse.results.length);
+        mark('rag_search');
+        console.log(
+          `[chat] RAG: ${searchResponse.results.length} results, lang=${searchResponse.query_info.detected_language}, french="${searchResponse.query_info.french_query.slice(0, 80)}"`,
+        );
 
         // 2. Trim RAG results to fit within token budget
-        // Reserve half the input budget for system prompt, rest for conversation
         const maxSystemTokens = Math.floor(MAX_INPUT_TOKENS * 0.75);
         const trimmedResults = trimRagContext(
           searchResponse.results,
           (items) => buildSystemPrompt(items, language, ''),
           maxSystemTokens,
         );
-        if (trimmedResults.length < searchResponse.results.length) {
-          console.log(
-            `[chat] Trimmed RAG results: ${searchResponse.results.length} → ${trimmedResults.length} to fit token budget`,
-          );
-        }
+        mark('rag_trim');
+        console.log(
+          `[chat] RAG trim: ${searchResponse.results.length} → ${trimmedResults.length} results (budget=${maxSystemTokens} tokens)`,
+        );
 
         // 3. Send sources event
         const sources: ChatSource[] = trimmedResults.map((r) => ({
@@ -177,73 +208,335 @@ export async function POST(request: NextRequest) {
         const detectedTypes = detectProcedureTypes(searchQuery);
         if (detectedTypes.length > 0) {
           const experiences = await searchExperiences(detectedTypes, 5);
+          mark('experiences');
           if (experiences.length > 0) {
             experienceContext = formatExperiencesForPrompt(experiences);
-            console.log('[chat] Experience context:', experiences.length, 'experiences for types:', detectedTypes);
+            console.log(
+              `[chat] Experiences: ${experiences.length} found for types=[${detectedTypes.join(', ')}]`,
+            );
+          } else {
+            console.log(
+              `[chat] Experiences: 0 found for types=[${detectedTypes.join(', ')}]`,
+            );
           }
+        } else {
+          console.log('[chat] Experiences: no procedure types detected, skipped');
         }
 
-        // 4. Build system prompt with (possibly trimmed) RAG context + experiences
-        const systemPrompt = buildSystemPrompt(trimmedResults, language, experienceContext);
+        // 3.6. Get user profile for personalization
+        let profileContext: string | undefined;
+        if (userId) {
+          try {
+            const supabase = getSupabase();
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select(
+                'nationality, visa_type, arrival_date, prefecture, language',
+              )
+              .eq('id', userId)
+              .single();
+            if (profile) {
+              const parts: string[] = [];
+              if (profile.nationality)
+                parts.push(`Nationality: ${profile.nationality}`);
+              if (profile.visa_type)
+                parts.push(`Visa type: ${profile.visa_type}`);
+              if (profile.arrival_date)
+                parts.push(`Arrival date: ${profile.arrival_date}`);
+              if (profile.prefecture)
+                parts.push(`Prefecture: ${profile.prefecture}`);
+              if (parts.length > 0) profileContext = parts.join(', ');
+            }
+            mark('profile');
+            console.log(
+              `[chat] Profile: ${profileContext ? profileContext : 'no profile data'}`,
+            );
+          } catch (err) {
+            mark('profile');
+            console.log(`[chat] Profile: lookup failed — ${(err as Error).message}`);
+          }
+        } else {
+          console.log('[chat] Profile: anonymous user, skipped');
+        }
+
+        // 4. Build system prompt with RAG context + experiences + profile
+        const systemPrompt = buildSystemPrompt(
+          trimmedResults,
+          language,
+          experienceContext,
+          profileContext,
+        );
 
         // 5. Compact conversation history if exceeding token budget
+        mark('system_prompt');
         const systemTokenEstimate = estimateTokens([], systemPrompt);
-        console.log('[chat] System prompt tokens:', systemTokenEstimate, 'RAG results:', trimmedResults.length);
+        console.log(
+          `[chat] System prompt: ~${systemTokenEstimate} tokens (RAG=${trimmedResults.length}, exp=${experienceContext ? 'yes' : 'no'}, profile=${profileContext ? 'yes' : 'no'})`,
+        );
+        const originalMsgCount = body.messages.length;
         const compacted = await compactHistory(
           body.messages.map((m) => ({ role: m.role, content: m.content })),
           systemTokenEstimate,
         );
-        const conversationInput = compacted.map((m) => ({
+        mark('compaction');
+        const conversationInput: Array<{
+          role: 'user' | 'assistant';
+          content: string;
+        }> = compacted.map((m) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content,
         }));
+        const wasCompacted = compacted.length !== originalMsgCount;
+        console.log(
+          `[chat] History: ${originalMsgCount} msgs → ${compacted.length} msgs${wasCompacted ? ' (compacted)' : ''}, ~${estimateTokens(conversationInput)} tokens`,
+        );
 
-        // 6. Stream response (Responses API)
+        // 6. Agentic loop with tools
+        controller.enqueue(sseProgress('generating'));
         const openai = getOpenAI();
-        const totalInputTokens = systemTokenEstimate + estimateTokens(conversationInput);
-        console.log('[chat] Starting OpenAI stream. System:', systemTokenEstimate, 'Conversation:', estimateTokens(conversationInput), 'Total input:', totalInputTokens, 'Max output:', MAX_COMPLETION_TOKENS);
-        const completionStream = await openai.responses.create({
-          model: 'gpt-5-nano',
-          instructions: systemPrompt,
-          input: conversationInput,
-          max_output_tokens: MAX_COMPLETION_TOKENS,
-          reasoning: { effort: 'low' },
-          stream: true,
-        });
+
+        const tools = [
+          {
+            type: 'web_search' as const,
+            filters: {
+              allowed_domains: [
+                'service-public.fr',
+                'legifrance.gouv.fr',
+                'france-visas.gouv.fr',
+                'welcome-to-france.com',
+                'prefectures-regions.gouv.fr',
+              ],
+            },
+            user_location: {
+              type: 'approximate' as const,
+              country: 'FR',
+            },
+          },
+          ...getFunctionTools(),
+        ];
+
+        // Build initial input for the Responses API
+        let input: OpenAI.Responses.ResponseInputItem[] = conversationInput.map(
+          (m) => ({
+            type: 'message' as const,
+            role: m.role,
+            content: m.content,
+          }),
+        );
 
         let assistantResponse = '';
-        let finishReason = '';
-        for await (const event of completionStream) {
-          if (event.type === 'response.output_text.delta') {
-            assistantResponse += event.delta;
-            controller.enqueue(sseEvent('token', { text: event.delta }));
-          } else if (event.type === 'response.completed') {
-            finishReason = event.response?.status ?? 'completed';
-          } else if (
-            event.type === 'response.failed' ||
-            event.type === 'response.incomplete'
-          ) {
-            finishReason = 'error';
+        let allWebSources: Array<{
+          url: string;
+          title: string;
+          snippet: string;
+          domain: string;
+        }> = [];
+
+        for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+          const totalInputTokens =
+            systemTokenEstimate + estimateTokens(conversationInput);
+          console.log(
+            `[chat] Round ${round + 1}/${MAX_TOOL_ROUNDS}. Input tokens: ~${totalInputTokens}`,
+          );
+
+          const stream = await openai.responses.create({
+            model: 'gpt-5-mini',
+            instructions: systemPrompt,
+            input,
+            tools,
+            max_output_tokens: MAX_COMPLETION_TOKENS,
+            reasoning: { effort: 'medium' },
+            stream: true,
+          });
+
+          // Collect output items for potential tool call follow-up
+          const outputItems: OpenAI.Responses.ResponseOutputItem[] = [];
+          let completedResponse:
+            | OpenAI.Responses.Response
+            | undefined;
+          const functionCalls: Array<{
+            callId: string;
+            name: string;
+            args: string;
+          }> = [];
+
+          for await (const event of stream) {
+            if (event.type === 'response.output_text.delta') {
+              assistantResponse += event.delta;
+              controller.enqueue(sseEvent('token', { text: event.delta }));
+            } else if (
+              event.type ===
+              'response.web_search_call.in_progress'
+            ) {
+              controller.enqueue(sseProgress('searching_web'));
+            } else if (event.type === 'response.output_item.done') {
+              outputItems.push(event.item);
+              // Track function calls
+              if (
+                event.item.type === 'function_call' &&
+                event.item.name &&
+                event.item.call_id
+              ) {
+                functionCalls.push({
+                  callId: event.item.call_id,
+                  name: event.item.name,
+                  args: event.item.arguments ?? '{}',
+                });
+              }
+            } else if (event.type === 'response.completed') {
+              completedResponse = event.response;
+            }
+          }
+
+          // Extract web sources from completed response annotations
+          if (completedResponse) {
+            const webSources = extractWebSources(
+              completedResponse as Parameters<typeof extractWebSources>[0],
+            );
+            if (webSources.length > 0) {
+              allWebSources = [
+                ...allWebSources,
+                ...webSources,
+              ];
+              console.log(`[chat] Round ${round + 1}: ${webSources.length} web sources extracted`);
+            }
+          }
+
+          // If no function calls, we're done
+          if (functionCalls.length === 0) {
+            console.log(`[chat] Round ${round + 1}: complete (no tool calls)`);
+            break;
+          }
+
+          // Execute function calls and feed results back
+          console.log(
+            `[chat] Round ${round + 1}: ${functionCalls.length} tool call(s) — [${functionCalls.map((fc) => fc.name).join(', ')}]`,
+          );
+          controller.enqueue(sseProgress('looking_up'));
+          input = [
+            ...input,
+            ...outputItems.map(
+              (item) =>
+                item as unknown as OpenAI.Responses.ResponseInputItem,
+            ),
+          ];
+
+          for (const fc of functionCalls) {
+            controller.enqueue(
+              sseEvent('tool_call', { name: fc.name, status: 'start' }),
+            );
+            let args: Record<string, unknown> = {};
+            try {
+              args = JSON.parse(fc.args);
+            } catch {
+              /* empty args */
+            }
+            console.log(`[chat] Tool ${fc.name}: args=${JSON.stringify(args).slice(0, 200)}`);
+            const result = await executeTool(fc.name, args, userId);
+            const resultStr = JSON.stringify(result);
+            console.log(`[chat] Tool ${fc.name}: result=${resultStr.slice(0, 200)}${resultStr.length > 200 ? '...' : ''}`);
+            controller.enqueue(
+              sseEvent('tool_call', { name: fc.name, status: 'complete' }),
+            );
+            input.push({
+              type: 'function_call_output',
+              call_id: fc.callId,
+              output: resultStr,
+            });
           }
         }
-        console.log('[chat] Stream done. Response length:', assistantResponse.length, 'chars, finish_reason:', finishReason);
+        mark('agentic_loop');
+
+        // Send web sources if any were found
+        if (allWebSources.length > 0) {
+          // Deduplicate
+          const uniqueWebSources = [
+            ...new Map(allWebSources.map((s) => [s.url, s])).values(),
+          ];
+          controller.enqueue(
+            sseEvent('web_sources', { sources: uniqueWebSources }),
+          );
+          console.log(
+            `[chat] Web sources: ${uniqueWebSources.length} unique (from ${allWebSources.length} total)`,
+          );
+        }
+
+        console.log(
+          `[chat] Agentic loop done: ${assistantResponse.length} chars, web_sources=${allWebSources.length}`,
+        );
 
         // 7. Verify response against sources (hallucination detection)
+        controller.enqueue(sseProgress('verifying'));
         const sourcesTextForVerification = sources
-          .map((s, i) => `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`)
+          .map(
+            (s, i) =>
+              `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`,
+          )
           .join('\n\n');
         const verification = await verifyResponse(
           assistantResponse,
           sourcesTextForVerification,
         );
+        mark('verification');
+        console.log(
+          `[chat] Verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
+        );
         controller.enqueue(sseEvent('verification', verification));
 
-        // 8. Done — include remaining daily count for unauthenticated users
+        // 8. Generate follow-up questions
+        const followUps = await generateFollowUps(
+          lastMessage.content,
+          assistantResponse,
+          language,
+        );
+        mark('followups');
+        console.log(`[chat] Follow-ups: ${followUps.length} generated`);
+        if (followUps.length > 0) {
+          controller.enqueue(sseEvent('followups', { questions: followUps }));
+        }
+
+        // 9. Auto-create or update conversation for authenticated users
+        let finalConversationId = conversationId;
+        if (userId && !finalConversationId) {
+          try {
+            const supabase = getSupabase();
+            const title = await generateConversationTitle(lastMessage.content);
+            const { data } = await supabase
+              .from('conversations')
+              .insert({ user_id: userId, title })
+              .select('id')
+              .single();
+            if (data) {
+              finalConversationId = data.id;
+              console.log(`[chat] Auto-created conversation: ${data.id} title="${title}"`);
+            }
+          } catch (err) {
+            console.error('[chat] Auto-create conversation failed:', (err as Error).message);
+          }
+        } else if (userId && finalConversationId) {
+          // Touch updated_at so sidebar ordering stays correct
+          getSupabase()
+            .from('conversations')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', finalConversationId)
+            .then(() => {}, () => {});
+        }
+
+        // 10. Done — include remaining daily count and conversationId
+        mark('done');
         controller.enqueue(
-          sseEvent('done', dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
+          sseEvent('done', {
+            ...(dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
+            ...(finalConversationId ? { conversationId: finalConversationId } : {}),
+          }),
         );
 
-        // 9. Log conversation to Supabase (fire-and-forget)
+        // Summary log with all timings
+        console.log(
+          `[chat] === DONE === ${Date.now() - t0}ms total | timings=${JSON.stringify(timings)} | response=${assistantResponse.length} chars | rag=${sources.length} | web=${allWebSources.length} | verify=${verification.status} | followups=${followUps.length}`,
+        );
+
+        // 11. Log conversation to Supabase (fire-and-forget)
         logConversation({
           userMessage: lastMessage.content.trim(),
           assistantMessage: assistantResponse,
@@ -251,10 +544,18 @@ export async function POST(request: NextRequest) {
           sourceCount: sources.length,
           ip,
           userId,
-        }).catch((err) => console.error('Chat log error:', err));
+          conversationId: finalConversationId,
+        }).catch((err) => console.error('[chat] DB log error:', err));
       } catch (err) {
-        console.error('[chat] Stream error:', err);
-        console.error('[chat] Error details:', (err as Error).message, (err as Error).stack);
+        const elapsed = Date.now() - t0;
+        console.error(
+          `[chat] === ERROR === ${elapsed}ms | timings=${JSON.stringify(timings)} | stage=${Object.keys(timings).pop() ?? 'init'}`,
+        );
+        console.error(
+          '[chat] Error:',
+          (err as Error).message,
+          (err as Error).stack,
+        );
         controller.enqueue(
           sseEvent('error', {
             message: 'An error occurred while generating a response.',
@@ -287,6 +588,7 @@ async function logConversation(params: {
   sourceCount: number;
   ip: string;
   userId: string | null;
+  conversationId: string | null;
 }) {
   const supabase = getSupabase();
   await supabase.from('chat_logs').insert({
@@ -296,12 +598,35 @@ async function logConversation(params: {
     source_count: params.sourceCount,
     ip_hash: await hashIP(params.ip),
     user_id: params.userId,
+    conversation_id: params.conversationId,
     created_at: new Date().toISOString(),
   });
 }
 
+async function generateConversationTitle(message: string): Promise<string> {
+  try {
+    const openai = getOpenAI();
+    const response = await openai.responses.create({
+      model: 'gpt-5-nano',
+      max_output_tokens: 256,
+      reasoning: { effort: 'low' },
+      instructions:
+        'Generate a very short title (3-6 words) for this conversation. Return only the title, no quotes. Use the same language as the message.',
+      input: message.slice(0, 200),
+    });
+    const title = response.output_text?.trim();
+    console.log(`[chat] Title generated: "${title}"`);
+    return title || 'New Conversation';
+  } catch (err) {
+    console.error('[chat] Title generation failed:', (err as Error).message);
+    return 'New Conversation';
+  }
+}
+
 async function hashIP(ip: string): Promise<string> {
-  const data = new TextEncoder().encode(ip + (process.env.IP_HASH_SALT ?? ''));
+  const data = new TextEncoder().encode(
+    ip + (process.env.IP_HASH_SALT ?? ''),
+  );
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, '0'))

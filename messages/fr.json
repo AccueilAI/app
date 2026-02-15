@@ -220,6 +220,78 @@
       "1": "Quels documents pour la CAF ?",
       "2": "Comment s'inscrire à la CPAM ?",
       "3": "Première déclaration d'impôts en France ?"
+    },
+    "progress": {
+      "searching_rag": "Recherche dans la base de connaissances...",
+      "searching_web": "Recherche web en cours...",
+      "looking_up": "Consultation des détails...",
+      "generating": "Génération de la réponse...",
+      "verifying": "Vérification des sources..."
+    },
+    "followUp": {
+      "title": "Questions connexes"
+    },
+    "actions": {
+      "copy": "Copier",
+      "copied": "Copié !",
+      "regenerate": "Régénérer"
+    },
+    "sidebar": {
+      "newChat": "Nouvelle conversation",
+      "conversations": "Conversations",
+      "today": "Aujourd'hui",
+      "thisWeek": "Cette semaine",
+      "older": "Plus ancien",
+      "deleteConfirm": "Supprimer cette conversation ?",
+      "noConversations": "Aucune conversation",
+      "searchPlaceholder": "Rechercher des conversations..."
+    },
+    "onboarding": {
+      "title": "Comment puis-je vous aider ?",
+      "categories": {
+        "visa": "Visa & Séjour",
+        "housing": "Logement & CAF",
+        "health": "Santé & CPAM",
+        "tax": "Impôts",
+        "work": "Permis de travail",
+        "other": "Autre"
+      },
+      "examples": {
+        "visa": {
+          "0": "Comment renouveler mon titre de séjour ?",
+          "1": "Quels documents pour un Passeport Talent ?",
+          "2": "Combien de temps pour le renouvellement ?"
+        },
+        "housing": {
+          "0": "Comment demander l'aide au logement CAF ?",
+          "1": "Qu'est-ce que l'APL et qui y a droit ?",
+          "2": "Documents pour le dépôt de garantie ?"
+        },
+        "health": {
+          "0": "Comment s'inscrire à la CPAM ?",
+          "1": "Qu'est-ce que la carte vitale ?",
+          "2": "Comment fonctionne la mutuelle ?"
+        },
+        "tax": {
+          "0": "Première déclaration d'impôts en France ?",
+          "1": "Suis-je résident fiscal en France ?",
+          "2": "Comment déclarer des revenus étrangers ?"
+        },
+        "work": {
+          "0": "Puis-je travailler avec un visa étudiant ?",
+          "1": "Comment obtenir une autorisation de travail ?",
+          "2": "Auto-entrepreneur en tant qu'étranger ?"
+        },
+        "other": {
+          "0": "Comment ouvrir un compte bancaire ?",
+          "1": "Obtenir un permis de conduire français ?",
+          "2": "Inscrire un enfant à l'école ?"
+        }
+      }
+    },
+    "webSource": {
+      "title": "Sources web",
+      "viewAll": "Voir toutes les sources"
     }
   },
   "Experiences": {

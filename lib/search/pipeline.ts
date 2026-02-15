@@ -165,6 +165,7 @@ export async function ragSearch(
   query: string,
   options: SearchOptions = {},
 ): Promise<SearchResponse> {
+  const t0 = Date.now();
   const count = options.count ?? 8;
   const filters: SearchFilters = {
     ...options.filters,
@@ -176,6 +177,9 @@ export async function ragSearch(
 
   // 2. Translate to French if needed
   const frenchQuery = detectedLang === 'fr' ? query : await translateToFrench(query, detectedLang);
+  console.log(
+    `[rag] Lang=${detectedLang}, french="${frenchQuery.slice(0, 80)}"${detectedLang !== 'fr' ? ' (translated)' : ''} +${Date.now() - t0}ms`,
+  );
 
   // 3. Expand query with administrative synonyms (parallel with embedding)
   const [expansions, frenchEmbedding, ...optionalEmbeddings] = await Promise.all([
@@ -184,6 +188,9 @@ export async function ragSearch(
     ...(detectedLang !== 'fr' ? [embedText(query)] : []),
   ]);
   const originalEmbedding = optionalEmbeddings[0] ?? null;
+  console.log(
+    `[rag] Expanded: [${expansions.slice(0, 3).join(', ')}] +${Date.now() - t0}ms`,
+  );
 
   // 4. Build combined keyword query (original + expansions) for BM25
   const keywordQueries = [frenchQuery, ...expansions.slice(0, 2)];
@@ -194,12 +201,18 @@ export async function ragSearch(
 
   // 6. Run hybrid search with expanded French query + French embedding
   const primaryResults = await hybridSearch(combinedKeywordQuery, frenchEmbedding, candidateCount, filters);
+  console.log(
+    `[rag] Hybrid search: ${primaryResults.length} results +${Date.now() - t0}ms`,
+  );
 
   // 7. If original query was not French, also run vector search with original embedding and merge
   let mergedResults: HybridSearchResult[];
   if (originalEmbedding) {
     const secondaryResults = await vectorSearch(originalEmbedding, candidateCount, filters);
     mergedResults = mergeWithRRF(primaryResults, secondaryResults, candidateCount);
+    console.log(
+      `[rag] Bilingual merge: ${primaryResults.length}+${secondaryResults.length} → ${mergedResults.length} (RRF) +${Date.now() - t0}ms`,
+    );
   } else {
     mergedResults = primaryResults;
   }
@@ -214,10 +227,18 @@ export async function ragSearch(
     ...(r.document as unknown as HybridSearchResult),
     rrf_score: r.relevanceScore,
   }));
+  console.log(
+    `[rag] Reranked: ${mergedResults.length} → ${rerankedResults.length} results +${Date.now() - t0}ms`,
+  );
 
   // 9. Expand cross-references from top reranked results (up to 3 extra)
   const crossRefResults = await expandCrossReferences(rerankedResults, 3);
   const allResults = [...rerankedResults, ...crossRefResults];
+  if (crossRefResults.length > 0) {
+    console.log(
+      `[rag] Cross-refs: +${crossRefResults.length} articles +${Date.now() - t0}ms`,
+    );
+  }
 
   // 10. Map to response format
   const results: SearchResultItem[] = allResults.map((r) => ({
@@ -230,6 +251,10 @@ export async function ragSearch(
     ...(r.source_url && { source_url: r.source_url }),
     score: r.rrf_score,
   }));
+
+  console.log(
+    `[rag] === DONE === ${Date.now() - t0}ms | ${results.length} results | sources: ${[...new Set(results.map((r) => r.doc_type))].join(',')}`,
+  );
 
   return {
     results,

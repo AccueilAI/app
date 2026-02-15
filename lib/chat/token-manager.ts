@@ -5,11 +5,11 @@ const ENCODING = encodingForModel('gpt-4o'); // o200k_base, same family as gpt-5
 const PER_MESSAGE_OVERHEAD = 4; // role markers, delimiters
 const REPLY_PRIMING = 2;
 
-// Model limits — gpt-5-nano: 400K context, 128K max output (reasoning model)
+// Model limits — gpt-5-mini: 1M context, 128K max output (reasoning model)
 // Reasoning tokens count against max_output_tokens, so budget generously
-const MODEL_CONTEXT_LIMIT = 400_000;
-const MAX_OUTPUT_TOKENS = 16_384; // reasoning + visible output
-const MAX_INPUT_TOKENS = 30_000; // conservative input budget for cost efficiency
+const MODEL_CONTEXT_LIMIT = 1_000_000;
+const MAX_OUTPUT_TOKENS = 32_768; // reasoning + visible output
+const MAX_INPUT_TOKENS = 80_000; // higher input budget for gpt-5-mini
 /** @deprecated alias — use MAX_OUTPUT_TOKENS */
 const MAX_COMPLETION_TOKENS = MAX_OUTPUT_TOKENS;
 
@@ -57,11 +57,17 @@ export async function compactHistory(
 
   const conversationTokens = estimateTokens(messages);
   if (conversationTokens <= available) {
+    console.log(
+      `[tokens] History fits: ${conversationTokens}/${available} tokens (${messages.length} msgs)`,
+    );
     return messages;
   }
 
   // Not enough messages to split — return as-is
   if (messages.length <= KEEP_RECENT_TURNS) {
+    console.log(
+      `[tokens] Over budget but too few msgs to compact: ${conversationTokens}/${available} (${messages.length} msgs)`,
+    );
     return messages;
   }
 
@@ -69,8 +75,16 @@ export async function compactHistory(
   const recentMessages = messages.slice(-KEEP_RECENT_TURNS);
   const olderMessages = messages.slice(0, -KEEP_RECENT_TURNS);
 
+  console.log(
+    `[tokens] Compacting: ${olderMessages.length} older msgs → summary, keeping ${recentMessages.length} recent (${conversationTokens}/${available} tokens)`,
+  );
+
   // Summarize older messages
+  const t0 = Date.now();
   const summary = await summarizeMessages(olderMessages);
+  console.log(
+    `[tokens] Summarized ${olderMessages.length} msgs in ${Date.now() - t0}ms (${summary.length} chars)`,
+  );
 
   return [
     {
@@ -135,6 +149,7 @@ async function summarizeMessages(messages: Message[]): Promise<string> {
   const response = await openai.responses.create({
     model: 'gpt-5-nano',
     max_output_tokens: 512,
+    reasoning: { effort: 'low' },
     instructions:
       'Summarize this conversation concisely in 3-5 bullet points. ' +
       'Preserve: key topics discussed, specific entities (article numbers, ' +

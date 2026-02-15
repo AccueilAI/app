@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Sparkles, X, ArrowRight } from 'lucide-react';
+import { Sparkles, X, ArrowRight, PanelLeft } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
+import { ConversationSidebar } from './ConversationSidebar';
+import { OnboardingWelcome } from './OnboardingWelcome';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { createClient } from '@/lib/supabase/browser';
@@ -30,37 +32,6 @@ function saveAnonMessages(messages: ChatMessage[]) {
   }
 }
 
-async function loadUserMessages(): Promise<ChatMessage[]> {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('chat_logs')
-      .select('user_message, assistant_message, created_at')
-      .order('created_at', { ascending: false })
-      .limit(10);
-
-    if (error || !data || data.length === 0) return [];
-
-    // Reverse to chronological order, convert to ChatMessage pairs
-    return data.reverse().flatMap((row) => [
-      {
-        id: crypto.randomUUID(),
-        role: 'user' as const,
-        content: row.user_message,
-        timestamp: new Date(row.created_at).getTime(),
-      },
-      {
-        id: crypto.randomUUID(),
-        role: 'assistant' as const,
-        content: row.assistant_message,
-        timestamp: new Date(row.created_at).getTime(),
-      },
-    ]);
-  } catch {
-    return [];
-  }
-}
-
 export function ChatInterface() {
   const t = useTranslations('Chat');
   const locale = useLocale();
@@ -72,6 +43,8 @@ export function ChatInterface() {
   const [dailyLimitReached, setDailyLimitReached] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
@@ -84,11 +57,9 @@ export function ChatInterface() {
     setError(null);
 
     if (user) {
-      // Authenticated: load from DB
-      loadUserMessages().then((msgs) => {
-        setMessages(msgs);
-        initialized.current = true;
-      });
+      // Authenticated: start fresh, load conversations from sidebar
+      setConversationId(null);
+      initialized.current = true;
     } else {
       // Anonymous: load from localStorage
       setMessages(loadAnonMessages());
@@ -152,7 +123,7 @@ export function ChatInterface() {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: history, language: locale }),
+          body: JSON.stringify({ messages: history, language: locale, conversationId }),
           signal: abort.signal,
         });
 
@@ -220,7 +191,34 @@ export function ChatInterface() {
                         : m,
                     ),
                   );
+                } else if (eventType === 'progress') {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId
+                        ? { ...m, progress: parsed.stage }
+                        : m,
+                    ),
+                  );
+                } else if (eventType === 'web_sources') {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId
+                        ? { ...m, webSources: parsed.sources }
+                        : m,
+                    ),
+                  );
+                } else if (eventType === 'followups') {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantId
+                        ? { ...m, followUps: parsed.questions }
+                        : m,
+                    ),
+                  );
                 } else if (eventType === 'done') {
+                  if (parsed.conversationId) {
+                    setConversationId(parsed.conversationId);
+                  }
                   if (parsed.remaining !== undefined) {
                     setRemaining(parsed.remaining);
                     if (parsed.remaining <= 0) {
@@ -255,7 +253,7 @@ export function ChatInterface() {
         abortRef.current = null;
       }
     },
-    [input, isStreaming, dailyLimitReached, messages, locale, t],
+    [input, isStreaming, dailyLimitReached, messages, locale, conversationId, t],
   );
 
   function handleStop() {
@@ -263,41 +261,77 @@ export function ChatInterface() {
     setIsStreaming(false);
   }
 
-  const suggestedQuestions = [0, 1, 2, 3].map((i) =>
-    t(`suggestedQuestions.${i}`),
-  );
+  function handleNewChat() {
+    setMessages([]);
+    setConversationId(null);
+    setError(null);
+    setDailyLimitReached(false);
+  }
+
+  async function handleSelectConversation(id: string) {
+    setConversationId(id);
+    try {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('chat_logs')
+        .select('user_message, assistant_message, created_at')
+        .eq('conversation_id', id)
+        .order('created_at', { ascending: true });
+      if (data) {
+        const loaded: ChatMessage[] = data.flatMap((row) => [
+          { id: crypto.randomUUID(), role: 'user' as const, content: row.user_message, timestamp: new Date(row.created_at).getTime() },
+          { id: crypto.randomUUID(), role: 'assistant' as const, content: row.assistant_message, timestamp: new Date(row.created_at).getTime() },
+        ]);
+        setMessages(loaded);
+      }
+    } catch { /* ignore */ }
+  }
+
+  function handleRegenerate() {
+    if (isStreaming || messages.length < 2) return;
+    const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
+    if (!lastUserMsg) return;
+    // Remove the last assistant message and re-send
+    setMessages((prev) => prev.slice(0, -1));
+    handleSend(lastUserMsg.content);
+  }
 
   const isEmpty = messages.length === 0;
   const showLimitBanner = dailyLimitReached && !user;
 
+  const sidebarActive = !!user && sidebarOpen;
+
   return (
     <div className="flex h-dvh flex-col bg-[#FAFAF8] pt-16">
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      {/* ConversationSidebar (auth users only) */}
+      {user && (
+        <ConversationSidebar
+          open={sidebarOpen}
+          onToggle={() => setSidebarOpen((prev) => !prev)}
+          currentId={conversationId}
+          onSelect={handleSelectConversation}
+          onNew={handleNewChat}
+        />
+      )}
+
+      {/* Mobile sidebar toggle */}
+      {user && !sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed left-3 top-[4.5rem] z-10 cursor-pointer rounded-lg p-2 text-[#5C5C6F] transition-colors hover:bg-[#EEF2F9] hover:text-[#2B4C8C] md:hidden"
+        >
+          <PanelLeft className="h-5 w-5" />
+        </button>
+      )}
+
+      {/* Messages — shift right when sidebar is open on desktop */}
+      <div
+        ref={scrollRef}
+        className={`flex-1 overflow-y-auto transition-[margin] duration-200 ${sidebarActive ? 'md:ml-[260px]' : ''}`}
+      >
         <div className="mx-auto max-w-3xl px-4 py-6">
           {isEmpty ? (
-            <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2F9]">
-                <Sparkles className="h-6 w-6 text-[#2B4C8C]" />
-              </div>
-              <h2 className="font-serif text-2xl text-[#1A1A2E]">
-                {t('welcome')}
-              </h2>
-              <p className="mt-2 max-w-md text-sm text-[#5C5C6F]">
-                {t('welcomeSub')}
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-2">
-                {suggestedQuestions.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(q)}
-                    className="cursor-pointer rounded-full border border-[#D0D0D8] bg-white px-4 py-2 text-sm text-[#1A1A2E] transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9]"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <OnboardingWelcome onSend={handleSend} />
           ) : (
             <div className="space-y-6">
               {messages.map((msg, i) => (
@@ -305,6 +339,9 @@ export function ChatInterface() {
                   key={msg.id}
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1}
+                  isLast={i === messages.length - 1}
+                  onRegenerate={handleRegenerate}
+                  onSend={handleSend}
                   userQuery={
                     msg.role === 'assistant'
                       ? messages
@@ -352,7 +389,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-[#E5E3DE] bg-white/80 backdrop-blur-sm">
+      <div className={`border-t border-[#E5E3DE] bg-white/80 backdrop-blur-sm transition-[margin] duration-200 ${sidebarActive ? 'md:ml-[260px]' : ''}`}>
         <div className="mx-auto max-w-3xl px-4 py-4">
           {error && (
             <div className="mb-3 flex items-center justify-between rounded-lg bg-red-50 px-4 py-2 text-sm text-red-700">
