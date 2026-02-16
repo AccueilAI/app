@@ -1,13 +1,16 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { DeadlineForm } from '@/components/deadlines/DeadlineForm';
 import { DeadlineList } from '@/components/deadlines/DeadlineList';
+import { ProcessTracker } from '@/components/benefits/ProcessTracker';
 
 export function DeadlinesContent() {
   const t = useTranslations('Deadlines');
-  const { isLoading } = useAuth();
+  const locale = useLocale();
+  const { isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
@@ -28,6 +31,12 @@ export function DeadlinesContent() {
 
       <DeadlineForm />
       <DeadlineList />
+
+      {user && (
+        <div className="mt-10">
+          <ProcessTracker locale={locale} />
+        </div>
+      )}
     </main>
   );
 }

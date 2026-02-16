@@ -40,6 +40,7 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
   const [activeChecklist, setActiveChecklist] = useState<DocumentChecklist | null>(null);
   const [savedChecklists, setSavedChecklists] = useState<DocumentChecklist[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   // Fetch saved checklists on mount
   useEffect(() => {
@@ -101,22 +102,26 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
     async (index: number) => {
       if (!activeChecklist) return;
 
+      const previousItems = activeChecklist.items;
       const newItems = activeChecklist.items.map((item, i) =>
         i === index ? { ...item, checked: !item.checked } : item,
       );
 
       setActiveChecklist({ ...activeChecklist, items: newItems });
-
-      // Debounced save
       setIsSaving(true);
+      setSaveError(false);
+
       try {
-        await fetch('/api/documents/checklist', {
+        const res = await fetch('/api/documents/checklist', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: activeChecklist.id, items: newItems }),
         });
+        if (!res.ok) throw new Error('Save failed');
       } catch {
-        // Silently fail
+        setActiveChecklist({ ...activeChecklist, items: previousItems });
+        setSaveError(true);
+        setTimeout(() => setSaveError(false), 3000);
       } finally {
         setIsSaving(false);
       }
@@ -238,81 +243,7 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
         </div>
       </div>
 
-      {/* Active checklist */}
-      {activeChecklist && (
-        <div className="rounded-xl border border-[#E5E3DE] bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#1A1A2E]">
-              {activeChecklist.title}
-            </h2>
-            <div className="flex items-center gap-2">
-              {isSaving && (
-                <span className="text-xs text-[#5C5C6F]">{t('saving')}</span>
-              )}
-              <span className="text-sm font-medium text-[#2B4C8C]">
-                {completedCount}/{totalCount}
-              </span>
-            </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="mb-6 h-2 overflow-hidden rounded-full bg-[#E5E3DE]">
-            <div
-              className="h-full rounded-full bg-[#2B4C8C] transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          {/* Grouped checklist items */}
-          {groupedItems &&
-            Object.entries(groupedItems).map(([category, items]) => (
-              <div key={category} className="mb-4 last:mb-0">
-                <div className="mb-2 flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${CATEGORY_COLORS[category] ?? CATEGORY_COLORS.other}`}
-                  >
-                    {t(`categories.${category}`)}
-                  </span>
-                </div>
-                <ul className="space-y-2">
-                  {items.map((item) => (
-                    <li
-                      key={item._index}
-                      className="flex items-start gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-[#FAFAF8]"
-                    >
-                      <button
-                        onClick={() => toggleItem(item._index)}
-                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
-                          item.checked
-                            ? 'border-[#2B4C8C] bg-[#2B4C8C]'
-                            : 'border-[#E5E3DE] hover:border-[#2B4C8C]'
-                        }`}
-                      >
-                        {item.checked && (
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        )}
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`text-sm ${item.checked ? 'text-[#5C5C6F] line-through' : 'text-[#1A1A2E]'}`}
-                        >
-                          {item.item}
-                        </p>
-                        {item.details && (
-                          <p className="mt-0.5 text-xs text-[#5C5C6F]">
-                            {item.details}
-                          </p>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-        </div>
-      )}
-
-      {/* Saved checklists */}
+      {/* Saved checklists with inline expand */}
       {savedChecklists.length > 0 && (
         <div className="rounded-xl border border-[#E5E3DE] bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-[#1A1A2E]">
@@ -322,13 +253,18 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
             {savedChecklists.map((cl) => {
               const done = cl.items.filter((i) => i.checked).length;
               const total = cl.items.length;
+              const isExpanded = activeChecklist?.id === cl.id;
               return (
                 <li key={cl.id}>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => setActiveChecklist(cl)}
+                      onClick={() =>
+                        setActiveChecklist((prev) =>
+                          prev?.id === cl.id ? null : cl,
+                        )
+                      }
                       className={`flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-[#FAFAF8] ${
-                        activeChecklist?.id === cl.id
+                        isExpanded
                           ? 'border border-[#2B4C8C]/20 bg-[#EEF2F9]'
                           : ''
                       }`}
@@ -348,6 +284,11 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
                           </span>
                         </div>
                       </div>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 text-[#5C5C6F] transition-transform ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
                     </button>
                     <button
                       onClick={() => deleteChecklist(cl.id)}
@@ -356,6 +297,80 @@ export function ChecklistGenerator({ language }: ChecklistGeneratorProps) {
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
+
+                  {/* Expanded checklist content inline */}
+                  {isExpanded && activeChecklist && (
+                    <div className="mt-2 ml-2 rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {isSaving && (
+                            <span className="text-xs text-[#5C5C6F]">{t('saving')}</span>
+                          )}
+                          {saveError && (
+                            <span className="text-xs text-red-500">{t('saveError')}</span>
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-[#2B4C8C]">
+                          {completedCount}/{totalCount}
+                        </span>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-[#E5E3DE]">
+                        <div
+                          className="h-full rounded-full bg-[#2B4C8C] transition-all duration-300"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+
+                      {/* Grouped checklist items */}
+                      {groupedItems &&
+                        Object.entries(groupedItems).map(([category, items]) => (
+                          <div key={category} className="mb-3 last:mb-0">
+                            <div className="mb-1.5 flex items-center gap-2">
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${CATEGORY_COLORS[category] ?? CATEGORY_COLORS.other}`}
+                              >
+                                {t(`categories.${category}`)}
+                              </span>
+                            </div>
+                            <ul className="space-y-1.5">
+                              {items.map((item) => (
+                                <li
+                                  key={item._index}
+                                  className="flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-white"
+                                >
+                                  <button
+                                    onClick={() => toggleItem(item._index)}
+                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
+                                      item.checked
+                                        ? 'border-[#2B4C8C] bg-[#2B4C8C]'
+                                        : 'border-[#E5E3DE] hover:border-[#2B4C8C]'
+                                    }`}
+                                  >
+                                    {item.checked && (
+                                      <Check className="h-3.5 w-3.5 text-white" />
+                                    )}
+                                  </button>
+                                  <div className="min-w-0 flex-1">
+                                    <p
+                                      className={`text-sm ${item.checked ? 'text-[#5C5C6F] line-through' : 'text-[#1A1A2E]'}`}
+                                    >
+                                      {item.item}
+                                    </p>
+                                    {item.details && (
+                                      <p className="mt-0.5 text-xs text-[#5C5C6F]">
+                                        {item.details}
+                                      </p>
+                                    )}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </li>
               );
             })}

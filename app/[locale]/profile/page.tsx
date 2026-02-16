@@ -13,6 +13,7 @@ import {
   type ComboboxOption,
 } from '@/components/ui/searchable-combobox';
 import { COUNTRIES } from '@/lib/data/countries';
+import { VISA_TYPE_OPTIONS } from '@/lib/benefits/visa-mapping';
 
 type TabId = 'profile' | 'experiences' | 'documents';
 
@@ -42,6 +43,9 @@ export default function ProfilePage() {
     nationality: '',
     visa_type: '',
     arrival_date: '',
+    birth_date: '',
+    has_children: false,
+    employment_status: 'unknown',
     prefecture: '',
     language: locale,
   });
@@ -56,6 +60,9 @@ export default function ProfilePage() {
         nationality: profile.nationality ?? '',
         visa_type: profile.visa_type ?? '',
         arrival_date: profile.arrival_date ?? '',
+        birth_date: profile.birth_date ?? '',
+        has_children: profile.has_children ?? false,
+        employment_status: profile.employment_status ?? 'unknown',
         prefecture: profile.prefecture ?? '',
         language: profile.language ?? locale,
       });
@@ -93,6 +100,9 @@ export default function ProfilePage() {
         nationality: form.nationality || null,
         visa_type: form.visa_type || null,
         arrival_date: form.arrival_date || null,
+        birth_date: form.birth_date || null,
+        has_children: form.has_children,
+        employment_status: form.employment_status,
         prefecture: form.prefecture || null,
         language: form.language,
       })
@@ -164,9 +174,9 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* Tab content */}
+        {/* Tab content — all kept mounted to preserve state during tab switches */}
         <div className="mt-6">
-          {activeTab === 'profile' && (
+          <div className={activeTab === 'profile' ? '' : 'hidden'}>
             <form onSubmit={handleSave} className="space-y-5">
               <div>
                 <label
@@ -223,16 +233,11 @@ export default function ProfilePage() {
                   className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
                 >
                   <option value="">—</option>
-                  <option value="VLS-TS">VLS-TS</option>
-                  <option value="Talent Passport">Talent Passport</option>
-                  <option value="Student">Student</option>
-                  <option value="APS">APS</option>
-                  <option value="Salarié">Salarié</option>
-                  <option value="Vie Privée et Familiale">
-                    Vie Privée et Familiale
-                  </option>
-                  <option value="Visiteur">Visiteur</option>
-                  <option value="Other">Other</option>
+                  {VISA_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {t(opt.labelKey)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -255,6 +260,73 @@ export default function ProfilePage() {
                   }
                   className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
                 />
+              </div>
+
+              {/* Birth date */}
+              <div>
+                <label
+                  htmlFor="birth_date"
+                  className="mb-1.5 block text-sm font-medium text-[#1A1A2E]"
+                >
+                  {t('birthDate')}
+                </label>
+                <input
+                  id="birth_date"
+                  type="date"
+                  value={form.birth_date}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, birth_date: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
+                />
+              </div>
+
+              {/* Has children */}
+              <div className="flex items-center justify-between rounded-lg border border-[#E5E3DE] px-3.5 py-2.5">
+                <label htmlFor="has_children" className="text-sm font-medium text-[#1A1A2E]">
+                  {t('hasChildren')}
+                </label>
+                <button
+                  id="has_children"
+                  type="button"
+                  role="switch"
+                  aria-checked={form.has_children}
+                  onClick={() => setForm((prev) => ({ ...prev, has_children: !prev.has_children }))}
+                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
+                    form.has_children ? 'bg-[#2B4C8C]' : 'bg-[#E5E3DE]'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      form.has_children ? 'translate-x-5' : 'translate-x-0.5'
+                    } mt-0.5`}
+                  />
+                </button>
+              </div>
+
+              {/* Employment status */}
+              <div>
+                <label
+                  htmlFor="employment_status"
+                  className="mb-1.5 block text-sm font-medium text-[#1A1A2E]"
+                >
+                  {t('employmentStatus')}
+                </label>
+                <select
+                  id="employment_status"
+                  value={form.employment_status}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, employment_status: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-[#E5E3DE] px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#2B4C8C] focus:ring-1 focus:ring-[#2B4C8C]"
+                >
+                  <option value="unknown">{t('employmentOptions.unknown')}</option>
+                  <option value="employed">{t('employmentOptions.employed')}</option>
+                  <option value="self_employed">{t('employmentOptions.selfEmployed')}</option>
+                  <option value="student">{t('employmentOptions.student')}</option>
+                  <option value="unemployed">{t('employmentOptions.unemployed')}</option>
+                  <option value="retired">{t('employmentOptions.retired')}</option>
+                </select>
               </div>
 
               <div>
@@ -311,10 +383,14 @@ export default function ProfilePage() {
                 )}
               </div>
             </form>
-          )}
+          </div>
 
-          {activeTab === 'experiences' && <MyExperiences />}
-          {activeTab === 'documents' && <MyDocuments />}
+          <div className={activeTab === 'experiences' ? '' : 'hidden'}>
+            <MyExperiences />
+          </div>
+          <div className={activeTab === 'documents' ? '' : 'hidden'}>
+            <MyDocuments />
+          </div>
         </div>
       </main>
     </>

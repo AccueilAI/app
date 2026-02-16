@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { Globe, ChevronDown, Sparkles, Users, FileSearch, CalendarClock } from 'lucide-react';
+import { Globe, ChevronDown, Sparkles, Users, FileSearch, CalendarClock, Gift, Layers, CreditCard, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { UserMenu } from '@/components/auth/UserMenu';
@@ -12,6 +12,23 @@ const locales = [
   { code: 'en', label: 'English', short: 'EN' },
   { code: 'fr', label: 'Fran\u00e7ais', short: 'FR' },
   { code: 'ko', label: '\ud55c\uad6d\uc5b4', short: 'KO' },
+] as const;
+
+// Logged-in: app pages
+const AUTH_LINKS = [
+  { key: 'chat', icon: Sparkles, primary: true },
+  { key: 'experiences', icon: Users, primary: false },
+  { key: 'documents', icon: FileSearch, primary: false },
+  { key: 'deadlines', icon: CalendarClock, primary: false },
+  { key: 'benefits', icon: Gift, primary: false },
+] as const;
+
+// Not logged-in: chat + landing section anchors
+const ANON_LINKS = [
+  { key: 'chat', icon: Sparkles, hash: null },
+  { key: 'features', icon: Layers, hash: '#features' },
+  { key: 'pricing', icon: CreditCard, hash: '#pricing' },
+  { key: 'faq', icon: HelpCircle, hash: '#faq' },
 ] as const;
 
 export function Navbar() {
@@ -31,7 +48,6 @@ export function Navbar() {
     setLangOpen(false);
   }
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -47,11 +63,9 @@ export function Navbar() {
   const isLanding = pathname === `/${locale}` || pathname === `/${locale}/`;
   const anchor = (hash: string) => (isLanding ? hash : `/${locale}/${hash}`);
 
-  const navLinks = [
-    { href: anchor('#features'), label: t('features') },
-    { href: anchor('#pricing'), label: t('pricing') },
-    { href: anchor('#faq'), label: t('faq') },
-  ];
+  function isActive(key: string) {
+    return pathname.startsWith(`/${locale}/${key}`);
+  }
 
   return (
     <>
@@ -67,61 +81,57 @@ export function Navbar() {
             </span>
           </a>
 
-          {/* Nav links */}
-          <div className="hidden items-center gap-9 sm:flex">
-            <a
-              href={`/${locale}/chat`}
-              className="flex items-center gap-1.5 text-[15px] font-semibold text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
-            >
-              <Sparkles className="h-4 w-4" />
-              {t('chat')}
-            </a>
-            <a
-              href={`/${locale}/experiences`}
-              className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
-            >
-              <Users className="h-4 w-4" />
-              {t('experiences')}
-            </a>
-            {user && (
+          {/* Desktop nav — auth-state based */}
+          <div className="hidden items-center gap-7 md:flex">
+            {user ? (
+              /* Logged in: app pages */
+              AUTH_LINKS.map((link) => {
+                const Icon = link.icon;
+                const active = !isLanding && isActive(link.key);
+                return (
+                  <a
+                    key={link.key}
+                    href={`/${locale}/${link.key}`}
+                    className={`flex items-center gap-1.5 text-[15px] transition-colors ${
+                      active
+                        ? 'font-semibold text-[#2B4C8C]'
+                        : link.primary
+                          ? 'font-semibold text-[#2B4C8C] hover:text-[#1E3A6E]'
+                          : 'font-medium text-[#5C5C6F] hover:text-[#1A1A2E]'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {t(link.key)}
+                  </a>
+                );
+              })
+            ) : (
+              /* Not logged in: chat + landing anchors */
               <>
                 <a
-                  href={`/${locale}/documents`}
-                  className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
+                  href={`/${locale}/chat`}
+                  className={`flex items-center gap-1.5 text-[15px] font-semibold transition-colors ${
+                    isActive('chat') ? 'text-[#2B4C8C]' : 'text-[#2B4C8C] hover:text-[#1E3A6E]'
+                  }`}
                 >
-                  <FileSearch className="h-4 w-4" />
-                  {t('documents')}
+                  <Sparkles className="h-4 w-4" />
+                  {t('chat')}
                 </a>
-                <a
-                  href={`/${locale}/deadlines`}
-                  className="flex items-center gap-1.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
-                >
-                  <CalendarClock className="h-4 w-4" />
-                  {t('deadlines')}
+                <a href={anchor('#features')} className="text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]">
+                  {t('features')}
+                </a>
+                <a href={anchor('#pricing')} className="text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]">
+                  {t('pricing')}
+                </a>
+                <a href={anchor('#faq')} className="text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]">
+                  {t('faq')}
                 </a>
               </>
             )}
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-[15px] font-medium text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
-              >
-                {link.label}
-              </a>
-            ))}
           </div>
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            {/* Mobile chat link */}
-            <a
-              href={`/${locale}/chat`}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E3DE] text-[#2B4C8C] transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9] sm:hidden"
-              aria-label={t('chat')}
-            >
-              <Sparkles className="h-4 w-4" />
-            </a>
             {/* Language dropdown */}
             <div ref={dropdownRef} className="relative">
               <button
@@ -173,6 +183,58 @@ export function Navbar() {
           </div>
         </nav>
       </header>
+
+      {/* Mobile bottom tab bar — auth-state based */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#D6DDE8] bg-white/95 backdrop-blur-lg md:hidden">
+        <div className="mx-auto flex h-14 max-w-lg items-center justify-around px-2">
+          {user ? (
+            /* Logged in: app pages */
+            AUTH_LINKS.map((link) => {
+              const Icon = link.icon;
+              const active = isActive(link.key);
+              return (
+                <a
+                  key={link.key}
+                  href={`/${locale}/${link.key}`}
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
+                    active
+                      ? 'text-[#2B4C8C]'
+                      : 'text-[#8E8E9A] transition-colors hover:text-[#5C5C6F]'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
+                  <span className={`text-[10px] leading-tight ${active ? 'font-semibold' : 'font-medium'}`}>
+                    {t(link.key)}
+                  </span>
+                </a>
+              );
+            })
+          ) : (
+            /* Not logged in: chat + landing anchors */
+            ANON_LINKS.map((link) => {
+              const Icon = link.icon;
+              const href = link.hash ? anchor(link.hash) : `/${locale}/chat`;
+              const active = !link.hash && isActive('chat');
+              return (
+                <a
+                  key={link.key}
+                  href={href}
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
+                    active
+                      ? 'text-[#2B4C8C]'
+                      : 'text-[#8E8E9A] transition-colors hover:text-[#5C5C6F]'
+                  }`}
+                >
+                  <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
+                  <span className={`text-[10px] leading-tight ${active ? 'font-semibold' : 'font-medium'}`}>
+                    {t(link.key)}
+                  </span>
+                </a>
+              );
+            })
+          )}
+        </div>
+      </nav>
 
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
     </>

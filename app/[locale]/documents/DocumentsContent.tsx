@@ -88,17 +88,16 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
         </button>
       </div>
 
-      {/* Tab content */}
-      {activeTab === 'checklist' ? (
+      {/* Tab content — both kept mounted to preserve state during tab switches */}
+      <div className={activeTab === 'checklist' ? '' : 'hidden'}>
         <ChecklistGenerator language={locale} />
-      ) : (
-        <>
-          <DocumentUpload language={locale} onAnalysisComplete={setAnalysis} />
-          <div className="mt-8">
-            <AnalysisResult analysis={analysis} userId={user.id} />
-          </div>
-        </>
-      )}
+      </div>
+      <div className={activeTab === 'analyzer' ? '' : 'hidden'}>
+        <DocumentUpload language={locale} onAnalysisComplete={setAnalysis} />
+        <div className="mt-8">
+          <AnalysisResult analysis={analysis} userId={user.id} />
+        </div>
+      </div>
     </main>
   );
 }

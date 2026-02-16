@@ -10,6 +10,7 @@ export interface SearchResult {
   code_name: string | null;
   source_url: string | null;
   metadata: Record<string, unknown> | null;
+  last_crawled_at: string | null;
 }
 
 export interface HybridSearchResult extends SearchResult {

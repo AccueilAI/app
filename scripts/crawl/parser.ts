@@ -228,6 +228,7 @@ export function parseHtmlToChunks(
         doc_type: options.doc_type,
         language: options.language ?? 'fr',
         source_url: pageUrl,
+        last_modified: new Date().toISOString(),
         metadata: {
           ...options.metadata,
           page_title: title || undefined,
@@ -248,6 +249,7 @@ export function parseHtmlToChunks(
         doc_type: options.doc_type,
         language: options.language ?? 'fr',
         source_url: pageUrl,
+        last_modified: new Date().toISOString(),
         metadata: {
           ...options.metadata,
           page_title: title || undefined,

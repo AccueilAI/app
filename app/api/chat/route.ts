@@ -199,6 +199,7 @@ export async function POST(request: NextRequest) {
           doc_type: r.doc_type,
           ...(r.article_number && { article_number: r.article_number }),
           ...(r.source_url && { source_url: r.source_url }),
+          ...(r.last_crawled_at && { last_crawled_at: r.last_crawled_at }),
           score: r.score,
         }));
         controller.enqueue(sseEvent('sources', { sources }));
@@ -607,20 +608,20 @@ async function generateConversationTitle(message: string): Promise<string> {
   try {
     const openai = getOpenAI();
     const response = await openai.responses.create({
-      model: 'gpt-5-nano',
+      model: 'gpt-5-mini',
       max_output_tokens: 256,
-      reasoning: { effort: 'low' },
       instructions:
-        'Generate a very short title (3-6 words) for this conversation. Return only the title, no quotes. Use the same language as the message.',
+        'Generate a very short title (3-6 words) for this conversation. Return only the title, no quotes, no punctuation at the end. Use the same language as the message.',
       input: message.slice(0, 200),
     });
-    const title = response.output_text?.trim();
-    console.log(`[chat] Title generated: "${title}"`);
-    return title || 'New Conversation';
+    const raw = response.output_text?.trim().replace(/^["']+|["']+$/g, '');
+    if (raw && raw.length > 0 && raw !== 'New Conversation') return raw;
   } catch (err) {
     console.error('[chat] Title generation failed:', (err as Error).message);
-    return 'New Conversation';
   }
+  // Fallback: use truncated user message
+  const fallback = message.trim().slice(0, 40).replace(/\s+\S*$/, '');
+  return fallback || 'New Conversation';
 }
 
 async function hashIP(ip: string): Promise<string> {

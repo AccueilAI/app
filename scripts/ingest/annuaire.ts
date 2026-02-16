@@ -329,6 +329,7 @@ function officeToChunk(office: GovernmentOffice): DocumentChunk {
     doc_type: 'office_info',
     language: 'fr',
     source_url: office.website,
+    last_modified: new Date().toISOString(),
     metadata: {
       office_type: office.office_type,
       city: office.city,

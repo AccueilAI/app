@@ -5,6 +5,7 @@ export interface ChatSource {
   article_number?: string;
   source_url?: string;
   score: number;
+  last_crawled_at?: string;
 }
 
 export interface WebSource {

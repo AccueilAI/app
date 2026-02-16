@@ -57,6 +57,15 @@ export function SourceCitations({ sources }: { sources: ChatSource[] }) {
                         <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
+                    {source.last_crawled_at && (() => {
+                      const days = Math.floor((Date.now() - new Date(source.last_crawled_at!).getTime()) / 86400000);
+                      const isStale = days > 90;
+                      return (
+                        <span className={`shrink-0 text-[10px] ${isStale ? 'text-amber-600' : 'text-[#8A8A9A]'}`}>
+                          {days}d ago
+                        </span>
+                      );
+                    })()}
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-[#5C5C6F]">
                     {source.content.length > 100

@@ -8,6 +8,9 @@ export interface UserProfile {
   visa_type: string | null;
   arrival_date: string | null;
   prefecture: string | null;
+  birth_date: string | null;
+  has_children: boolean;
+  employment_status: string;
   language: string;
   created_at: string;
   updated_at: string;

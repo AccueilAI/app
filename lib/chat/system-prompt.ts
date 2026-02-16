@@ -17,11 +17,18 @@ export function buildSystemPrompt(
 
   const contextBlock = ragContext
     .map((item, i) => {
+      const age = item.last_crawled_at
+        ? Math.floor((Date.now() - new Date(item.last_crawled_at).getTime()) / 86400000)
+        : null;
+      const ageLabel = age != null
+        ? age > 90 ? ` ⚠️ ${age}d ago` : ` ${age}d ago`
+        : '';
       const parts = [
         `[Source ${i + 1}]`,
         `(doc_type: ${item.doc_type}, source: ${item.source}`,
         item.article_number ? `, Art. ${item.article_number}` : '',
         item.source_url ? `, url: ${item.source_url}` : '',
+        ageLabel,
         ')',
         '\n',
         item.content,
@@ -29,6 +36,15 @@ export function buildSystemPrompt(
       return parts.join('');
     })
     .join('\n\n');
+
+  const hasStaleSource = ragContext.some((item) => {
+    if (!item.last_crawled_at) return false;
+    return (Date.now() - new Date(item.last_crawled_at).getTime()) > 90 * 86400000;
+  });
+
+  const freshnessWarning = hasStaleSource
+    ? `\n\n## Freshness warning\nSome sources are over 90 days old. Supplement with web_search when possible and note age caveats in your response.`
+    : '';
 
   return `You are AccueilAI, an expert AI assistant specializing in French administrative procedures for expats and immigrants.
 
@@ -78,5 +94,5 @@ IMPORTANT: Clearly distinguish official rules (from the sources above) from comm
 ${experienceContext}
 
 ` : ''}## Disclaimer
-Always end your response with a brief disclaimer: this is informational only, legislation may change, and users should verify with official sources or consult a professional for complex situations.`;
+Always end your response with a brief disclaimer: this is informational only, legislation may change, and users should verify with official sources or consult a professional for complex situations.${freshnessWarning}`;
 }

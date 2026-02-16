@@ -8,7 +8,8 @@
     "experiences": "경험 공유",
     "documents": "서류 분석",
     "signIn": "로그인",
-    "deadlines": "기한 관리"
+    "deadlines": "기한 관리",
+    "benefits": "혜택"
   },
   "Auth": {
     "signIn": "로그인",
@@ -32,7 +33,26 @@
     "save": "저장",
     "saving": "저장 중...",
     "saved": "변경사항이 저장되었습니다!",
-    "loginRequired": "프로필을 보려면 로그인해 주세요."
+    "loginRequired": "프로필을 보려면 로그인해 주세요.",
+    "visaTypes": {
+      "student": "학생 / VLS-TS / APS",
+      "talent": "탈랑 파스포트 (Talent Passport)",
+      "salaried": "살라리에 (취업)",
+      "family": "가족 체류",
+      "visitor": "방문자",
+      "other": "기타"
+    },
+    "birthDate": "생년월일",
+    "hasChildren": "자녀가 있으신가요?",
+    "employmentStatus": "고용 상태",
+    "employmentOptions": {
+      "unknown": "말하지 않겠습니다",
+      "employed": "직장인",
+      "selfEmployed": "자영업",
+      "student": "학생",
+      "unemployed": "구직 중",
+      "retired": "은퇴"
+    }
   },
   "Hero": {
     "headline": "프랑스 행정, 답답하셨죠?\n저도요. 그래서 끝내러 왔습니다.",
@@ -238,6 +258,15 @@
       "copied": "복사됨!",
       "regenerate": "다시 생성"
     },
+    "sourceAge": "{days}일 전 업데이트",
+    "sourceAgeWarning": "일부 출처가 오래되었을 수 있습니다",
+    "feedbackTitle": "무엇이 문제인가요?",
+    "feedbackType_accuracy": "부정확한 정보",
+    "feedbackType_outdated": "오래된 정보",
+    "feedbackType_other": "기타",
+    "feedbackCommentPlaceholder": "자세히 알려주세요 (선택사항)...",
+    "feedbackSubmit": "제출",
+    "feedbackCancel": "취소",
     "sidebar": {
       "newChat": "새 대화",
       "conversations": "대화 목록",
@@ -396,6 +425,7 @@
     "generate": "체크리스트 생성",
     "generating": "체크리스트 생성 중...",
     "saving": "저장 중...",
+    "saveError": "저장 실패 — 되돌림",
     "empty": "위에서 절차 유형을 선택하면 맞춤 서류 체크리스트를 생성합니다.",
     "categories": {
       "identity": "신분증",
@@ -475,6 +505,65 @@
       "title": "내 서류",
       "empty": "아직 분석한 서류가 없습니다.",
       "viewAnalysis": "분석 보기"
+    }
+  },
+  "Benefits": {
+    "pageTitle": "혜택 & 행정",
+    "pageSubtitle": "거주 외국인이 받을 수 있는 혜택을 확인하세요",
+    "tabs": {
+      "benefits": "나에게 맞는 혜택",
+      "news": "최신 뉴스",
+      "procedures": "진행 현황"
+    },
+    "forYou": "맞춤 추천",
+    "allBenefits": "전체 혜택",
+    "eligible": "자격 충족",
+    "notEligible": "자격 확인",
+    "category": "카테고리",
+    "allCategories": "전체",
+    "amount": "예상 금액",
+    "processingTime": "처리 기간",
+    "howToApply": "신청 방법",
+    "requiredDocs": "필요 서류",
+    "officialLink": "공식 사이트",
+    "relatedNews": "관련 소식",
+    "possiblyEligible": "자격 가능",
+    "completeProfile": "프로필을 완성하세요",
+    "noResults": "이 카테고리에 해당하는 혜택이 없습니다.",
+    "loginForMatching": "로그인하시면 맞춤 혜택을 추천해 드립니다.",
+    "categories": {
+      "housing": "주거",
+      "healthcare": "의료",
+      "financial": "재정 지원",
+      "employment": "취업",
+      "legal": "법률",
+      "education": "교육"
+    },
+    "news": {
+      "title": "법령 업데이트",
+      "subtitle": "프랑스 이민자에게 영향을 미치는 최근 변경 사항",
+      "noNews": "최근 업데이트가 없습니다",
+      "source": "출처",
+      "readMore": "자세히 보기",
+      "relatedBenefit": "관련 혜택"
+    },
+    "procedures": {
+      "title": "내 행정 절차",
+      "subtitle": "행정 진행 상황을 추적하세요",
+      "stages": {
+        "preparing": "준비 중",
+        "submitted": "제출 완료",
+        "processing": "처리 중",
+        "decision": "결과 대기",
+        "complete": "완료"
+      },
+      "updateStage": "단계 변경",
+      "estimatedTime": "예상 {days}일 남음",
+      "noProcedures": "진행 중인 절차가 없습니다. 기한을 추가하여 진행 상황을 추적하세요.",
+      "basedOnExperiences": "{count}건의 경험 기반"
+    },
+    "auth": {
+      "loginRequired": "혜택 확인을 위해 로그인해 주세요"
     }
   }
 }

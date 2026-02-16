@@ -8,7 +8,8 @@
     "experiences": "Experiences",
     "documents": "Documents",
     "signIn": "Sign In",
-    "deadlines": "Deadlines"
+    "deadlines": "Deadlines",
+    "benefits": "Benefits"
   },
   "Auth": {
     "signIn": "Sign In",
@@ -32,7 +33,26 @@
     "save": "Save Changes",
     "saving": "Saving...",
     "saved": "Changes saved!",
-    "loginRequired": "Please sign in to view your profile."
+    "loginRequired": "Please sign in to view your profile.",
+    "visaTypes": {
+      "student": "Student / VLS-TS / APS",
+      "talent": "Talent Passport",
+      "salaried": "Salarié (Employee)",
+      "family": "Vie Privée et Familiale",
+      "visitor": "Visiteur (Visitor)",
+      "other": "Other"
+    },
+    "birthDate": "Date of Birth",
+    "hasChildren": "Do you have children?",
+    "employmentStatus": "Employment Status",
+    "employmentOptions": {
+      "unknown": "Prefer not to say",
+      "employed": "Employed",
+      "selfEmployed": "Self-employed",
+      "student": "Student",
+      "unemployed": "Unemployed / Job seeking",
+      "retired": "Retired"
+    }
   },
   "Hero": {
     "headline": "Tired of French paperwork?\nSame. So we built this.",
@@ -238,6 +258,15 @@
       "copied": "Copied!",
       "regenerate": "Regenerate"
     },
+    "sourceAge": "Updated {days}d ago",
+    "sourceAgeWarning": "Some sources may be outdated",
+    "feedbackTitle": "What went wrong?",
+    "feedbackType_accuracy": "Inaccurate",
+    "feedbackType_outdated": "Outdated info",
+    "feedbackType_other": "Other",
+    "feedbackCommentPlaceholder": "Tell us more (optional)...",
+    "feedbackSubmit": "Submit",
+    "feedbackCancel": "Cancel",
     "sidebar": {
       "newChat": "New chat",
       "conversations": "Conversations",
@@ -396,6 +425,7 @@
     "generate": "Generate Checklist",
     "generating": "Generating checklist...",
     "saving": "Saving...",
+    "saveError": "Save failed — reverted",
     "empty": "Select a procedure type above to generate your personalized document checklist.",
     "categories": {
       "identity": "Identity",
@@ -475,6 +505,65 @@
       "title": "My Documents",
       "empty": "No document analyses yet.",
       "viewAnalysis": "View Analysis"
+    }
+  },
+  "Benefits": {
+    "pageTitle": "Benefits & Procedures",
+    "pageSubtitle": "Discover benefits you may be eligible for",
+    "tabs": {
+      "benefits": "My Benefits",
+      "news": "News",
+      "procedures": "My Procedures"
+    },
+    "forYou": "For You",
+    "allBenefits": "All Benefits",
+    "eligible": "You may qualify",
+    "notEligible": "Check eligibility",
+    "category": "Category",
+    "allCategories": "All categories",
+    "amount": "Estimated amount",
+    "processingTime": "Processing time",
+    "howToApply": "How to apply",
+    "requiredDocs": "Required documents",
+    "officialLink": "Official website",
+    "relatedNews": "Related updates",
+    "possiblyEligible": "Possibly eligible",
+    "completeProfile": "Complete your profile for better matching",
+    "noResults": "No benefits found for this category.",
+    "loginForMatching": "Sign in to see personalized benefit recommendations.",
+    "categories": {
+      "housing": "Housing",
+      "healthcare": "Healthcare",
+      "financial": "Financial Aid",
+      "employment": "Employment",
+      "legal": "Legal",
+      "education": "Education"
+    },
+    "news": {
+      "title": "Legislative Updates",
+      "subtitle": "Recent changes affecting immigrants in France",
+      "noNews": "No recent updates",
+      "source": "Source",
+      "readMore": "Read full article",
+      "relatedBenefit": "Related benefit"
+    },
+    "procedures": {
+      "title": "My Procedures",
+      "subtitle": "Track your administrative processes",
+      "stages": {
+        "preparing": "Preparing",
+        "submitted": "Submitted",
+        "processing": "Processing",
+        "decision": "Decision",
+        "complete": "Complete"
+      },
+      "updateStage": "Update stage",
+      "estimatedTime": "Est. {days} days remaining",
+      "noProcedures": "No active procedures. Add deadlines to track progress.",
+      "basedOnExperiences": "Based on {count} experiences"
+    },
+    "auth": {
+      "loginRequired": "Sign in to access Benefits"
     }
   }
 }

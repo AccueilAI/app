@@ -301,6 +301,7 @@ function rowToChunk(row: LegiRow): DocumentChunk | null {
     source_url: articleId
       ? `https://www.legifrance.gouv.fr/codes/article_lc/${articleId}`
       : null,
+    last_modified: new Date().toISOString(),
     metadata: {
       texte_titre: row.texte_titre,
       texte_contexte: row.texte_contexte,

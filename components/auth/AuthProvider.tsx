@@ -9,6 +9,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import { useRouter } from 'next/navigation';
 import type { User, SupabaseClient } from '@supabase/supabase-js';
 import type { AuthContextType, UserProfile } from '@/lib/auth/types';
 
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const supabaseRef = useRef<SupabaseClient | null>(null);
+  const router = useRouter();
 
   const getSupabase = useCallback(() => {
     if (supabaseRef.current) return supabaseRef.current;
@@ -70,11 +72,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       const newUser = session?.user ?? null;
       setUser(newUser);
       if (newUser) {
         fetchProfile(newUser.id);
+        // After OAuth login, redirect to the stored return path
+        if (event === 'SIGNED_IN') {
+          try {
+            const returnTo = localStorage.getItem('auth_return_to');
+            if (returnTo && returnTo.startsWith('/')) {
+              localStorage.removeItem('auth_return_to');
+              router.push(returnTo);
+            }
+          } catch { /* ignore */ }
+        }
       } else {
         setProfile(null);
       }

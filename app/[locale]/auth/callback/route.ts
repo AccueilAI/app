@@ -14,7 +14,9 @@ export async function GET(
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(new URL(`/${locale}/chat`, request.url));
+      // Redirect to locale root; client-side AuthProvider reads
+      // localStorage 'auth_return_to' for the final destination
+      return NextResponse.redirect(new URL(`/${locale}`, request.url));
     }
   }
 

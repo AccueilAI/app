@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -19,12 +20,19 @@ interface LoginModalProps {
 export function LoginModal({ open, onOpenChange }: LoginModalProps) {
   const t = useTranslations('Auth');
   const locale = useLocale();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function handleGoogleLogin() {
     setIsLoading('google');
     setError(null);
+
+    // Store return path in localStorage (not query param) to avoid
+    // Supabase redirect URL glob matching issues with query strings
+    try {
+      localStorage.setItem('auth_return_to', pathname || `/${locale}`);
+    } catch { /* ignore */ }
 
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({

@@ -74,6 +74,7 @@ export function ChatInterface() {
     }
   }, [messages, user]);
 
+
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
@@ -302,7 +303,7 @@ export function ChatInterface() {
   const sidebarActive = !!user && sidebarOpen;
 
   return (
-    <div className="flex h-dvh flex-col bg-[#FAFAF8] pt-16">
+    <div className="flex h-dvh flex-col bg-[#FAFAF8] pt-16 pb-14 md:pb-0">
       {/* ConversationSidebar (auth users only) */}
       {user && (
         <ConversationSidebar

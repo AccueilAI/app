@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { SourceCitations } from './SourceCitations';
 import { VerificationBadge } from './VerificationBadge';
 import { StreamProgress } from './StreamProgress';
@@ -69,30 +70,56 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, userQuery, isStreaming, isLast, onRegenerate, onSend }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'accuracy' | 'outdated' | 'other'>('accuracy');
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const t = useTranslations('Chat');
 
   const handleFeedback = useCallback(
     async (rating: 'up' | 'down') => {
-      if (feedback) return; // already rated
-      setFeedback(rating);
-
-      try {
-        await fetch('/api/chat/feedback', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messageId: message.id,
-            rating,
-            userQuery,
-            assistantResponse: message.content,
-            sourceCount: message.sources?.length ?? 0,
-          }),
-        });
-      } catch {
-        // silently fail — feedback is non-critical
+      if (feedback) return;
+      if (rating === 'up') {
+        setFeedback('up');
+        try {
+          await fetch('/api/chat/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messageId: message.id,
+              rating: 'up',
+              userQuery,
+              assistantResponse: message.content,
+              sourceCount: message.sources?.length ?? 0,
+            }),
+          });
+        } catch { /* non-critical */ }
+      } else {
+        setShowFeedbackModal(true);
       }
     },
     [feedback, message.id, message.content, message.sources, userQuery],
   );
+
+  const submitNegativeFeedback = useCallback(async () => {
+    setFeedback('down');
+    setShowFeedbackModal(false);
+    try {
+      await fetch('/api/chat/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId: message.id,
+          rating: 'down',
+          userQuery,
+          assistantResponse: message.content,
+          sourceCount: message.sources?.length ?? 0,
+          feedbackType,
+          comment: feedbackComment || undefined,
+          sourceUrls: message.sources?.map(s => s.source_url).filter(Boolean),
+        }),
+      });
+    } catch { /* non-critical */ }
+  }, [message.id, message.content, message.sources, userQuery, feedbackType, feedbackComment]);
 
   return (
     <div
@@ -189,6 +216,49 @@ export function MessageBubble({ message, userQuery, isStreaming, isLast, onRegen
                 <ThumbsDown className="h-3.5 w-3.5" />
               </button>
             </div>
+            {showFeedbackModal && (
+              <div className="mt-2 rounded-lg border border-[#E5E3DE] bg-white p-3 shadow-sm">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-[#1A1A2E]">{t('feedbackTitle')}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['accuracy', 'outdated', 'other'] as const).map(type => (
+                      <button
+                        key={type}
+                        onClick={() => setFeedbackType(type)}
+                        className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                          feedbackType === type
+                            ? 'bg-[#2B4C8C] text-white'
+                            : 'bg-[#F5F3EE] text-[#5C5C6F] hover:bg-[#E5E3DE]'
+                        }`}
+                      >
+                        {t(`feedbackType_${type}`)}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={feedbackComment}
+                    onChange={e => setFeedbackComment(e.target.value)}
+                    placeholder={t('feedbackCommentPlaceholder')}
+                    className="w-full rounded-md border border-[#E5E3DE] bg-[#F5F3EE] p-2 text-xs text-[#1A1A2E] placeholder:text-[#8A8A9A] focus:border-[#2B4C8C] focus:outline-none"
+                    rows={2}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={submitNegativeFeedback}
+                      className="rounded-md bg-[#2B4C8C] px-3 py-1.5 text-xs text-white transition-colors hover:bg-[#1E3A6E]"
+                    >
+                      {t('feedbackSubmit')}
+                    </button>
+                    <button
+                      onClick={() => setShowFeedbackModal(false)}
+                      className="rounded-md px-3 py-1.5 text-xs text-[#5C5C6F] transition-colors hover:bg-[#F5F3EE]"
+                    >
+                      {t('feedbackCancel')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             {message.verification && (
               <VerificationBadge verification={message.verification} />
             )}

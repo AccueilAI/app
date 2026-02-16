@@ -8,6 +8,8 @@ export interface Deadline {
   days_before_reminder: number;
   reminder_sent: boolean;
   completed: boolean;
+  stage: DeadlineStage;
+  stage_updated_at: string;
   created_at: string;
   updated_at: string;
 }
@@ -27,4 +29,19 @@ export const DEADLINE_TYPES: DeadlineType[] = [
   'cpam',
   'prefecture_rdv',
   'other',
+];
+
+export type DeadlineStage =
+  | 'preparing'
+  | 'submitted'
+  | 'processing'
+  | 'decision'
+  | 'complete';
+
+export const DEADLINE_STAGES: DeadlineStage[] = [
+  'preparing',
+  'submitted',
+  'processing',
+  'decision',
+  'complete',
 ];

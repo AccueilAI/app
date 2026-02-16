@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
         },
       ],
       max_completion_tokens: 4096,
-      temperature: 0.3,
     });
 
     const content = response.choices[0]?.message?.content ?? '[]';

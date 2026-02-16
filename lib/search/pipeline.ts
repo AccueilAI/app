@@ -25,6 +25,7 @@ export interface SearchResultItem {
   code_name?: string;
   source_url?: string;
   score: number;
+  last_crawled_at?: string;
 }
 
 export interface SearchResponse {
@@ -47,7 +48,7 @@ const RRF_K = 60;
  */
 function mergeWithRRF(
   primary: HybridSearchResult[],
-  secondary: { id: string; content: string; source: string; doc_type: string; article_number: string | null; code_name: string | null; source_url: string | null; metadata: Record<string, unknown> | null; similarity: number }[],
+  secondary: { id: string; content: string; source: string; doc_type: string; article_number: string | null; code_name: string | null; source_url: string | null; metadata: Record<string, unknown> | null; last_crawled_at: string | null; similarity: number }[],
   maxResults: number,
 ): HybridSearchResult[] {
   const scoreMap = new Map<string, { result: HybridSearchResult; score: number }>();
@@ -80,6 +81,7 @@ function mergeWithRRF(
           code_name: r.code_name,
           source_url: r.source_url,
           metadata: r.metadata,
+          last_crawled_at: r.last_crawled_at,
           semantic_rank: null,
           keyword_rank: null,
           rrf_score: secondaryScore,
@@ -136,7 +138,7 @@ async function expandCrossReferences(
 
   const { data, error } = await supabase
     .from('document_chunks')
-    .select('id, content, source, doc_type, article_number, code_name, source_url, metadata')
+    .select('id, content, source, doc_type, article_number, code_name, source_url, metadata, last_crawled_at')
     .in('article_number', Array.from(referencedIds));
 
   if (error || !data) return [];
@@ -150,6 +152,7 @@ async function expandCrossReferences(
     code_name: (doc.code_name as string | null) ?? null,
     source_url: (doc.source_url as string | null) ?? null,
     metadata: (doc.metadata as Record<string, unknown> | null) ?? null,
+    last_crawled_at: (doc.last_crawled_at as string | null) ?? null,
     semantic_rank: null,
     keyword_rank: null,
     rrf_score: 0,
@@ -249,6 +252,7 @@ export async function ragSearch(
     ...(r.article_number && { article_number: r.article_number }),
     ...(r.code_name && { code_name: r.code_name }),
     ...(r.source_url && { source_url: r.source_url }),
+    ...(r.last_crawled_at && { last_crawled_at: r.last_crawled_at }),
     score: r.rrf_score,
   }));
 

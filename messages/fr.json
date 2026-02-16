@@ -8,7 +8,8 @@
     "experiences": "Expériences",
     "documents": "Documents",
     "signIn": "Connexion",
-    "deadlines": "Échéances"
+    "deadlines": "Échéances",
+    "benefits": "Aides"
   },
   "Auth": {
     "signIn": "Connexion",
@@ -32,7 +33,26 @@
     "save": "Enregistrer",
     "saving": "Enregistrement...",
     "saved": "Modifications enregistrées !",
-    "loginRequired": "Veuillez vous connecter pour voir votre profil."
+    "loginRequired": "Veuillez vous connecter pour voir votre profil.",
+    "visaTypes": {
+      "student": "Étudiant / VLS-TS / APS",
+      "talent": "Passeport Talent",
+      "salaried": "Salarié",
+      "family": "Vie Privée et Familiale",
+      "visitor": "Visiteur",
+      "other": "Autre"
+    },
+    "birthDate": "Date de naissance",
+    "hasChildren": "Avez-vous des enfants ?",
+    "employmentStatus": "Situation professionnelle",
+    "employmentOptions": {
+      "unknown": "Préfère ne pas dire",
+      "employed": "Salarié(e)",
+      "selfEmployed": "Indépendant(e)",
+      "student": "Étudiant(e)",
+      "unemployed": "Sans emploi / En recherche",
+      "retired": "Retraité(e)"
+    }
   },
   "Hero": {
     "headline": "L'administration vous épuise ?\nNous aussi. On va régler ça.",
@@ -238,6 +258,15 @@
       "copied": "Copié !",
       "regenerate": "Régénérer"
     },
+    "sourceAge": "Mis à jour il y a {days}j",
+    "sourceAgeWarning": "Certaines sources peuvent être obsolètes",
+    "feedbackTitle": "Quel est le problème ?",
+    "feedbackType_accuracy": "Information inexacte",
+    "feedbackType_outdated": "Information obsolète",
+    "feedbackType_other": "Autre",
+    "feedbackCommentPlaceholder": "Dites-nous en plus (optionnel)...",
+    "feedbackSubmit": "Envoyer",
+    "feedbackCancel": "Annuler",
     "sidebar": {
       "newChat": "Nouvelle conversation",
       "conversations": "Conversations",
@@ -396,6 +425,7 @@
     "generate": "Générer la checklist",
     "generating": "Génération en cours...",
     "saving": "Enregistrement...",
+    "saveError": "Échec de la sauvegarde — annulé",
     "empty": "Sélectionnez un type de démarche ci-dessus pour générer votre checklist personnalisée.",
     "categories": {
       "identity": "Identité",
@@ -475,6 +505,65 @@
       "title": "Mes documents",
       "empty": "Aucune analyse de document pour le moment.",
       "viewAnalysis": "Voir l'analyse"
+    }
+  },
+  "Benefits": {
+    "pageTitle": "Aides & Démarches",
+    "pageSubtitle": "Découvrez les aides auxquelles vous pouvez prétendre",
+    "tabs": {
+      "benefits": "Mes aides",
+      "news": "Actualités",
+      "procedures": "Mes démarches"
+    },
+    "forYou": "Pour vous",
+    "allBenefits": "Toutes les aides",
+    "eligible": "Vous pouvez en bénéficier",
+    "notEligible": "Vérifier l'éligibilité",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "amount": "Montant estimé",
+    "processingTime": "Délai de traitement",
+    "howToApply": "Comment faire la demande",
+    "requiredDocs": "Documents requis",
+    "officialLink": "Site officiel",
+    "relatedNews": "Actualités liées",
+    "possiblyEligible": "Peut-être éligible",
+    "completeProfile": "Complétez votre profil",
+    "noResults": "Aucune aide trouvée pour cette catégorie.",
+    "loginForMatching": "Connectez-vous pour voir les aides personnalisées.",
+    "categories": {
+      "housing": "Logement",
+      "healthcare": "Santé",
+      "financial": "Aides financières",
+      "employment": "Emploi",
+      "legal": "Juridique",
+      "education": "Éducation"
+    },
+    "news": {
+      "title": "Actualités législatives",
+      "subtitle": "Changements récents concernant les immigrés en France",
+      "noNews": "Aucune actualité récente",
+      "source": "Source",
+      "readMore": "Lire l'article complet",
+      "relatedBenefit": "Aide concernée"
+    },
+    "procedures": {
+      "title": "Mes démarches",
+      "subtitle": "Suivez vos procédures administratives",
+      "stages": {
+        "preparing": "Préparation",
+        "submitted": "Déposé",
+        "processing": "En cours",
+        "decision": "Décision",
+        "complete": "Terminé"
+      },
+      "updateStage": "Mettre à jour",
+      "estimatedTime": "Env. {days} jours restants",
+      "noProcedures": "Aucune démarche en cours. Ajoutez des échéances pour suivre votre avancement.",
+      "basedOnExperiences": "Basé sur {count} expériences"
+    },
+    "auth": {
+      "loginRequired": "Connectez-vous pour accéder aux Aides"
     }
   }
 }

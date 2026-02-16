@@ -11,6 +11,9 @@ interface FeedbackBody {
   assistantResponse?: string;
   sourceCount?: number;
   language?: string;
+  feedbackType?: 'accuracy' | 'outdated' | 'other';
+  comment?: string;
+  sourceUrls?: string[];
 }
 
 export async function POST(request: NextRequest) {
@@ -62,6 +65,9 @@ export async function POST(request: NextRequest) {
     language: body.language ?? null,
     ip_hash: ipHash,
     user_id: userId,
+    feedback_type: body.feedbackType ?? 'accuracy',
+    comment: body.comment?.slice(0, 1000) ?? null,
+    source_urls: body.sourceUrls ?? null,
     created_at: new Date().toISOString(),
   });
 
@@ -71,6 +77,27 @@ export async function POST(request: NextRequest) {
       { error: 'Failed to save feedback.' },
       { status: 500 },
     );
+  }
+
+  // If "outdated" feedback with source URLs, check for threshold
+  if (body.feedbackType === 'outdated' && body.sourceUrls && body.sourceUrls.length > 0) {
+    for (const url of body.sourceUrls) {
+      const { count } = await supabase
+        .from('chat_feedback')
+        .select('*', { count: 'exact', head: true })
+        .eq('feedback_type', 'outdated')
+        .contains('source_urls', [url])
+        .gte('created_at', new Date(Date.now() - 30 * 86400000).toISOString());
+
+      if (count && count >= 5) {
+        // Threshold reached — flag for recrawl
+        await supabase.from('recrawl_candidates').insert({
+          source: 'user_report',
+          source_url: url,
+          reason: 'manual_flag',
+        });
+      }
+    }
   }
 
   const response = NextResponse.json({ ok: true });
