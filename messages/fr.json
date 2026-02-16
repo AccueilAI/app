@@ -355,8 +355,12 @@
     }
   },
   "Documents": {
-    "pageTitle": "Analyseur de documents",
-    "pageSubtitle": "Téléchargez n'importe quel document administratif français — formulaire CERFA, courrier officiel, convocation — et obtenez une explication claire avec les actions à mener.",
+    "pageTitle": "Documents",
+    "pageSubtitle": "Générez des listes de documents pour vos démarches ou analysez vos documents téléchargés.",
+    "tabs": {
+      "checklist": "Générateur de checklist",
+      "analyzer": "Analyseur de documents"
+    },
     "upload": {
       "dropzone": "Glissez-déposez votre document ici",
       "or": "ou",
@@ -374,13 +378,41 @@
       "empty": "Aucune analyse précédente."
     },
     "auth": {
-      "loginRequired": "Connectez-vous pour analyser vos documents."
+      "loginRequired": "Connectez-vous pour utiliser les outils documents."
     },
     "errors": {
       "fileTooLarge": "Le fichier est trop volumineux. Taille maximale : 10 Mo.",
       "unsupportedFormat": "Format non supporté. Veuillez télécharger un PDF, JPEG ou PNG.",
       "analysisFailed": "L'analyse a échoué. Veuillez réessayer.",
-      "dailyLimit": "Vous avez atteint la limite de 5 analyses par jour."
+      "dailyLimit": "Limite quotidienne atteinte."
+    }
+  },
+  "Checklist": {
+    "title": "Générateur de checklist",
+    "subtitle": "Sélectionnez un type de démarche et nous générerons une liste personnalisée des documents requis à partir des sources officielles.",
+    "procedureType": "Type de démarche",
+    "selectProcedure": "Sélectionner une démarche...",
+    "profileInfo": "Utilisation de votre profil pour des résultats personnalisés",
+    "generate": "Générer la checklist",
+    "generating": "Génération en cours...",
+    "saving": "Enregistrement...",
+    "empty": "Sélectionnez un type de démarche ci-dessus pour générer votre checklist personnalisée.",
+    "categories": {
+      "identity": "Identité",
+      "proof_of_residence": "Justificatif de domicile",
+      "financial": "Financier",
+      "professional": "Professionnel",
+      "medical": "Médical",
+      "administrative": "Administratif",
+      "other": "Autre"
+    },
+    "saved": {
+      "title": "Checklists enregistrées",
+      "completed": "complétés"
+    },
+    "errors": {
+      "generationFailed": "Échec de la génération. Veuillez réessayer.",
+      "dailyLimit": "Limite quotidienne atteinte."
     }
   },
   "Deadlines": {

@@ -355,8 +355,12 @@
     }
   },
   "Documents": {
-    "pageTitle": "서류 분석기",
-    "pageSubtitle": "프랑스 행정 서류 — CERFA 양식, 공문, 소환장 등을 업로드하면 쉬운 말로 해석하고 해야 할 일을 알려드립니다.",
+    "pageTitle": "서류",
+    "pageSubtitle": "절차별 필요 서류 체크리스트를 생성하거나, 업로드한 서류를 분석할 수 있습니다.",
+    "tabs": {
+      "checklist": "체크리스트 생성기",
+      "analyzer": "서류 분석기"
+    },
     "upload": {
       "dropzone": "서류를 여기에 끌어다 놓으세요",
       "or": "또는",
@@ -374,13 +378,41 @@
       "empty": "이전 분석 기록이 없습니다."
     },
     "auth": {
-      "loginRequired": "서류를 분석하려면 로그인해 주세요."
+      "loginRequired": "서류 도구를 사용하려면 로그인해 주세요."
     },
     "errors": {
       "fileTooLarge": "파일이 너무 큽니다. 최대 10 MB까지 가능합니다.",
       "unsupportedFormat": "지원하지 않는 형식입니다. PDF, JPEG, PNG 파일을 업로드해 주세요.",
       "analysisFailed": "분석에 실패했습니다. 다시 시도해 주세요.",
-      "dailyLimit": "오늘의 분석 한도(5회)를 모두 사용했습니다."
+      "dailyLimit": "일일 한도를 초과했습니다."
+    }
+  },
+  "Checklist": {
+    "title": "서류 체크리스트 생성기",
+    "subtitle": "절차 유형을 선택하면 공식 자료를 기반으로 필요한 서류 목록을 맞춤 생성합니다.",
+    "procedureType": "절차 유형",
+    "selectProcedure": "절차를 선택하세요...",
+    "profileInfo": "프로필 정보를 활용하여 맞춤 결과를 제공합니다",
+    "generate": "체크리스트 생성",
+    "generating": "체크리스트 생성 중...",
+    "saving": "저장 중...",
+    "empty": "위에서 절차 유형을 선택하면 맞춤 서류 체크리스트를 생성합니다.",
+    "categories": {
+      "identity": "신분증",
+      "proof_of_residence": "거주 증명",
+      "financial": "재정",
+      "professional": "직업",
+      "medical": "의료",
+      "administrative": "행정",
+      "other": "기타"
+    },
+    "saved": {
+      "title": "저장된 체크리스트",
+      "completed": "완료"
+    },
+    "errors": {
+      "generationFailed": "체크리스트 생성에 실패했습니다. 다시 시도해 주세요.",
+      "dailyLimit": "일일 한도를 초과했습니다."
     }
   },
   "Deadlines": {

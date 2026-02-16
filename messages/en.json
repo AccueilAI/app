@@ -355,8 +355,12 @@
     }
   },
   "Documents": {
-    "pageTitle": "Document Analyzer",
-    "pageSubtitle": "Upload any French administrative document — CERFA forms, official letters, convocations — and get a plain-language explanation with action items.",
+    "pageTitle": "Documents",
+    "pageSubtitle": "Generate checklists for your procedures or analyze uploaded documents.",
+    "tabs": {
+      "checklist": "Checklist Generator",
+      "analyzer": "Document Analyzer"
+    },
     "upload": {
       "dropzone": "Drag and drop your document here",
       "or": "or",
@@ -374,13 +378,41 @@
       "empty": "No previous analyses."
     },
     "auth": {
-      "loginRequired": "Sign in to analyze your documents."
+      "loginRequired": "Sign in to use document tools."
     },
     "errors": {
       "fileTooLarge": "File is too large. Maximum size is 10 MB.",
       "unsupportedFormat": "Unsupported file format. Please upload a PDF, JPEG, or PNG.",
       "analysisFailed": "Analysis failed. Please try again.",
-      "dailyLimit": "You've reached the daily limit of 5 analyses."
+      "dailyLimit": "You've reached the daily limit."
+    }
+  },
+  "Checklist": {
+    "title": "Document Checklist Generator",
+    "subtitle": "Select a procedure type and we'll generate a personalized list of required documents based on official sources.",
+    "procedureType": "Procedure Type",
+    "selectProcedure": "Select a procedure...",
+    "profileInfo": "Using your profile info for personalized results",
+    "generate": "Generate Checklist",
+    "generating": "Generating checklist...",
+    "saving": "Saving...",
+    "empty": "Select a procedure type above to generate your personalized document checklist.",
+    "categories": {
+      "identity": "Identity",
+      "proof_of_residence": "Proof of Residence",
+      "financial": "Financial",
+      "professional": "Professional",
+      "medical": "Medical",
+      "administrative": "Administrative",
+      "other": "Other"
+    },
+    "saved": {
+      "title": "Saved Checklists",
+      "completed": "completed"
+    },
+    "errors": {
+      "generationFailed": "Failed to generate checklist. Please try again.",
+      "dailyLimit": "You've reached the daily limit."
     }
   },
   "Deadlines": {

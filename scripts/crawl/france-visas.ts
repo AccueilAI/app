@@ -1,12 +1,14 @@
 /**
  * france-visas.gouv.fr crawler.
+ * Uses Playwright (headed) to bypass Cloudflare Managed Challenge.
  * Crawls visa information pages and ingests into Supabase.
  */
 
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 config();
-import { type DocumentChunk, type IngestStats, RATE_LIMITS, sleep, log } from '../ingest/config';
+import { chromium, type Page } from 'playwright';
+import { type DocumentChunk, type IngestStats, sleep, log } from '../ingest/config';
 import { ingestChunks } from '../ingest/embed-chunks';
 import { parseHtmlToChunks } from './parser';
 
@@ -18,89 +20,114 @@ const TAG = 'france-visas';
 
 const BASE_URL = 'https://france-visas.gouv.fr';
 
-/** Seed URLs covering visa types, procedures, documents, and fees */
+/** Content pages discovered from the 2026 site structure */
 const SEED_URLS = [
-  // Main informational pages
-  `${BASE_URL}/en/web/france-visas/welcome-page`,
-  `${BASE_URL}/en/web/france-visas/visa-wizard`,
+  // General info
+  `${BASE_URL}/web/france-visas/informations-generales`,
+  `${BASE_URL}/web/france-visas/les-etapes-de-la-demande-de-visa`,
+  `${BASE_URL}/web/france-visas/la-france-dans-l-espace-schengen`,
 
-  // Short-stay visas (Schengen)
-  `${BASE_URL}/en/web/france-visas/short-stay-visa`,
-  `${BASE_URL}/en/web/france-visas/transit-visa`,
+  // Short-stay & transit
+  `${BASE_URL}/web/france-visas/visa-de-court-sejour`,
+  `${BASE_URL}/web/france-visas/visa-de-transit-aeroportuaire`,
 
-  // Long-stay visas
-  `${BASE_URL}/en/web/france-visas/long-stay-visa`,
-  `${BASE_URL}/en/web/france-visas/long-stay-student`,
-  `${BASE_URL}/en/web/france-visas/long-stay-equivalent-to-residence-permit`,
+  // Long-stay
+  `${BASE_URL}/web/france-visas/visa-de-long-sejour`,
 
-  // Specific visa types
-  `${BASE_URL}/en/web/france-visas/talent-passport`,
-  `${BASE_URL}/en/web/france-visas/intra-company-transfer`,
-  `${BASE_URL}/en/web/france-visas/family-reunification`,
-  `${BASE_URL}/en/web/france-visas/spouse-of-french-national`,
+  // Tourism / Private
+  `${BASE_URL}/web/france-visas/tourisme-sejour-prive`,
+  `${BASE_URL}/web/france-visas/sejour-touristique-ou-prive`,
+  `${BASE_URL}/web/france-visas/jeune-voyageur-vacances-travail`,
+  `${BASE_URL}/web/france-visas/volontariat`,
 
-  // Procedures
-  `${BASE_URL}/en/web/france-visas/how-to-apply`,
-  `${BASE_URL}/en/web/france-visas/required-documents`,
-  `${BASE_URL}/en/web/france-visas/fees`,
-  `${BASE_URL}/en/web/france-visas/processing-time`,
-  `${BASE_URL}/en/web/france-visas/track-your-application`,
+  // Professional
+  `${BASE_URL}/web/france-visas/motif-professionnel`,
+  `${BASE_URL}/web/france-visas/voyages-d-affaires`,
+  `${BASE_URL}/web/france-visas/activite-non-salariee-ou-liberale`,
+  `${BASE_URL}/web/france-visas/recherche-d-emploi-creation-d-entreprise`,
+  `${BASE_URL}/web/france-visas/activite-salariee`,
+  `${BASE_URL}/web/france-visas/passeport-talents`,
+  `${BASE_URL}/web/france-visas/jeunes-salaries`,
 
-  // FAQ and practical info
-  `${BASE_URL}/en/web/france-visas/faq`,
-  `${BASE_URL}/en/web/france-visas/visa-application-centres`,
+  // Study / Training
+  `${BASE_URL}/web/france-visas/etudier-se-former`,
+  `${BASE_URL}/web/france-visas/etudiant`,
+  `${BASE_URL}/web/france-visas/stagiaire-etudiant`,
+  `${BASE_URL}/web/france-visas/jeune-au-pair`,
+  `${BASE_URL}/web/france-visas/mineur-scolarise`,
 
-  // French versions for comprehensive coverage
-  `${BASE_URL}/fr/web/france-visas/accueil`,
-  `${BASE_URL}/fr/web/france-visas/visa-court-sejour`,
-  `${BASE_URL}/fr/web/france-visas/visa-long-sejour`,
-  `${BASE_URL}/fr/web/france-visas/visa-long-sejour-etudiant`,
-  `${BASE_URL}/fr/web/france-visas/passeport-talent`,
-  `${BASE_URL}/fr/web/france-visas/transfert-intragroupe`,
-  `${BASE_URL}/fr/web/france-visas/regroupement-familial`,
-  `${BASE_URL}/fr/web/france-visas/conjoint-francais`,
-  `${BASE_URL}/fr/web/france-visas/demarche-en-ligne`,
-  `${BASE_URL}/fr/web/france-visas/documents-necessaires`,
-  `${BASE_URL}/fr/web/france-visas/tarifs`,
-  `${BASE_URL}/fr/web/france-visas/delais-traitement`,
-  `${BASE_URL}/fr/web/france-visas/suivi-demande`,
-  `${BASE_URL}/fr/web/france-visas/foire-aux-questions`,
-  `${BASE_URL}/fr/web/france-visas/centres-de-demande`,
+  // Family
+  `${BASE_URL}/web/france-visas/motif-familial`,
+  `${BASE_URL}/web/france-visas/famille-de-citoyen-europeen`,
+  `${BASE_URL}/web/france-visas/famille-de-francais`,
+  `${BASE_URL}/web/france-visas/famille-d-etranger-residant-en-france`,
+  `${BASE_URL}/web/france-visas/familial-adoption`,
+
+  // Arrival & Practical
+  `${BASE_URL}/web/france-visas/votre-arrivee-en-france`,
+  `${BASE_URL}/web/france-visas/lieu-de-depot`,
+  `${BASE_URL}/web/france-visas/questions-frequentes`,
+  `${BASE_URL}/web/france-visas/contact-assistance`,
 ];
 
 // ============================================================
-// Page fetcher
+// Playwright page fetcher
 // ============================================================
 
-async function fetchPage(url: string): Promise<string | null> {
+async function fetchPage(page: Page, url: string): Promise<string | null> {
   try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'AccueilAI-Ingest/1.0 (bot; +https://accueilai.com)',
-        Accept: 'text/html',
-        'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
-      },
+    const resp = await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 20000,
     });
 
-    if (!response.ok) {
-      log(TAG, `HTTP ${response.status} for ${url}`);
+    if (!resp || resp.status() >= 400) {
+      log(TAG, `HTTP ${resp?.status() ?? 'null'} for ${url}`);
       return null;
     }
 
-    return response.text();
+    // Wait for main content to render
+    await page.waitForTimeout(2000);
+
+    const title = await page.title();
+    if (title.includes('404') || title === 'Just a moment...') {
+      log(TAG, `Blocked or 404: ${url} (title: ${title})`);
+      return null;
+    }
+
+    return page.content();
   } catch (err) {
-    log(TAG, `Fetch failed for ${url}: ${err}`);
+    log(TAG, `Fetch failed for ${url}: ${(err as Error).message?.slice(0, 100)}`);
     return null;
   }
 }
 
 // ============================================================
-// Language detection from URL
+// Link discovery — find additional content pages
 // ============================================================
 
-function detectLanguage(url: string): string {
-  if (url.includes('/en/')) return 'en';
-  return 'fr';
+async function discoverLinks(page: Page): Promise<string[]> {
+  const links = await page.evaluate((base: string) => {
+    return Array.from(document.querySelectorAll('a[href]'))
+      .map((a) => a.getAttribute('href') ?? '')
+      .filter((h) => h.startsWith('/web/france-visas/') || h.startsWith(base + '/web/france-visas/'))
+      .map((h) => (h.startsWith('/') ? base + h : h));
+  }, BASE_URL);
+
+  // Filter to content pages only
+  const SKIP_PATTERNS = [
+    'demande-en-ligne',
+    'suivre-votre-demande',
+    'assistant-visa',
+    'mentions-legales',
+    'actualites',
+    'rechercher',
+    'accueil',
+  ];
+
+  return links.filter(
+    (url) => !SKIP_PATTERNS.some((p) => url.includes(p)),
+  );
 }
 
 // ============================================================
@@ -108,36 +135,85 @@ function detectLanguage(url: string): string {
 // ============================================================
 
 export async function crawlFranceVisas(): Promise<IngestStats> {
-  log(TAG, 'Starting france-visas.gouv.fr crawl');
+  log(TAG, 'Starting france-visas.gouv.fr crawl (Playwright)');
 
+  const browser = await chromium.launch({
+    headless: false,
+    args: ['--disable-blink-features=AutomationControlled'],
+  });
+
+  const context = await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    locale: 'fr-FR',
+  });
+
+  const page = await context.newPage();
+
+  // Remove webdriver flag
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => false });
+  });
+
+  // Step 1: Solve Cloudflare challenge on homepage
+  log(TAG, 'Navigating to homepage to solve Cloudflare challenge...');
+  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.waitForTimeout(5000);
+  const homeTitle = await page.title();
+  log(TAG, `Homepage loaded: "${homeTitle}"`);
+
+  if (homeTitle.includes('moment')) {
+    log(TAG, 'Still on Cloudflare challenge, waiting longer...');
+    await page.waitForTimeout(10000);
+  }
+
+  // Step 2: Discover additional links from homepage
+  const discoveredLinks = await discoverLinks(page);
+  const allUrls = [...new Set([...SEED_URLS, ...discoveredLinks])];
+  log(TAG, `${SEED_URLS.length} seed + ${discoveredLinks.length} discovered = ${allUrls.length} unique URLs`);
+
+  // Step 3: Crawl all pages
   const allChunks: DocumentChunk[] = [];
   let crawled = 0;
   let failed = 0;
 
-  for (const url of SEED_URLS) {
-    const html = await fetchPage(url);
+  for (const url of allUrls) {
+    const html = await fetchPage(page, url);
 
     if (html) {
-      const lang = detectLanguage(url);
       const chunks = parseHtmlToChunks(html, url, {
         source: 'france-visas',
         doc_type: 'visa_info',
-        language: lang,
-        metadata: { crawler: 'france-visas' },
+        language: 'fr',
+        metadata: { crawler: 'france-visas-playwright' },
       });
+
+      // Also discover links from each page
+      const pageLinks = await discoverLinks(page);
+      for (const link of pageLinks) {
+        if (!allUrls.includes(link)) {
+          allUrls.push(link);
+        }
+      }
 
       allChunks.push(...chunks);
       crawled++;
-      log(TAG, `[${crawled}/${SEED_URLS.length}] ${url} -> ${chunks.length} chunks`);
+      log(TAG, `[${crawled}/${allUrls.length}] ${url} -> ${chunks.length} chunks`);
     } else {
       failed++;
     }
 
     // Polite delay between requests
-    await sleep(RATE_LIMITS.crawlDelayMs);
+    await sleep(2000);
   }
 
+  await browser.close();
   log(TAG, `Crawled ${crawled} pages (${failed} failed), ${allChunks.length} total chunks`);
+
+  if (allChunks.length === 0) {
+    log(TAG, 'No chunks collected — skipping ingest');
+    return { source: TAG, chunksCreated: 0, chunksSkipped: 0, durationMs: 0 };
+  }
 
   return ingestChunks(allChunks);
 }

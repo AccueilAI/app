@@ -2,22 +2,26 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { FileText } from 'lucide-react';
+import { FileText, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { DocumentUpload } from '@/components/documents/DocumentUpload';
 import { AnalysisResult } from '@/components/documents/AnalysisResult';
+import { ChecklistGenerator } from '@/components/documents/ChecklistGenerator';
 import type { DocumentAnalysis } from '@/lib/documents/types';
 
 interface DocumentsContentProps {
   locale: string;
 }
 
+type Tab = 'analyzer' | 'checklist';
+
 export function DocumentsContent({ locale }: DocumentsContentProps) {
   const t = useTranslations('Documents');
   const { user, isLoading } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>('checklist');
 
   if (isLoading) {
     return (
@@ -58,11 +62,43 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
         <p className="mt-2 text-sm text-[#5C5C6F]">{t('pageSubtitle')}</p>
       </div>
 
-      <DocumentUpload language={locale} onAnalysisComplete={setAnalysis} />
-
-      <div className="mt-8">
-        <AnalysisResult analysis={analysis} userId={user.id} />
+      {/* Tab navigation */}
+      <div className="mb-6 flex gap-1 rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] p-1">
+        <button
+          onClick={() => setActiveTab('checklist')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'checklist'
+              ? 'bg-white text-[#1A1A2E] shadow-sm'
+              : 'text-[#5C5C6F] hover:text-[#1A1A2E]'
+          }`}
+        >
+          <ClipboardList className="h-4 w-4" />
+          {t('tabs.checklist')}
+        </button>
+        <button
+          onClick={() => setActiveTab('analyzer')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'analyzer'
+              ? 'bg-white text-[#1A1A2E] shadow-sm'
+              : 'text-[#5C5C6F] hover:text-[#1A1A2E]'
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          {t('tabs.analyzer')}
+        </button>
       </div>
+
+      {/* Tab content */}
+      {activeTab === 'checklist' ? (
+        <ChecklistGenerator language={locale} />
+      ) : (
+        <>
+          <DocumentUpload language={locale} onAnalysisComplete={setAnalysis} />
+          <div className="mt-8">
+            <AnalysisResult analysis={analysis} userId={user.id} />
+          </div>
+        </>
+      )}
     </main>
   );
 }
