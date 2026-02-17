@@ -135,7 +135,7 @@
     "subhead": "무료로 시작하세요. 필요할 때 업그레이드.",
     "popular": "인기",
     "cta": "대기자 등록",
-    "earlyBird": "🎁 선착순 100명에게 1달간 모든 기능 무제한 이용!",
+    "earlyBird": "🎁 선착순 100명에게 Plus 요금제 1달 무료!",
     "tiers": {
       "free": {
         "name": "Free",
@@ -178,7 +178,7 @@
   },
   "Waitlist": {
     "headline": "얼리 엑세스 신청",
-    "subhead": "선착순 100명에게 1달간 모든 기능 무제한 제공. 놓치지 마세요.",
+    "subhead": "선착순 100명에게 Plus 요금제 1달 무료. 놓치지 마세요.",
     "placeholder": "you@email.com",
     "cta": "자리 확보하기",
     "privacy": "스팸은 보내지 않습니다. 언제든 수신 거부 가능.",

@@ -135,7 +135,7 @@
     "subhead": "Start free. Upgrade when you need more.",
     "popular": "Most Popular",
     "cta": "Join Waitlist",
-    "earlyBird": "🎁 First 100 waitlist members get 1 month of unlimited access to all features!",
+    "earlyBird": "🎁 First 100 waitlist members get 1 month of Plus for free!",
     "tiers": {
       "free": {
         "name": "Free",
@@ -178,7 +178,7 @@
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "First 100 members get 1 month of unlimited access. Don't miss it.",
+    "subhead": "First 100 members get 1 month of Plus free. Don't miss it.",
     "placeholder": "you@email.com",
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
