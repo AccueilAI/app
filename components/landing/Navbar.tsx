@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
-import { Globe, ChevronDown, Sparkles, Users, FileSearch, CalendarClock, Gift, Layers, CreditCard, HelpCircle } from 'lucide-react';
+import { Globe, ChevronDown, Sparkles, Users, FileSearch, CalendarClock, Gift, Layers, CreditCard, HelpCircle, Menu, X } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { LoginModal } from '@/components/auth/LoginModal';
 import { UserMenu } from '@/components/auth/UserMenu';
@@ -38,6 +38,7 @@ export function Navbar() {
   const pathname = usePathname();
   const [langOpen, setLangOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isLoading } = useAuth();
 
@@ -71,15 +72,23 @@ export function Navbar() {
     <>
       <header className="fixed top-0 z-50 w-full border-b border-[#D6DDE8]/60 bg-[#EEF2F9]/75 backdrop-blur-lg">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          {/* Logo */}
-          <a href={`/${locale}`} className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#2B4C8C]">
-              <span className="font-serif text-lg text-white">A</span>
-            </div>
-            <span className="font-serif text-[22px] text-[#1A1A2E]">
-              AccueilAI
-            </span>
-          </a>
+          {/* Left side: hamburger + logo */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5C5C6F] transition-colors hover:bg-[#E5E3DE]/50 hover:text-[#1A1A2E] md:hidden"
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            <a href={`/${locale}`} className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#2B4C8C]">
+                <span className="font-serif text-lg text-white">A</span>
+              </div>
+              <span className="font-serif text-[22px] text-[#1A1A2E]">
+                AccueilAI
+              </span>
+            </a>
+          </div>
 
           {/* Desktop nav — auth-state based */}
           <div className="hidden items-center gap-7 md:flex">
@@ -182,6 +191,60 @@ export function Navbar() {
             )}
           </div>
         </nav>
+
+        {/* Mobile dropdown menu */}
+        {mobileOpen && (
+          <div className="border-t border-[#D6DDE8]/60 bg-[#EEF2F9]/95 backdrop-blur-lg md:hidden">
+            <div className="mx-auto max-w-6xl space-y-1 px-4 py-3">
+              {user ? (
+                AUTH_LINKS.map((link) => {
+                  const Icon = link.icon;
+                  const active = !isLanding && isActive(link.key);
+                  return (
+                    <a
+                      key={link.key}
+                      href={`/${locale}/${link.key}`}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                        active
+                          ? 'bg-[#2B4C8C]/10 font-semibold text-[#2B4C8C]'
+                          : 'font-medium text-[#5C5C6F] hover:bg-white/60 hover:text-[#1A1A2E]'
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {t(link.key)}
+                    </a>
+                  );
+                })
+              ) : (
+                <>
+                  <a
+                    href={`/${locale}/chat`}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition-colors ${
+                      isActive('chat') ? 'bg-[#2B4C8C]/10 text-[#2B4C8C]' : 'text-[#2B4C8C] hover:bg-white/60'
+                    }`}
+                  >
+                    <Sparkles className="h-5 w-5" />
+                    {t('chat')}
+                  </a>
+                  <a href={anchor('#features')} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:bg-white/60 hover:text-[#1A1A2E]">
+                    <Layers className="h-5 w-5" />
+                    {t('features')}
+                  </a>
+                  <a href={anchor('#pricing')} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:bg-white/60 hover:text-[#1A1A2E]">
+                    <CreditCard className="h-5 w-5" />
+                    {t('pricing')}
+                  </a>
+                  <a href={anchor('#faq')} onClick={() => setMobileOpen(false)} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-[#5C5C6F] transition-colors hover:bg-white/60 hover:text-[#1A1A2E]">
+                    <HelpCircle className="h-5 w-5" />
+                    {t('faq')}
+                  </a>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Mobile bottom tab bar — auth-state based */}
