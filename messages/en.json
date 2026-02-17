@@ -55,7 +55,7 @@
     }
   },
   "Hero": {
-    "headline": "Tired of French paperwork?\nSame. So we built this.",
+    "headline": "Tired of French paperwork?\nThere's a better way.",
     "subhead": "Not Reddit. Not ChatGPT. AccueilAI gives you answers sourced from French law and official data — personalized to your visa, your city, your exact situation.",
     "cta": "Join the Waitlist",
     "ctaSub": "See How It Works",
@@ -72,17 +72,17 @@
       },
       "1": {
         "title": "Reddit says one thing. An expat group says another. Both are from 2021.",
-        "description": "Expat forums are full of personal anecdotes that may or may not apply to your case. Fragmented, outdated, and impossible to verify. What worked in Lyon won't work in Paris 14e."
+        "description": "Your case depends on your visa, nationality, préfecture, timing, and a dozen other factors. Expat forums are full of personal anecdotes — fragmented, outdated, and impossible to verify. What worked in Lyon won't work in Paris 14e."
       },
       "2": {
         "title": "Your titre de séjour expires in 47 days. Nobody told you.",
-        "description": "One missed deadline can cost you your right to stay. Visa renewals, CAF declarations, tax filings, CPAM registration — the system sends zero reminders. You're on your own."
+        "description": "One missed deadline can cost you your right to stay. Visa renewals, CAF declarations, tax filings, CPAM registration — the system sends zero reminders. And even when you do everything right, you wait months with no update, no explanation, and no one to ask."
       }
     }
   },
   "HowItWorks": {
     "label": "How It Works",
-    "headline": "Not ChatGPT. Not a forum.\nA real answer engine.",
+    "headline": "Three steps to your answer.",
     "steps": {
       "0": {
         "title": "Tell us your situation",
@@ -90,7 +90,7 @@
       },
       "1": {
         "title": "Get sourced answers, not guesses",
-        "description": "Unlike ChatGPT, every answer cites CESEDA law, service-public.gouv.fr, and official government data. No hallucinations. No outdated info."
+        "description": "Every answer cites CESEDA law, service-public.gouv.fr, and official government data — with source links you can verify. No hallucinations. No outdated info."
       },
       "2": {
         "title": "Act with confidence",
@@ -125,7 +125,7 @@
       },
       "5": {
         "title": "Benefits for Residents",
-        "description": "Discover benefits available to foreigners living in France — CAF housing aid, healthcare coverage, employment support. Personalized to your visa type and profile."
+        "description": "Many residents miss out on benefits they're eligible for — housing aid (APL/ALS), healthcare subsidies (CSS), employment support, family allowances. We match your visa type, employment status, and situation to show what you can claim — and track legislative changes so you're never caught off guard."
       }
     }
   },
@@ -212,6 +212,10 @@
         "a": "English, French, and Korean at launch. More languages coming based on demand."
       },
       "5": {
+        "q": "How current is the information?",
+        "a": "Our database is continuously updated from official sources — CESEDA legislation, service-public.gouv.fr, CAF, CPAM, and tax authority publications. When laws change or procedures are updated, we reflect those changes and notify affected users. Every answer includes the source date so you can see exactly how recent it is."
+      },
+      "6": {
         "q": "When will AccueilAI launch?",
         "a": "We're in active development. Join the waitlist to get early access and lock in exclusive launch pricing."
       }

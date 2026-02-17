@@ -69,7 +69,7 @@ export function Hero() {
         {/* Center content */}
         <div className="relative z-10 mx-auto max-w-[820px] text-center">
           {/* Trust badge */}
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-[#EEF2F9] px-4 py-1.5 sm:mb-8 sm:px-5 sm:py-2">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2B4C8C]/20 bg-white px-4 py-1.5 shadow-sm sm:mb-8 sm:px-5 sm:py-2">
             <ShieldCheck className="h-4 w-4 text-[#2B4C8C]" />
             <span className="text-[13px] font-semibold text-[#2B4C8C]">
               {t('trust')}

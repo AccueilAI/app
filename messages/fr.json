@@ -55,7 +55,7 @@
     }
   },
   "Hero": {
-    "headline": "L'administration vous épuise ?\nNous aussi. On va régler ça.",
+    "headline": "L'administration vous épuise ?\nOn a la solution.",
     "subhead": "Ni les forums. Ni ChatGPT. AccueilAI vous donne des réponses sourcées du droit français et des données officielles — personnalisées à votre visa, votre ville, votre situation exacte.",
     "cta": "Rejoindre la liste d'attente",
     "ctaSub": "Découvrir le fonctionnement",
@@ -72,17 +72,17 @@
       },
       "1": {
         "title": "Un forum dit une chose. Un groupe Facebook dit le contraire. Les deux datent de 2021.",
-        "description": "Les forums d'expatriés sont pleins d'anecdotes personnelles qui peuvent ou non s'appliquer à votre cas. Fragmenté, obsolète, invérifiable. Ce qui a marché à Lyon ne marchera pas à Paris 14e."
+        "description": "Votre cas dépend de votre visa, nationalité, préfecture, du timing et d'une dizaine d'autres facteurs. Les forums regorgent d'anecdotes personnelles — fragmentées, obsolètes, invérifiables. Ce qui a marché à Lyon ne marchera pas à Paris 14e."
       },
       "2": {
         "title": "Votre titre de séjour expire dans 47 jours. Personne ne vous a prévenu.",
-        "description": "Un seul délai manqué peut vous coûter votre droit de séjour. Renouvellement de visa, déclarations CAF, impôts, inscription CPAM — le système n'envoie aucun rappel. Vous êtes livré à vous-même."
+        "description": "Un seul délai manqué peut vous coûter votre droit de séjour. Renouvellement de visa, déclarations CAF, impôts, inscription CPAM — le système n'envoie aucun rappel. Et même quand vous faites tout correctement, vous attendez des mois sans nouvelle, sans explication, sans interlocuteur."
       }
     }
   },
   "HowItWorks": {
     "label": "Comment ça marche",
-    "headline": "Ni ChatGPT. Ni un forum. Un vrai moteur de réponses.",
+    "headline": "Trois étapes suffisent.",
     "steps": {
       "0": {
         "title": "Décrivez votre situation",
@@ -90,7 +90,7 @@
       },
       "1": {
         "title": "Des réponses sourcées, pas des suppositions",
-        "description": "Contrairement à ChatGPT, chaque réponse cite la loi CESEDA, service-public.gouv.fr et les données officielles. Aucune hallucination. Aucune info obsolète."
+        "description": "Chaque réponse cite la loi CESEDA, service-public.gouv.fr et les données officielles — avec des liens vérifiables. Aucune hallucination. Aucune info obsolète."
       },
       "2": {
         "title": "Agissez en toute confiance",
@@ -125,7 +125,7 @@
       },
       "5": {
         "title": "Aides pour résidents étrangers",
-        "description": "Découvrez les aides accessibles aux étrangers vivant en France — aide au logement CAF, couverture santé, soutien à l'emploi. Personnalisé selon votre visa et profil."
+        "description": "Beaucoup de résidents passent à côté d'aides auxquelles ils ont droit — aide au logement (APL/ALS), complémentaire santé (CSS), aides à l'emploi, allocations familiales. On croise votre visa et votre profil pour vous montrer ce que vous pouvez demander — et on suit les évolutions législatives pour que vous ne ratiez rien."
       }
     }
   },
@@ -212,6 +212,10 @@
         "a": "Français, anglais et coréen au lancement. D'autres langues suivront selon la demande."
       },
       "5": {
+        "q": "Les informations sont-elles à jour ?",
+        "a": "Notre base de données est mise à jour en continu à partir des sources officielles — législation CESEDA, service-public.gouv.fr, CAF, CPAM et publications fiscales. Quand les lois changent ou les procédures évoluent, nous répercutons ces modifications et informons les utilisateurs concernés. Chaque réponse inclut la date de la source pour que vous puissiez vérifier sa fraîcheur."
+      },
+      "6": {
         "q": "Quand AccueilAI sera-t-il lancé ?",
         "a": "Nous sommes en développement actif. Rejoignez la liste d'attente pour un accès anticipé et un tarif de lancement exclusif."
       }

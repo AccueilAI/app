@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 
-const FAQ_COUNT = 6;
+const FAQ_COUNT = 7;
 
 export function FAQ() {
   const t = useTranslations('FAQ');
