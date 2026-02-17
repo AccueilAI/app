@@ -28,7 +28,10 @@ export function OnboardingWelcome({ onSend }: OnboardingWelcomeProps) {
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#EEF2F9]">
         <Sparkles className="h-6 w-6 text-[#2B4C8C]" />
       </div>
-      <h2 className="font-serif text-2xl text-[#1A1A2E]">{t('onboarding.title')}</h2>
+      <h2 className="font-serif text-2xl text-[#1A1A2E]">
+        {t('onboarding.title')}
+        <span className="ml-2 inline-block translate-y-[-2px] rounded-full bg-[#2B4C8C]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2B4C8C]">Beta</span>
+      </h2>
       <p className="mt-2 max-w-md text-sm text-[#5C5C6F]">{t('welcomeSub')}</p>
       <div className="mt-8 grid w-full max-w-lg grid-cols-2 gap-3 sm:grid-cols-3">
         {CATEGORIES.map(cat => {

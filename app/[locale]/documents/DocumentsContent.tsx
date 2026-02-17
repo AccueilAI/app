@@ -58,7 +58,10 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
   return (
     <main className="mx-auto max-w-3xl px-4 pt-28 pb-16">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-[#1A1A2E]">{t('pageTitle')}</h1>
+        <h1 className="text-2xl font-bold text-[#1A1A2E]">
+          {t('pageTitle')}
+          <span className="ml-2 inline-block translate-y-[-2px] rounded-full bg-[#2B4C8C]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2B4C8C]">Beta</span>
+        </h1>
         <p className="mt-2 text-sm text-[#5C5C6F]">{t('pageSubtitle')}</p>
       </div>
 

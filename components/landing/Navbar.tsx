@@ -16,11 +16,11 @@ const locales = [
 
 // Logged-in: app pages
 const AUTH_LINKS = [
-  { key: 'chat', icon: Sparkles, primary: true },
-  { key: 'experiences', icon: Users, primary: false },
-  { key: 'documents', icon: FileSearch, primary: false },
-  { key: 'deadlines', icon: CalendarClock, primary: false },
-  { key: 'benefits', icon: Gift, primary: false },
+  { key: 'chat', icon: Sparkles },
+  { key: 'experiences', icon: Users },
+  { key: 'documents', icon: FileSearch },
+  { key: 'deadlines', icon: CalendarClock },
+  { key: 'benefits', icon: Gift },
 ] as const;
 
 // Not logged-in: chat + landing section anchors
@@ -87,9 +87,6 @@ export function Navbar() {
               <span className="font-serif text-[22px] text-[#1A1A2E]">
                 AccueilAI
               </span>
-              <span className="rounded-full bg-[#2B4C8C]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2B4C8C]">
-                Beta
-              </span>
             </a>
           </div>
 
@@ -107,9 +104,7 @@ export function Navbar() {
                     className={`flex items-center gap-1.5 text-[15px] transition-colors ${
                       active
                         ? 'font-semibold text-[#2B4C8C]'
-                        : link.primary
-                          ? 'font-semibold text-[#2B4C8C] hover:text-[#1E3A6E]'
-                          : 'font-medium text-[#5C5C6F] hover:text-[#1A1A2E]'
+                        : 'font-medium text-[#5C5C6F] hover:text-[#1A1A2E]'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -122,8 +117,8 @@ export function Navbar() {
               <>
                 <a
                   href={`/${locale}/chat`}
-                  className={`flex items-center gap-1.5 text-[15px] font-semibold transition-colors ${
-                    isActive('chat') ? 'text-[#2B4C8C]' : 'text-[#2B4C8C] hover:text-[#1E3A6E]'
+                  className={`flex items-center gap-1.5 text-[15px] transition-colors ${
+                    isActive('chat') ? 'font-semibold text-[#2B4C8C]' : 'font-medium text-[#5C5C6F] hover:text-[#1A1A2E]'
                   }`}
                 >
                   <Sparkles className="h-4 w-4" />
@@ -224,8 +219,10 @@ export function Navbar() {
                   <a
                     href={`/${locale}/chat`}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition-colors ${
-                      isActive('chat') ? 'bg-[#2B4C8C]/10 text-[#2B4C8C]' : 'text-[#2B4C8C] hover:bg-white/60'
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                      isActive('chat')
+                        ? 'bg-[#2B4C8C]/10 font-semibold text-[#2B4C8C]'
+                        : 'font-medium text-[#5C5C6F] hover:bg-white/60 hover:text-[#1A1A2E]'
                     }`}
                   >
                     <Sparkles className="h-5 w-5" />
