@@ -118,6 +118,14 @@
       "3": {
         "title": "Suivi des échéances",
         "description": "Renouvellement du titre de séjour, déclaration trimestrielle CAF, échéance fiscale, Carte Vitale — on suit chaque échéance et on vous prévient avant qu'il ne soit trop tard."
+      },
+      "4": {
+        "title": "Partage d'expériences",
+        "description": "Apprenez des expatriés qui ont vécu les mêmes démarches. Délais en préfecture, documents requis, conseils pratiques — des données réelles de vraies personnes."
+      },
+      "5": {
+        "title": "Aides pour résidents étrangers",
+        "description": "Découvrez les aides accessibles aux étrangers vivant en France — aide au logement CAF, couverture santé, soutien à l'emploi. Personnalisé selon votre visa et profil."
       }
     }
   },
@@ -127,6 +135,7 @@
     "subhead": "Commencez gratuitement. Passez à un forfait supérieur selon vos besoins.",
     "popular": "Le plus populaire",
     "cta": "Rejoindre la liste",
+    "earlyBird": "🎁 Les 100 premiers inscrits bénéficient d'1 mois d'accès illimité à toutes les fonctionnalités !",
     "tiers": {
       "free": {
         "name": "Gratuit",
@@ -134,40 +143,41 @@
         "period": "/mois",
         "description": "Commencez avec les questions de base.",
         "features": {
-          "0": "5 questions IA par mois",
+          "0": "5 questions IA par jour",
           "1": "Guides de démarches de base",
-          "2": "Support communautaire"
+          "2": "Expériences communautaires"
         }
       },
-      "essential": {
-        "name": "Essentiel",
+      "plus": {
+        "name": "Plus",
         "price": "9,99 €",
         "period": "/mois",
         "description": "Tout ce dont vous avez besoin pour vos démarches.",
         "features": {
           "0": "Questions IA illimitées",
           "1": "Checklists de documents personnalisées",
-          "2": "Interprète de documents",
-          "3": "Rappels d'échéances par email"
+          "2": "Suivi des échéances et rappels",
+          "3": "Aides pour résidents étrangers"
         }
       },
-      "premium": {
-        "name": "Premium",
+      "pro": {
+        "name": "Pro",
         "price": "19,99 €",
         "period": "/mois",
         "description": "Accompagnement complet y compris administration professionnelle.",
         "features": {
-          "0": "Tout dans Essentiel",
-          "1": "Brouillons d'emails en français",
+          "0": "Tout dans Plus",
+          "1": "Analyse de documents illimitée",
           "2": "Admin professionnelle (auto-entrepreneur)",
-          "3": "Support prioritaire"
+          "3": "Brouillons d'emails en français",
+          "4": "Support prioritaire"
         }
       }
     }
   },
   "Waitlist": {
     "headline": "Accès anticipé",
-    "subhead": "Les 100 premiers inscrits bénéficient du tarif de lancement. Ne manquez pas ça.",
+    "subhead": "Les 100 premiers inscrits bénéficient d'1 mois d'accès illimité. Ne manquez pas ça.",
     "placeholder": "vous@email.com",
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",
@@ -320,6 +330,9 @@
         }
       }
     },
+    "tierLimitTitle": "Limite du plan gratuit atteinte",
+    "tierLimitMessage": "Vous avez utilisé vos 5 questions gratuites aujourd'hui. Passez à Plus pour un accès illimité.",
+    "tierLimitCta": "Voir les plans",
     "webSource": {
       "title": "Sources web",
       "viewAll": "Voir toutes les sources"

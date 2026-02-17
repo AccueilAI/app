@@ -17,7 +17,7 @@ import {
   searchExperiences,
   formatExperiencesForPrompt,
 } from '@/lib/experiences/search';
-import { chatRateLimit, chatDailyLimit } from '@/lib/rate-limit';
+import { chatRateLimit, chatDailyLimit, chatDailyLimitFree } from '@/lib/rate-limit';
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { getFunctionTools, executeTool } from '@/lib/chat/tools';
@@ -127,6 +127,7 @@ export async function POST(request: NextRequest) {
   // Check authentication for daily limit
   let userId: string | null = null;
   let dailyRemaining: number | null = null;
+  let effectiveTier: string = 'free';
   try {
     const authSupabase = await createClient();
     const {
@@ -137,8 +138,34 @@ export async function POST(request: NextRequest) {
     // Auth check failed — treat as unauthenticated
   }
 
-  // Daily limit for unauthenticated users (3 messages/day)
+  // Resolve subscription tier for authenticated users
+  if (userId) {
+    try {
+      const supabase = getSupabase();
+      const { data: tierData } = await supabase
+        .from('profiles')
+        .select('subscription_tier, subscription_expires_at')
+        .eq('id', userId)
+        .single();
+      if (tierData?.subscription_tier && tierData.subscription_tier !== 'free') {
+        if (tierData.subscription_tier === 'admin') {
+          effectiveTier = 'admin';
+        } else if (tierData.subscription_expires_at) {
+          effectiveTier = new Date(tierData.subscription_expires_at) > new Date()
+            ? tierData.subscription_tier
+            : 'free';
+        } else {
+          effectiveTier = tierData.subscription_tier;
+        }
+      }
+    } catch {
+      // Tier lookup failed — default to free
+    }
+  }
+
+  // Daily limits based on auth state + tier
   if (!userId) {
+    // Unauthenticated: 3 messages/day
     const { success: dailyOk, remaining } = await chatDailyLimit.limit(key);
     dailyRemaining = remaining;
     if (!dailyOk) {
@@ -147,7 +174,18 @@ export async function POST(request: NextRequest) {
         { status: 429 },
       );
     }
+  } else if (effectiveTier === 'free') {
+    // Free tier (authenticated): 5 messages/day
+    const { success: dailyOk, remaining } = await chatDailyLimitFree.limit(userId);
+    dailyRemaining = remaining;
+    if (!dailyOk) {
+      return NextResponse.json(
+        { error: 'daily_limit', remaining: 0, tier: 'free' },
+        { status: 429 },
+      );
+    }
   }
+  // essential/premium/admin: no daily limit
 
   // Create SSE stream
   const stream = new ReadableStream({

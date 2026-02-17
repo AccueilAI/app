@@ -11,11 +11,12 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import type { User, SupabaseClient } from '@supabase/supabase-js';
-import type { AuthContextType, UserProfile } from '@/lib/auth/types';
+import type { AuthContextType, UserProfile, SubscriptionTier } from '@/lib/auth/types';
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
+  tier: 'free',
   isLoading: true,
   signOut: async () => {},
 });
@@ -103,8 +104,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   }, [getSupabase]);
 
+  // Compute effective tier: check expiration
+  const tier: SubscriptionTier = (() => {
+    if (!profile?.subscription_tier || profile.subscription_tier === 'free') return 'free';
+    if (profile.subscription_tier === 'admin') return 'admin';
+    if (profile.subscription_expires_at) {
+      const expires = new Date(profile.subscription_expires_at);
+      if (expires < new Date()) return 'free';
+    }
+    return profile.subscription_tier;
+  })();
+
   return (
-    <AuthContext.Provider value={{ user, profile, isLoading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, tier, isLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -118,6 +118,14 @@
       "3": {
         "title": "Deadline Tracker",
         "description": "Titre de séjour renewal, CAF quarterly declaration, tax filing, Carte Vitale — we track every deadline and remind you before it's too late."
+      },
+      "4": {
+        "title": "Experience Sharing",
+        "description": "Learn from real expats who've been through the same process. Prefecture wait times, required documents, practical tips — real data from real people."
+      },
+      "5": {
+        "title": "Benefits for Residents",
+        "description": "Discover benefits available to foreigners living in France — CAF housing aid, healthcare coverage, employment support. Personalized to your visa type and profile."
       }
     }
   },
@@ -127,6 +135,7 @@
     "subhead": "Start free. Upgrade when you need more.",
     "popular": "Most Popular",
     "cta": "Join Waitlist",
+    "earlyBird": "🎁 First 100 waitlist members get 1 month of unlimited access to all features!",
     "tiers": {
       "free": {
         "name": "Free",
@@ -134,40 +143,41 @@
         "period": "/month",
         "description": "Get started with basic Q&A.",
         "features": {
-          "0": "5 AI questions per month",
+          "0": "5 AI questions per day",
           "1": "Basic procedure guides",
-          "2": "Community support"
+          "2": "Community experiences"
         }
       },
-      "essential": {
-        "name": "Essential",
+      "plus": {
+        "name": "Plus",
         "price": "€9.99",
         "period": "/month",
         "description": "Everything you need for your admin journey.",
         "features": {
           "0": "Unlimited AI questions",
           "1": "Personalized document checklists",
-          "2": "Document interpreter",
-          "3": "Deadline reminders via email"
+          "2": "Deadline tracker & reminders",
+          "3": "Benefits for residents"
         }
       },
-      "premium": {
-        "name": "Premium",
+      "pro": {
+        "name": "Pro",
         "price": "€19.99",
         "period": "/month",
         "description": "Full support including business admin.",
         "features": {
-          "0": "Everything in Essential",
-          "1": "French email drafts for you",
+          "0": "Everything in Plus",
+          "1": "Unlimited document analysis",
           "2": "Business admin (auto-entrepreneur)",
-          "3": "Priority support"
+          "3": "French email drafts for you",
+          "4": "Priority support"
         }
       }
     }
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "First 100 members lock in launch pricing. Don't miss it.",
+    "subhead": "First 100 members get 1 month of unlimited access. Don't miss it.",
     "placeholder": "you@email.com",
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
@@ -320,6 +330,9 @@
         }
       }
     },
+    "tierLimitTitle": "Free plan limit reached",
+    "tierLimitMessage": "You've used your 5 free questions for today. Upgrade to Plus for unlimited access.",
+    "tierLimitCta": "View Plans",
     "webSource": {
       "title": "Web sources",
       "viewAll": "View all sources"

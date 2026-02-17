@@ -41,6 +41,7 @@ export function ChatInterface() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dailyLimitReached, setDailyLimitReached] = useState(false);
+  const [tierLimitReached, setTierLimitReached] = useState(false);
   const [remaining, setRemaining] = useState<number | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -92,7 +93,7 @@ export function ChatInterface() {
   const handleSend = useCallback(
     async (text?: string) => {
       const content = (text ?? input).trim();
-      if (!content || isStreaming || dailyLimitReached) return;
+      if (!content || isStreaming || dailyLimitReached || tierLimitReached) return;
 
       setInput('');
       setError(null);
@@ -135,7 +136,13 @@ export function ChatInterface() {
           if (res.status === 429) {
             const body = await res.json().catch(() => ({}));
             if (body.error === 'daily_limit') {
-              setDailyLimitReached(true);
+              if (body.tier === 'free' && user) {
+                // Authenticated free tier limit
+                setTierLimitReached(true);
+              } else {
+                // Unauthenticated limit
+                setDailyLimitReached(true);
+              }
               setRemaining(0);
               // remove the empty assistant message
               setMessages((prev) =>
@@ -257,7 +264,7 @@ export function ChatInterface() {
         abortRef.current = null;
       }
     },
-    [input, isStreaming, dailyLimitReached, messages, locale, conversationId, t],
+    [input, isStreaming, dailyLimitReached, tierLimitReached, messages, locale, conversationId, t],
   );
 
   function handleStop() {
@@ -270,6 +277,7 @@ export function ChatInterface() {
     setConversationId(null);
     setError(null);
     setDailyLimitReached(false);
+    setTierLimitReached(false);
   }
 
   async function handleSelectConversation(id: string) {
@@ -302,6 +310,7 @@ export function ChatInterface() {
 
   const isEmpty = messages.length === 0;
   const showLimitBanner = dailyLimitReached && !user;
+  const showTierBanner = tierLimitReached && !!user;
 
   const sidebarActive = !!user && sidebarOpen;
 
@@ -358,6 +367,30 @@ export function ChatInterface() {
             </div>
           )}
 
+          {/* Tier limit banner (authenticated free users) */}
+          {showTierBanner && (
+            <div className="mx-auto mt-8 max-w-md rounded-2xl border border-[#E5E3DE] bg-white p-6 text-center shadow-sm">
+              <div className="mb-3 flex justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF2F9]">
+                  <Sparkles className="h-5 w-5 text-[#2B4C8C]" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-[#1A1A2E]">
+                {t('tierLimitTitle')}
+              </h3>
+              <p className="mt-2 text-sm text-[#5C5C6F]">
+                {t('tierLimitMessage')}
+              </p>
+              <a
+                href={`/${locale}#pricing`}
+                className="mt-5 inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#2B4C8C] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+              >
+                {t('tierLimitCta')}
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          )}
+
           {/* Daily limit banner */}
           {showLimitBanner && (
             <div className="mx-auto mt-8 max-w-md rounded-2xl border border-[#E5E3DE] bg-white p-6 text-center shadow-sm">
@@ -409,9 +442,9 @@ export function ChatInterface() {
               {t('remaining', { count: remaining })}
             </p>
           )}
-          {showLimitBanner ? (
+          {showLimitBanner || showTierBanner ? (
             <div className="flex items-center justify-center rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] px-4 py-3 text-sm text-[#8E8E9A]">
-              {t('dailyLimitInput')}
+              {showTierBanner ? t('tierLimitCta') : t('dailyLimitInput')}
             </div>
           ) : (
             <ChatInput

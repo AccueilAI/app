@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { createClient } from '@/lib/supabase/server';
 import { getSupabase } from '@/lib/supabase/client';
 import { ragSearch } from '@/lib/search/pipeline';
-import { documentAnalysisLimit } from '@/lib/rate-limit';
+import { documentAnalysisLimit, checklistDailyLimitFree } from '@/lib/rate-limit';
 import type { ChecklistItem } from '@/lib/documents/types';
 
 let openaiClient: OpenAI | null = null;
@@ -87,9 +87,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
   }
 
-  const { success } = await documentAnalysisLimit.limit(user.id);
-  if (!success) {
-    return NextResponse.json({ error: 'daily_limit' }, { status: 429 });
+  // Resolve subscription tier
+  let effectiveTier = 'free';
+  try {
+    const tierSupabase = getSupabase();
+    const { data: tierData } = await tierSupabase
+      .from('profiles')
+      .select('subscription_tier, subscription_expires_at')
+      .eq('id', user.id)
+      .single();
+    if (tierData?.subscription_tier && tierData.subscription_tier !== 'free') {
+      if (tierData.subscription_tier === 'admin') {
+        effectiveTier = 'admin';
+      } else if (tierData.subscription_expires_at) {
+        effectiveTier = new Date(tierData.subscription_expires_at) > new Date()
+          ? tierData.subscription_tier
+          : 'free';
+      } else {
+        effectiveTier = tierData.subscription_tier;
+      }
+    }
+  } catch { /* default free */ }
+
+  // Rate limit based on tier
+  if (effectiveTier === 'free') {
+    const { success } = await checklistDailyLimitFree.limit(user.id);
+    if (!success) {
+      return NextResponse.json({ error: 'daily_limit', tier: 'free' }, { status: 429 });
+    }
+  } else {
+    const { success } = await documentAnalysisLimit.limit(user.id);
+    if (!success) {
+      return NextResponse.json({ error: 'daily_limit' }, { status: 429 });
+    }
   }
 
   let body: {

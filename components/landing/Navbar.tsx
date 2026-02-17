@@ -87,6 +87,9 @@ export function Navbar() {
               <span className="font-serif text-[22px] text-[#1A1A2E]">
                 AccueilAI
               </span>
+              <span className="rounded-full bg-[#2B4C8C]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2B4C8C]">
+                Beta
+              </span>
             </a>
           </div>
 

@@ -3,8 +3,8 @@ import { Check } from 'lucide-react';
 
 const tiers = [
   { key: 'free', featured: false },
-  { key: 'essential', featured: true },
-  { key: 'premium', featured: false },
+  { key: 'plus', featured: true },
+  { key: 'pro', featured: false },
 ] as const;
 
 export function Pricing() {
@@ -21,6 +21,9 @@ export function Pricing() {
             {t('headline')}
           </h2>
           <p className="mt-3 text-[15px] text-[#5C5C6F] sm:mt-4 sm:text-lg">{t('subhead')}</p>
+          <div className="mx-auto mt-6 max-w-md rounded-full bg-[#ED2939]/10 px-6 py-2.5 text-center text-sm font-semibold text-[#ED2939]">
+            {t('earlyBird')}
+          </div>
         </div>
 
         <div className="mt-8 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
@@ -66,7 +69,7 @@ export function Pricing() {
               />
 
               <ul className="flex-1 space-y-3">
-                {[0, 1, 2, 3].map((i) => {
+                {Array.from({ length: 6 }, (_, i) => i).map((i) => {
                   const feature = t.has(`tiers.${key}.features.${i}`)
                     ? t(`tiers.${key}.features.${i}`)
                     : null;

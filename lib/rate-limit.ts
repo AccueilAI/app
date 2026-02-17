@@ -41,6 +41,21 @@ export const documentAnalysisLimit = new Ratelimit({
   prefix: 'rl:doc-analysis',
 });
 
+// Tier-based daily limits
+// Free tier: 5 chat messages/day (authenticated)
+export const chatDailyLimitFree = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(5, '1 d'),
+  prefix: 'dl:chat:free',
+});
+
+// Free tier: 1 checklist generation/day
+export const checklistDailyLimitFree = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(1, '1 d'),
+  prefix: 'dl:checklist:free',
+});
+
 // Deadline CRUD: 20 requests per 60 seconds
 export const deadlineRateLimit = new Ratelimit({
   redis,

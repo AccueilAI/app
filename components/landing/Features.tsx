@@ -4,6 +4,8 @@ import {
   ClipboardList,
   ScanText,
   CalendarClock,
+  Users,
+  Gift,
 } from 'lucide-react';
 
 const features = [
@@ -11,6 +13,8 @@ const features = [
   { icon: ClipboardList, color: 'bg-[#EEF2F9] text-[#2B4C8C]' },
   { icon: ScanText, color: 'bg-[#EEF2F9] text-[#2B4C8C]' },
   { icon: CalendarClock, color: 'bg-[#EEF2F9] text-[#2B4C8C]' },
+  { icon: Users, color: 'bg-[#EEF2F9] text-[#2B4C8C]' },
+  { icon: Gift, color: 'bg-[#EEF2F9] text-[#2B4C8C]' },
 ] as const;
 
 export function Features() {
@@ -29,7 +33,7 @@ export function Features() {
           <p className="mt-3 text-[15px] text-[#5C5C6F] sm:mt-4 sm:text-lg">{t('subhead')}</p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
           {features.map((feat, i) => {
             const Icon = feat.icon;
             return (
