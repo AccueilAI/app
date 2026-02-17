@@ -44,7 +44,10 @@ export function ChatInterface() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth >= 768; // md breakpoint
+  });
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
