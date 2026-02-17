@@ -9,7 +9,7 @@
     "documents": "서류 분석",
     "signIn": "로그인",
     "deadlines": "기한 관리",
-    "benefits": "혜택"
+    "benefits": "혜택 & 뉴스"
   },
   "Auth": {
     "signIn": "로그인",
@@ -157,7 +157,7 @@
           "0": "무제한 AI 질문",
           "1": "맞춤 서류 체크리스트",
           "2": "기한 추적 및 알림",
-          "3": "외국인 거주자 혜택"
+          "3": "외국인 거주자 혜택 조회 & 최신 뉴스"
         }
       },
       "pro": {
@@ -170,7 +170,8 @@
           "1": "무제한 서류 분석",
           "2": "사업자 행정 (auto-entrepreneur)",
           "3": "프랑스어 이메일 초안 작성",
-          "4": "우선 지원"
+          "4": "AI 불어 행정기관 통화 상담",
+          "5": "새기능 우선 지원"
         }
       }
     }
@@ -518,6 +519,26 @@
       "title": "내 서류",
       "empty": "아직 분석한 서류가 없습니다.",
       "viewAnalysis": "분석 보기"
+    }
+  },
+  "NotFound": {
+    "title": "페이지를 찾을 수 없습니다",
+    "description": "찾으시는 페이지가 존재하지 않거나 이동되었습니다.",
+    "goHome": "홈으로 가기"
+  },
+  "Plans": {
+    "pageTitle": "플랜 선택",
+    "pageSubtitle": "필요에 맞는 플랜을 선택하세요.",
+    "currentPlan": "현재 플랜",
+    "changePlan": "플랜 변경",
+    "selectPlan": "플랜 선택",
+    "comingSoon": "결제 기능 곧 출시",
+    "comingSoonDesc": "결제 시스템을 준비하고 있습니다. 곧 업그레이드할 수 있습니다!",
+    "tierName": {
+      "free": "Free",
+      "plus": "Plus",
+      "pro": "Pro",
+      "admin": "Admin"
     }
   },
   "Benefits": {

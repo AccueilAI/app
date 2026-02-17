@@ -69,7 +69,7 @@ export function Pricing() {
               />
 
               <ul className="flex-1 space-y-3">
-                {Array.from({ length: 6 }, (_, i) => i).map((i) => {
+                {Array.from({ length: 7 }, (_, i) => i).map((i) => {
                   const feature = t.has(`tiers.${key}.features.${i}`)
                     ? t(`tiers.${key}.features.${i}`)
                     : null;

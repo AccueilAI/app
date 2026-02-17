@@ -9,7 +9,7 @@
     "documents": "Documents",
     "signIn": "Connexion",
     "deadlines": "Échéances",
-    "benefits": "Aides"
+    "benefits": "Aides & Actus"
   },
   "Auth": {
     "signIn": "Connexion",
@@ -157,7 +157,7 @@
           "0": "Questions IA illimitées",
           "1": "Checklists de documents personnalisées",
           "2": "Suivi des échéances et rappels",
-          "3": "Aides pour résidents étrangers"
+          "3": "Aides pour résidents étrangers & dernières actus"
         }
       },
       "pro": {
@@ -170,7 +170,8 @@
           "1": "Analyse de documents illimitée",
           "2": "Admin professionnelle (auto-entrepreneur)",
           "3": "Brouillons d'emails en français",
-          "4": "Support prioritaire"
+          "4": "Assistance téléphonique IA en français",
+          "5": "Accès prioritaire aux nouvelles fonctionnalités"
         }
       }
     }
@@ -518,6 +519,26 @@
       "title": "Mes documents",
       "empty": "Aucune analyse de document pour le moment.",
       "viewAnalysis": "Voir l'analyse"
+    }
+  },
+  "NotFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "goHome": "Retour à l'accueil"
+  },
+  "Plans": {
+    "pageTitle": "Choisissez votre plan",
+    "pageSubtitle": "Trouvez le plan adapté à vos besoins.",
+    "currentPlan": "Plan actuel",
+    "changePlan": "Changer de plan",
+    "selectPlan": "Choisir ce plan",
+    "comingSoon": "Paiement bientôt disponible",
+    "comingSoonDesc": "Nous préparons le système de paiement. Vous pourrez bientôt passer à un forfait supérieur !",
+    "tierName": {
+      "free": "Gratuit",
+      "plus": "Plus",
+      "pro": "Pro",
+      "admin": "Admin"
     }
   },
   "Benefits": {

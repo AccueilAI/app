@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Gift, Newspaper } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { LoginModal } from '@/components/auth/LoginModal';
 import type { Benefit, BenefitCategory } from '@/lib/benefits/types';
 import { BENEFIT_CATEGORIES, CATEGORY_COLORS } from '@/lib/benefits/types';
 import { BenefitCard } from '@/components/benefits/BenefitCard';
@@ -19,7 +20,8 @@ const TABS: { key: Tab; icon: typeof Gift }[] = [
 
 export function BenefitsContent({ locale }: { locale: string }) {
   const t = useTranslations('Benefits');
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const [loginOpen, setLoginOpen] = useState(false);
 
   const [tab, setTab] = useState<Tab>('benefits');
   const [benefits, setBenefits] = useState<Benefit[]>([]);
@@ -31,8 +33,9 @@ export function BenefitsContent({ locale }: { locale: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
     setLoading(true);
-    const url = user ? '/api/benefits?matched=true' : '/api/benefits';
+    const url = '/api/benefits?matched=true';
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
@@ -54,6 +57,38 @@ export function BenefitsContent({ locale }: { locale: string }) {
   function openDetail(benefit: Benefit) {
     setSelectedBenefit(benefit);
     setDetailOpen(true);
+  }
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-[#EEF2F9] pt-24 pb-16">
+        <div className="flex items-center justify-center py-32">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2B4C8C] border-t-transparent" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="min-h-screen bg-[#EEF2F9] pt-24 pb-16">
+        <div className="flex flex-col items-center justify-center py-32 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white">
+            <Gift className="h-8 w-8 text-[#2B4C8C]" />
+          </div>
+          <p className="mb-4 text-sm text-[#5C5C6F]">
+            {t('loginForMatching')}
+          </p>
+          <button
+            onClick={() => setLoginOpen(true)}
+            className="rounded-lg bg-[#2B4C8C] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E3A6E]"
+          >
+            {t('loginForMatching')}
+          </button>
+          <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -114,13 +149,6 @@ export function BenefitsContent({ locale }: { locale: string }) {
                 </button>
               ))}
             </div>
-
-            {/* Login hint */}
-            {!user && (
-              <div className="mb-4 rounded-lg border border-[#D6DDE8] bg-white px-4 py-3 text-sm text-[#5C5C6F]">
-                {t('loginForMatching')}
-              </div>
-            )}
 
             {/* Benefits grid */}
             {loading ? (

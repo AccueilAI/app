@@ -8,6 +8,7 @@ import { LoginModal } from '@/components/auth/LoginModal';
 import { createClient } from '@/lib/supabase/browser';
 import { MyExperiences } from '@/components/dashboard/MyExperiences';
 import { MyDocuments } from '@/components/dashboard/MyDocuments';
+import Link from 'next/link';
 import {
   SearchableCombobox,
   type ComboboxOption,
@@ -32,7 +33,8 @@ export default function ProfilePage() {
   const t = useTranslations('Auth');
   const td = useTranslations('Dashboard');
   const locale = useLocale();
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, isLoading, tier } = useAuth();
+  const tp = useTranslations('Plans');
   const [loginOpen, setLoginOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -156,6 +158,27 @@ export default function ProfilePage() {
           {t('profileTitle')}
         </h1>
         <p className="mt-1 text-sm text-[#5C5C6F]">{t('profileSub')}</p>
+
+        {/* Subscription tier */}
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm text-[#5C5C6F]">{tp('currentPlan')}</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
+              tier === 'pro' ? 'bg-[#002395] text-white' :
+              tier === 'plus' ? 'bg-[#2B4C8C] text-white' :
+              tier === 'admin' ? 'bg-[#1A1A2E] text-white' :
+              'bg-[#EEF2F9] text-[#2B4C8C]'
+            }`}>
+              {tp(`tierName.${tier}`)}
+            </span>
+          </div>
+          <Link
+            href={`/${locale}/pricing`}
+            className="text-sm font-semibold text-[#2B4C8C] transition-colors hover:text-[#1E3A6E]"
+          >
+            {tp('changePlan')}
+          </Link>
+        </div>
 
         {/* Tabs */}
         <div className="mt-6 flex border-b border-[#E5E3DE]">

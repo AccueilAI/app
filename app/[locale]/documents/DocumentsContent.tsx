@@ -21,7 +21,7 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
   const { user, isLoading } = useAuth();
   const [loginOpen, setLoginOpen] = useState(false);
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>('checklist');
+  const [activeTab, setActiveTab] = useState<Tab>('analyzer');
 
   if (isLoading) {
     return (
@@ -65,17 +65,6 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
       {/* Tab navigation */}
       <div className="mb-6 flex gap-1 rounded-lg border border-[#E5E3DE] bg-[#FAFAF8] p-1">
         <button
-          onClick={() => setActiveTab('checklist')}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === 'checklist'
-              ? 'bg-white text-[#1A1A2E] shadow-sm'
-              : 'text-[#5C5C6F] hover:text-[#1A1A2E]'
-          }`}
-        >
-          <ClipboardList className="h-4 w-4" />
-          {t('tabs.checklist')}
-        </button>
-        <button
           onClick={() => setActiveTab('analyzer')}
           className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'analyzer'
@@ -85,6 +74,17 @@ export function DocumentsContent({ locale }: DocumentsContentProps) {
         >
           <FileText className="h-4 w-4" />
           {t('tabs.analyzer')}
+        </button>
+        <button
+          onClick={() => setActiveTab('checklist')}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            activeTab === 'checklist'
+              ? 'bg-white text-[#1A1A2E] shadow-sm'
+              : 'text-[#5C5C6F] hover:text-[#1A1A2E]'
+          }`}
+        >
+          <ClipboardList className="h-4 w-4" />
+          {t('tabs.checklist')}
         </button>
       </div>
 

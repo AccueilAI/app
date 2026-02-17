@@ -9,7 +9,7 @@
     "documents": "Documents",
     "signIn": "Sign In",
     "deadlines": "Deadlines",
-    "benefits": "Benefits"
+    "benefits": "Benefits & News"
   },
   "Auth": {
     "signIn": "Sign In",
@@ -157,7 +157,7 @@
           "0": "Unlimited AI questions",
           "1": "Personalized document checklists",
           "2": "Deadline tracker & reminders",
-          "3": "Benefits for residents"
+          "3": "Benefits for foreign residents & latest news"
         }
       },
       "pro": {
@@ -170,7 +170,8 @@
           "1": "Unlimited document analysis",
           "2": "Business admin (auto-entrepreneur)",
           "3": "French email drafts for you",
-          "4": "Priority support"
+          "4": "AI French phone call assistance",
+          "5": "Early access to new features"
         }
       }
     }
@@ -518,6 +519,26 @@
       "title": "My Documents",
       "empty": "No document analyses yet.",
       "viewAnalysis": "View Analysis"
+    }
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go to Home"
+  },
+  "Plans": {
+    "pageTitle": "Choose Your Plan",
+    "pageSubtitle": "Find the plan that fits your needs.",
+    "currentPlan": "Current Plan",
+    "changePlan": "Change Plan",
+    "selectPlan": "Select Plan",
+    "comingSoon": "Payment coming soon",
+    "comingSoonDesc": "We're working on setting up payments. You'll be able to upgrade soon!",
+    "tierName": {
+      "free": "Free",
+      "plus": "Plus",
+      "pro": "Pro",
+      "admin": "Admin"
     }
   },
   "Benefits": {
