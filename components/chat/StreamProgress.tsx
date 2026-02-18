@@ -1,15 +1,17 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Database, Globe, MapPin, Sparkles, ShieldCheck } from 'lucide-react';
+import { Database, Globe, MapPin, Sparkles, ShieldCheck, Brain, RefreshCw } from 'lucide-react';
 import type { ProgressStage } from '@/lib/chat/types';
 
 const STAGE_ICONS: Record<ProgressStage, React.ElementType> = {
   searching_rag: Database,
   searching_web: Globe,
   looking_up: MapPin,
+  thinking: Brain,
   generating: Sparkles,
   verifying: ShieldCheck,
+  regenerating: RefreshCw,
 };
 
 export function StreamProgress({ stage }: { stage: ProgressStage }) {

@@ -64,28 +64,40 @@ Ignore:
 - Hedged language ("typically", "usually", "may")
 - Claims that paraphrase source content accurately
 
-Respond in JSON format:
-{
-  "flagged": [
-    {"claim": "exact claim text", "reason": "why unsupported", "severity": "high|medium"}
-  ],
-  "confidence": 0.0-1.0
-}
-
-If ALL factual claims are supported by sources, return: {"flagged": [], "confidence": 0.95}
+If ALL factual claims are supported by sources, return flagged as empty array with confidence 0.95.
 Be conservative — only flag claims you are confident are NOT in the sources.`,
       input: `SOURCE DOCUMENTS:\n${sourcesText}\n\n---\n\nRESPONSE TO VERIFY:\n${response}`,
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'verification_result',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              flagged: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    claim: { type: 'string' },
+                    reason: { type: 'string' },
+                    severity: { type: 'string', enum: ['high', 'medium'] },
+                  },
+                  required: ['claim', 'reason', 'severity'],
+                  additionalProperties: false,
+                },
+              },
+              confidence: { type: 'number' },
+            },
+            required: ['flagged', 'confidence'],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
-    const text = result.output_text?.trim() ?? '';
-
-    // Parse JSON from response (handle markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return { status: 'verified', confidence: 0.5, flaggedClaims: [] };
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]) as {
+    const parsed = JSON.parse(result.output_text ?? '{}') as {
       flagged?: { claim: string; reason: string; severity: string }[];
       confidence?: number;
     };

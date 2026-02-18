@@ -262,8 +262,10 @@
       "searching_rag": "지식 베이스 검색 중...",
       "searching_web": "웹에서 최신 정보 검색 중...",
       "looking_up": "세부 정보 조회 중...",
+      "thinking": "질문 분석 중...",
       "generating": "답변 생성 중...",
-      "verifying": "출처 검증 중..."
+      "verifying": "출처 검증 중...",
+      "regenerating": "답변 개선 중..."
     },
     "followUp": {
       "title": "관련 질문"

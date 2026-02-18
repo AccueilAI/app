@@ -262,8 +262,10 @@
       "searching_rag": "Searching knowledge base...",
       "searching_web": "Searching web for latest info...",
       "looking_up": "Looking up details...",
+      "thinking": "Analyzing your question...",
       "generating": "Generating answer...",
-      "verifying": "Verifying sources..."
+      "verifying": "Verifying sources...",
+      "regenerating": "Refining answer..."
     },
     "followUp": {
       "title": "Related questions"
