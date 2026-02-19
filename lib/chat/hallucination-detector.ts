@@ -58,6 +58,7 @@ export async function verifyResponse(
     const result = await openai.responses.create({
       model: 'gpt-5-mini',
       max_output_tokens: 2048,
+      reasoning: { effort: 'low' },
       instructions:
         'You are a fact-checker. Compare the RESPONSE against SOURCE DOCUMENTS. ' +
         'Identify factual claims NOT supported by sources. Focus on: law article numbers, monetary amounts, deadlines, procedure steps, institutional names. ' +

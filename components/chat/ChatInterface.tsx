@@ -45,6 +45,7 @@ export function ChatInterface() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [sidebarTitle, setSidebarTitle] = useState<{ id: string; title: string } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
     return window.innerWidth >= 768; // md breakpoint
@@ -226,8 +227,16 @@ export function ChatInterface() {
                         : m,
                     ),
                   );
-                } else if (eventType === 'done') {
+                } else if (eventType === 'titleUpdate') {
+                  if (parsed.conversationId && parsed.title) {
+                    setSidebarTitle({ id: parsed.conversationId, title: parsed.title });
+                  }
+                } else if (eventType === 'conversationId') {
                   if (parsed.conversationId) {
+                    setConversationId(parsed.conversationId);
+                  }
+                } else if (eventType === 'done') {
+                  if (parsed.conversationId && !conversationId) {
                     setConversationId(parsed.conversationId);
                   }
                   if (parsed.remaining !== undefined) {
@@ -324,6 +333,7 @@ export function ChatInterface() {
           currentId={conversationId}
           onSelect={handleSelectConversation}
           onNew={handleNewChat}
+          titleUpdate={sidebarTitle}
         />
       )}
 

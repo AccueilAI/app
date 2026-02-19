@@ -34,6 +34,7 @@ export async function generateFollowUps(
     const response = await openai.responses.create({
       model: 'gpt-5-mini',
       max_output_tokens: 256,
+      reasoning: { effort: 'minimal' },
       instructions:
         `Generate exactly 3 brief follow-up questions the user might ask next. ` +
         `Each question should be concise (under 60 chars). ` +

@@ -250,8 +250,8 @@ async function toolCheckBenefits(params: {
     const now = new Date();
     const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-    // Family-level benefits (rsa, prime_activite, aspa are all famille-level)
-    for (const v of ['rsa', 'prime_activite', 'aspa']) {
+    // Family-level benefits (rsa, aspa are famille-level)
+    for (const v of ['rsa', 'aspa']) {
       situation.familles.famille1[v] = { [period]: null };
     }
     // Housing benefits
@@ -264,8 +264,8 @@ async function toolCheckBenefits(params: {
 
     const benefits: Record<string, number> = {};
 
-    // Extract family-level results (rsa, prime_activite, aspa)
-    for (const v of ['rsa', 'prime_activite', 'aspa']) {
+    // Extract family-level results (rsa, aspa)
+    for (const v of ['rsa', 'aspa']) {
       const val = (result.familles.famille1[v] as Record<string, number>)?.[period];
       if (val && val > 0) benefits[v] = Math.round(val * 100) / 100;
     }

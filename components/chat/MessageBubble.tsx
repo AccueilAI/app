@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Bot, ThumbsUp, ThumbsDown, ExternalLink } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SourceCitations } from './SourceCitations';
 import { VerificationBadge } from './VerificationBadge';
@@ -33,28 +33,40 @@ function getSourceUrl(src: ChatSource): string | null {
   return null;
 }
 
-function linkifySources(text: string, sources?: ChatSource[]): string {
-  if (!sources || sources.length === 0) return text;
+/** Strip parentheses wrapping markdown links: `( [text](url) )` → `[text](url)` */
+function stripLinkParens(text: string): string {
+  // Single or comma-separated links inside parens: ( [a](b), [c](d) )
   return text.replace(
-    /\[Source\s*(\d+)(?:\s*[-–]\s*(\d+))?\]/gi,
-    (match, startStr, endStr) => {
-      const start = parseInt(startStr, 10);
-      if (endStr) {
-        const end = parseInt(endStr, 10);
-        const links: string[] = [];
-        for (let i = start; i <= end; i++) {
-          const src = sources[i - 1];
-          const url = src ? getSourceUrl(src) : null;
-          links.push(url ? `[Source ${i}](${url})` : `Source ${i}`);
-        }
-        return links.join(', ');
-      }
-      const src = sources[start - 1];
-      const url = src ? getSourceUrl(src) : null;
-      if (url) return `[Source ${start}](${url})`;
-      return match;
-    },
+    /\(\s*((?:\[[^\]]*\]\([^)]+\))(?:\s*[,，]\s*\[[^\]]*\]\([^)]+\))*)\s*\)/g,
+    ' $1',
   );
+}
+
+function linkifySources(text: string, sources?: ChatSource[]): string {
+  let result = text;
+  if (sources && sources.length > 0) {
+    result = result.replace(
+      /\[Source\s*(\d+)(?:\s*[-–]\s*(\d+))?\]/gi,
+      (match, startStr, endStr) => {
+        const start = parseInt(startStr, 10);
+        if (endStr) {
+          const end = parseInt(endStr, 10);
+          const links: string[] = [];
+          for (let i = start; i <= end; i++) {
+            const src = sources[i - 1];
+            const url = src ? getSourceUrl(src) : null;
+            links.push(url ? `[Source ${i}](${url})` : `Source ${i}`);
+          }
+          return links.join(', ');
+        }
+        const src = sources[start - 1];
+        const url = src ? getSourceUrl(src) : null;
+        if (url) return `[Source ${start}](${url})`;
+        return match;
+      },
+    );
+  }
+  return stripLinkParens(result);
 }
 
 interface MessageBubbleProps {
@@ -159,17 +171,39 @@ export function MessageBubble({ message, userQuery, isStreaming, isLast, onRegen
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  a: ({ href, children, ...props }) => (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="cursor-pointer text-[#2B4C8C] underline hover:text-[#1E3A6E]"
-                      {...props}
-                    >
-                      {children}
-                    </a>
-                  ),
+                  a: ({ href, children, ...props }) => {
+                    let domain: string | null = null;
+                    if (href) {
+                      try {
+                        domain = new URL(href).hostname.replace(/^www\./, '');
+                      } catch { /* invalid URL, fall through */ }
+                    }
+                    if (domain) {
+                      return (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="not-prose mx-0.5 inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#D0D5E0] bg-white px-2 py-0.5 text-[11px] font-medium text-[#2B4C8C] no-underline transition-colors hover:border-[#2B4C8C] hover:bg-[#EEF2F9]"
+                          {...props}
+                        >
+                          {domain}
+                          <ExternalLink className="h-2.5 w-2.5 shrink-0 opacity-60" />
+                        </a>
+                      );
+                    }
+                    return (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="cursor-pointer text-[#2B4C8C] underline hover:text-[#1E3A6E]"
+                        {...props}
+                      >
+                        {children}
+                      </a>
+                    );
+                  },
                 }}
               >
                 {linkifySources(message.content, message.sources)}

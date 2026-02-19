@@ -105,6 +105,7 @@ export async function translateToFrench(
     const response = await openai.responses.create({
       model: 'gpt-5-mini',
       max_output_tokens: 256,
+      reasoning: { effort: 'minimal' },
       instructions:
         'You are a translator. Translate the user message to French. ' +
         'Output ONLY the French translation, nothing else. ' +
@@ -162,6 +163,7 @@ export async function reformulateQuery(
     const response = await openai.responses.create({
       model: 'gpt-5-mini',
       max_output_tokens: 256,
+      reasoning: { effort: 'minimal' },
       instructions:
         'You are a query reformulation assistant. ' +
         'Given a conversation history and the latest user message, rewrite the latest message ' +
@@ -210,6 +212,7 @@ export async function expandQuery(query: string): Promise<string[]> {
     const response = await openai.responses.create({
       model: 'gpt-5-mini',
       max_output_tokens: 256,
+      reasoning: { effort: 'minimal' },
       instructions:
         'Given a French administrative query, provide 2-3 alternative phrasings using ' +
         'official French legal/administrative terminology. Return ONLY a JSON array of strings. ' +

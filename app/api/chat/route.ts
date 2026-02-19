@@ -11,7 +11,7 @@ import {
   MAX_INPUT_TOKENS,
   MAX_COMPLETION_TOKENS,
 } from '@/lib/chat/token-manager';
-import { verifyResponse } from '@/lib/chat/hallucination-detector';
+import { verifyResponse, type VerificationResult } from '@/lib/chat/hallucination-detector';
 import {
   detectProcedureTypes,
   searchExperiences,
@@ -214,6 +214,24 @@ export async function POST(request: NextRequest) {
   // Create SSE stream
   const stream = new ReadableStream({
     async start(controller) {
+      let closed = false;
+      let clientDisconnected = false;
+      const safeClose = () => {
+        if (!closed) {
+          closed = true;
+          controller.close();
+        }
+      };
+      /** Send SSE event to client. Silently swallows errors if client disconnected. */
+      const safeSend = (data: Uint8Array) => {
+        if (clientDisconnected) return;
+        try {
+          controller.enqueue(data);
+        } catch {
+          clientDisconnected = true;
+          console.log('[chat] Client disconnected — continuing in background');
+        }
+      };
       const t0 = Date.now();
       const timings: Record<string, number> = {};
       const mark = (label: string) => { timings[label] = Date.now() - t0; };
@@ -226,8 +244,29 @@ export async function POST(request: NextRequest) {
           `[chat] Query: "${lastMessage.content.slice(0, 120)}"`,
         );
 
+        // 0. Early conversation creation for authenticated users (so sidebar shows it immediately)
+        let finalConversationId = conversationId;
+        if (userId && !finalConversationId) {
+          try {
+            const supabase = getSupabase();
+            const tempTitle = lastMessage.content.trim().slice(0, 20).replace(/\s+\S*$/, '') || 'New Conversation';
+            const { data } = await supabase
+              .from('conversations')
+              .insert({ user_id: userId, title: tempTitle })
+              .select('id')
+              .single();
+            if (data) {
+              finalConversationId = data.id;
+              safeSend(sseEvent('conversationId', { conversationId: finalConversationId }));
+              console.log(`[chat] Early conversation created: ${data.id}`);
+            }
+          } catch (err) {
+            console.error('[chat] Early conversation create failed:', (err as Error).message);
+          }
+        }
+
         // 1. RAG Search
-        controller.enqueue(sseProgress('searching_rag'));
+        safeSend(sseProgress('searching_rag'));
         const searchQuery = await reformulateQuery(
           body.messages.map((m) => ({ role: m.role, content: m.content })),
         );
@@ -235,7 +274,7 @@ export async function POST(request: NextRequest) {
         console.log('[chat] Reformulated query:', searchQuery);
         const searchResponse = await ragSearch(searchQuery, {
           language,
-          count: 8,
+          count: 12,
         });
         mark('rag_search');
         console.log(
@@ -261,122 +300,107 @@ export async function POST(request: NextRequest) {
           `[chat] Quality gate: pass=${quality.pass} confidence=${quality.confidence.toFixed(2)} top=${quality.topScore.toFixed(3)} avg=${quality.avgScore.toFixed(3)} sources=${quality.sourceCount} diversity=${quality.sourceDiversity}`,
         );
 
+        // Quality gate: if sources are weak, proceed with tools only (no RAG context)
+        // This allows tool-answerable queries (holidays, prefecture, benefits) to still work
+        safeSend(sseEvent('quality', quality));
+
+        let systemPrompt: string;
+        let sources: ChatSource[] = [];
+
         if (!quality.pass) {
-          controller.enqueue(sseEvent('sources', { sources: [] }));
-          controller.enqueue(sseProgress('generating'));
+          console.log(`[chat] Quality gate failed (${quality.reason}) — proceeding with tools only, no RAG context`);
+          safeSend(sseEvent('sources', { sources: [] }));
+          // Build a minimal system prompt without RAG context
+          systemPrompt = buildSystemPrompt([], language);
+        } else {
+          // 3. Filter sources dynamically by relevance score (minimum 0.15)
+          const MIN_SOURCE_SCORE = 0.15;
+          const relevantResults = trimmedResults.filter((r) => r.score >= MIN_SOURCE_SCORE);
+          console.log(
+            `[chat] Source filter: ${trimmedResults.length} → ${relevantResults.length} (min_score=${MIN_SOURCE_SCORE})`,
+          );
 
-          const insufficientMsg = language === 'fr'
-            ? "Je n'ai pas trouvé de sources suffisamment fiables pour répondre à cette question. Je préfère vous le dire plutôt que de risquer une information incorrecte. Essayez de reformuler votre question ou consultez directement service-public.fr."
-            : language === 'ko'
-            ? '이 질문에 대해 충분히 신뢰할 수 있는 출처를 찾지 못했습니다. 잘못된 정보를 드리는 것보다 솔직하게 말씀드리는 게 낫다고 생각합니다. 질문을 다시 표현해보시거나 service-public.fr를 직접 확인해주세요.'
-            : "I couldn't find sufficiently reliable sources to answer this question. I'd rather be honest about this than risk giving you incorrect information. Try rephrasing your question or check service-public.fr directly.";
-
-          controller.enqueue(sseEvent('token', { text: insufficientMsg }));
-          controller.enqueue(sseEvent('quality', quality));
-          controller.enqueue(sseEvent('done', {
-            ...(dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
-            ...(conversationId ? { conversationId } : {}),
+          sources = relevantResults.map((r) => ({
+            content: r.content,
+            source: r.source,
+            doc_type: r.doc_type,
+            ...(r.article_number && { article_number: r.article_number }),
+            ...(r.source_url && { source_url: r.source_url }),
+            ...(r.last_crawled_at && { last_crawled_at: r.last_crawled_at }),
+            score: r.score,
           }));
+          // Sources will be sent AFTER response generation — only cited ones
 
-          // Log the blocked query
-          logConversation({
-            userMessage: lastMessage.content.trim(),
-            assistantMessage: insufficientMsg,
-            language,
-            sourceCount: 0,
-            ip,
-            userId,
-            conversationId,
-          }).catch((err) => console.error('[chat] DB log error:', err));
-
-          console.log(`[chat] === BLOCKED === Quality gate failed: ${quality.reason}`);
-          controller.close();
-          return;
-        }
-
-        controller.enqueue(sseEvent('quality', quality));
-
-        // 3. Send sources event
-        const sources: ChatSource[] = trimmedResults.map((r) => ({
-          content: r.content,
-          source: r.source,
-          doc_type: r.doc_type,
-          ...(r.article_number && { article_number: r.article_number }),
-          ...(r.source_url && { source_url: r.source_url }),
-          ...(r.last_crawled_at && { last_crawled_at: r.last_crawled_at }),
-          score: r.score,
-        }));
-        controller.enqueue(sseEvent('sources', { sources }));
-
-        // 3.5. Search community experiences
-        let experienceContext = '';
-        const detectedTypes = detectProcedureTypes(searchQuery);
-        if (detectedTypes.length > 0) {
-          const experiences = await searchExperiences(detectedTypes, 5);
-          mark('experiences');
-          if (experiences.length > 0) {
-            experienceContext = formatExperiencesForPrompt(experiences);
-            console.log(
-              `[chat] Experiences: ${experiences.length} found for types=[${detectedTypes.join(', ')}]`,
-            );
-          } else {
-            console.log(
-              `[chat] Experiences: 0 found for types=[${detectedTypes.join(', ')}]`,
-            );
-          }
-        } else {
-          console.log('[chat] Experiences: no procedure types detected, skipped');
-        }
-
-        // 3.6. Get user profile for personalization
-        let profileContext: string | undefined;
-        if (userId) {
-          try {
-            const supabase = getSupabase();
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select(
-                'nationality, visa_type, arrival_date, prefecture, language',
-              )
-              .eq('id', userId)
-              .single();
-            if (profile) {
-              const parts: string[] = [];
-              if (profile.nationality)
-                parts.push(`Nationality: ${profile.nationality}`);
-              if (profile.visa_type)
-                parts.push(`Visa type: ${profile.visa_type}`);
-              if (profile.arrival_date)
-                parts.push(`Arrival date: ${profile.arrival_date}`);
-              if (profile.prefecture)
-                parts.push(`Prefecture: ${profile.prefecture}`);
-              if (parts.length > 0) profileContext = parts.join(', ');
+          // 3.5. Search community experiences
+          let experienceContext = '';
+          const detectedTypes = detectProcedureTypes(searchQuery);
+          if (detectedTypes.length > 0) {
+            const experiences = await searchExperiences(detectedTypes, 5);
+            mark('experiences');
+            if (experiences.length > 0) {
+              experienceContext = formatExperiencesForPrompt(experiences);
+              console.log(
+                `[chat] Experiences: ${experiences.length} found for types=[${detectedTypes.join(', ')}]`,
+              );
+            } else {
+              console.log(
+                `[chat] Experiences: 0 found for types=[${detectedTypes.join(', ')}]`,
+              );
             }
-            mark('profile');
-            console.log(
-              `[chat] Profile: ${profileContext ? profileContext : 'no profile data'}`,
-            );
-          } catch (err) {
-            mark('profile');
-            console.log(`[chat] Profile: lookup failed — ${(err as Error).message}`);
+          } else {
+            console.log('[chat] Experiences: no procedure types detected, skipped');
           }
-        } else {
-          console.log('[chat] Profile: anonymous user, skipped');
-        }
 
-        // 4. Build system prompt with RAG context + experiences + profile
-        const systemPrompt = buildSystemPrompt(
-          trimmedResults,
-          language,
-          experienceContext,
-          profileContext,
-        );
+          // 3.6. Get user profile for personalization
+          let profileContext: string | undefined;
+          if (userId) {
+            try {
+              const supabase = getSupabase();
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select(
+                  'nationality, visa_type, arrival_date, prefecture, language',
+                )
+                .eq('id', userId)
+                .single();
+              if (profile) {
+                const parts: string[] = [];
+                if (profile.nationality)
+                  parts.push(`Nationality: ${profile.nationality}`);
+                if (profile.visa_type)
+                  parts.push(`Visa type: ${profile.visa_type}`);
+                if (profile.arrival_date)
+                  parts.push(`Arrival date: ${profile.arrival_date}`);
+                if (profile.prefecture)
+                  parts.push(`Prefecture: ${profile.prefecture}`);
+                if (parts.length > 0) profileContext = parts.join(', ');
+              }
+              mark('profile');
+              console.log(
+                `[chat] Profile: ${profileContext ? profileContext : 'no profile data'}`,
+              );
+            } catch (err) {
+              mark('profile');
+              console.log(`[chat] Profile: lookup failed — ${(err as Error).message}`);
+            }
+          } else {
+            console.log('[chat] Profile: anonymous user, skipped');
+          }
+
+          // 4. Build system prompt with RAG context + experiences + profile
+          systemPrompt = buildSystemPrompt(
+            relevantResults,
+            language,
+            experienceContext,
+            profileContext,
+          );
+        }
 
         // 5. Compact conversation history if exceeding token budget
         mark('system_prompt');
         const systemTokenEstimate = estimateTokens([], systemPrompt);
         console.log(
-          `[chat] System prompt: ~${systemTokenEstimate} tokens (RAG=${trimmedResults.length}, exp=${experienceContext ? 'yes' : 'no'}, profile=${profileContext ? 'yes' : 'no'})`,
+          `[chat] System prompt: ~${systemTokenEstimate} tokens (RAG=${quality.pass ? sources.length : 0}, quality=${quality.pass ? 'pass' : 'tools-only'})`,
         );
         const originalMsgCount = body.messages.length;
         const compacted = await compactHistory(
@@ -397,7 +421,7 @@ export async function POST(request: NextRequest) {
         );
 
         // 6. Two-pass generation: silent first pass → verify → stream
-        controller.enqueue(sseProgress('thinking'));
+        safeSend(sseProgress('thinking'));
         const openai = getOpenAI();
 
         const tools = [
@@ -499,7 +523,7 @@ export async function POST(request: NextRequest) {
           console.log(
             `[chat] Round ${round + 1}: ${functionCalls.length} tool call(s) — [${functionCalls.map((fc) => fc.name).join(', ')}]`,
           );
-          controller.enqueue(sseProgress('looking_up'));
+          safeSend(sseProgress('looking_up'));
           input = [
             ...input,
             ...firstPassResponse.output.map(
@@ -509,7 +533,7 @@ export async function POST(request: NextRequest) {
           ];
 
           for (const fc of functionCalls) {
-            controller.enqueue(
+            safeSend(
               sseEvent('tool_call', { name: fc.name, status: 'start' }),
             );
             let args: Record<string, unknown> = {};
@@ -522,7 +546,7 @@ export async function POST(request: NextRequest) {
             const result = await executeTool(fc.name, args, userId);
             const resultStr = JSON.stringify(result);
             console.log(`[chat] Tool ${fc.name}: result=${resultStr.slice(0, 200)}${resultStr.length > 200 ? '...' : ''}`);
-            controller.enqueue(
+            safeSend(
               sseEvent('tool_call', { name: fc.name, status: 'complete' }),
             );
             input.push({
@@ -535,7 +559,7 @@ export async function POST(request: NextRequest) {
         // Fallback: if agentic loop exhausted all rounds with no text, generate without tools
         if (!assistantResponse.trim()) {
           console.log('[chat] Empty response after agentic loop — generating fallback without tools');
-          controller.enqueue(sseProgress('thinking'));
+          safeSend(sseProgress('thinking'));
           const fallbackResponse = await openai.responses.create({
             model: 'gpt-5-mini',
             instructions: systemPrompt,
@@ -555,7 +579,7 @@ export async function POST(request: NextRequest) {
           const uniqueWebSources = [
             ...new Map(allWebSources.map((s) => [s.url, s])).values(),
           ];
-          controller.enqueue(
+          safeSend(
             sseEvent('web_sources', { sources: uniqueWebSources }),
           );
           console.log(
@@ -568,82 +592,124 @@ export async function POST(request: NextRequest) {
         );
 
         // 7. Verify response BEFORE streaming (pre-streaming hallucination detection)
-        controller.enqueue(sseProgress('verifying'));
-        const sourcesTextForVerification = sources
-          .map(
-            (s, i) =>
-              `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`,
-          )
-          .join('\n\n');
-        let verification = await verifyResponse(
-          assistantResponse,
-          sourcesTextForVerification,
-        );
-        mark('verification');
-        console.log(
-          `[chat] Verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
-        );
+        // Skip verification in tools-only mode — tool results ARE the source of truth
+        let verification: VerificationResult;
 
-        // 8. Stream to user — regenerate if hallucination detected
-        if (verification.status === 'error') {
-          console.log('[chat] Hallucination detected — regenerating with corrections');
-          controller.enqueue(sseProgress('regenerating'));
-
-          const flaggedList = verification.flaggedClaims
-            .map((c) => `- "${c.claim}" — ${c.reason}`)
-            .join('\n');
-
-          const correctionInput: OpenAI.Responses.ResponseInputItem[] = [
-            ...input,
-            {
-              type: 'message' as const,
-              role: 'assistant' as const,
-              content: assistantResponse,
-            },
-            {
-              type: 'message' as const,
-              role: 'user' as const,
-              content: `SYSTEM: The following claims were flagged as unsupported by sources:\n${flaggedList}\n\nRegenerate your response, removing or correcting these claims. Only include information directly supported by the provided sources. If unsure, say you don't have enough information.`,
-            },
-          ];
-
-          assistantResponse = '';
-          const correctionStream = await openai.responses.create({
-            model: 'gpt-5-mini',
-            instructions: systemPrompt,
-            input: correctionInput,
-            max_output_tokens: MAX_COMPLETION_TOKENS,
-            reasoning: { effort: 'medium' },
-            stream: true,
-          });
-
-          controller.enqueue(sseProgress('generating'));
-          for await (const event of correctionStream) {
-            if (event.type === 'response.output_text.delta') {
-              assistantResponse += event.delta;
-              controller.enqueue(sseEvent('token', { text: event.delta }));
-            }
-          }
-          mark('regeneration');
-
-          // Re-verify the corrected response
+        if (!quality.pass) {
+          // Tools-only mode: skip verification, stream directly
+          console.log('[chat] Verification: skipped (tools-only mode)');
+          verification = { status: 'verified', confidence: 1, flaggedClaims: [] };
+          mark('verification');
+          safeSend(sseProgress('generating'));
+          safeSend(sseEvent('token', { text: assistantResponse }));
+        } else {
+          safeSend(sseProgress('verifying'));
+          const sourcesTextForVerification = sources
+            .map(
+              (s, i) =>
+                `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`,
+            )
+            .join('\n\n');
           verification = await verifyResponse(
             assistantResponse,
             sourcesTextForVerification,
           );
-          mark('re_verification');
+          mark('verification');
           console.log(
-            `[chat] Re-verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
+            `[chat] Verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
           );
-        } else {
-          // Verified — stream the pre-generated response to user
-          controller.enqueue(sseProgress('generating'));
-          controller.enqueue(sseEvent('token', { text: assistantResponse }));
+
+          // 8. Stream to user — regenerate if hallucination detected
+          if (verification.status === 'error') {
+            console.log('[chat] Hallucination detected — regenerating with corrections');
+            safeSend(sseProgress('regenerating'));
+
+            const flaggedList = verification.flaggedClaims
+              .map((c) => `- "${c.claim}" — ${c.reason}`)
+              .join('\n');
+
+            const correctionInput: OpenAI.Responses.ResponseInputItem[] = [
+              ...input,
+              {
+                type: 'message' as const,
+                role: 'assistant' as const,
+                content: assistantResponse,
+              },
+              {
+                type: 'message' as const,
+                role: 'user' as const,
+                content: `SYSTEM: The following claims were flagged as unsupported by sources:\n${flaggedList}\n\nRegenerate your response, removing or correcting these claims. Only include information directly supported by the provided sources. If unsure, say you don't have enough information.`,
+              },
+            ];
+
+            assistantResponse = '';
+            const correctionStream = await openai.responses.create({
+              model: 'gpt-5-mini',
+              instructions: systemPrompt,
+              input: correctionInput,
+              max_output_tokens: MAX_COMPLETION_TOKENS,
+              reasoning: { effort: 'medium' },
+              stream: true,
+            });
+
+            safeSend(sseProgress('generating'));
+            for await (const event of correctionStream) {
+              if (event.type === 'response.output_text.delta') {
+                assistantResponse += event.delta;
+                safeSend(sseEvent('token', { text: event.delta }));
+              }
+            }
+            mark('regeneration');
+
+            // Re-verify the corrected response
+            verification = await verifyResponse(
+              assistantResponse,
+              sourcesTextForVerification,
+            );
+            mark('re_verification');
+            console.log(
+              `[chat] Re-verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
+            );
+          } else {
+            // Verified — stream the pre-generated response to user
+            safeSend(sseProgress('generating'));
+            safeSend(sseEvent('token', { text: assistantResponse }));
+          }
         }
 
-        controller.enqueue(sseEvent('verification', verification));
+        safeSend(sseEvent('verification', verification));
 
-        // 8. Generate follow-up questions
+        // 8. Send only sources actually cited via markdown links in the response
+        if (sources.length > 0) {
+          // Extract all URLs from markdown links [text](url)
+          const linkUrls = new Set<string>();
+          const linkRegex = /\[([^\]]*)\]\(([^)]+)\)/g;
+          let linkMatch;
+          while ((linkMatch = linkRegex.exec(assistantResponse)) !== null) {
+            linkUrls.add(linkMatch[2]);
+          }
+          const norm = (u: string) => u.replace(/\/+$/, '');
+          // Deduplicate sources by URL — multiple chunks from same page should show as one source
+          const seen = new Set<string>();
+          const citedSources = sources.filter((s) => {
+            if (!s.source_url) return false;
+            const nurl = norm(s.source_url);
+            if (seen.has(nurl)) return false;
+            for (const linked of linkUrls) {
+              if (nurl === norm(linked)) {
+                seen.add(nurl);
+                return true;
+              }
+            }
+            return false;
+          });
+          safeSend(sseEvent('sources', { sources: citedSources }));
+          console.log(`[chat] Cited sources: ${citedSources.length}/${sources.length} (${linkUrls.size} links found in response)`);
+        } else {
+          safeSend(sseEvent('sources', { sources: [] }));
+        }
+
+        // 9. Generate follow-up questions
         const followUps = await generateFollowUps(
           lastMessage.content,
           assistantResponse,
@@ -652,26 +718,33 @@ export async function POST(request: NextRequest) {
         mark('followups');
         console.log(`[chat] Follow-ups: ${followUps.length} generated`);
         if (followUps.length > 0) {
-          controller.enqueue(sseEvent('followups', { questions: followUps }));
+          safeSend(sseEvent('followups', { questions: followUps }));
         }
 
-        // 9. Auto-create or update conversation for authenticated users
-        let finalConversationId = conversationId;
-        if (userId && !finalConversationId) {
+        // 10. Done — include remaining daily count and conversationId
+        mark('done');
+        safeSend(
+          sseEvent('done', {
+            ...(dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
+            ...(finalConversationId ? { conversationId: finalConversationId } : {}),
+          }),
+        );
+
+        // 10. Update conversation title (after done, before closing stream)
+        if (userId && finalConversationId && !conversationId) {
           try {
-            const supabase = getSupabase();
-            const title = await generateConversationTitle(lastMessage.content);
-            const { data } = await supabase
+            const title = await Promise.race([
+              generateConversationTitle(lastMessage.content),
+              new Promise<string>((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000)),
+            ]);
+            console.log(`[chat] Updating conversation title: "${title}"`);
+            await getSupabase()
               .from('conversations')
-              .insert({ user_id: userId, title })
-              .select('id')
-              .single();
-            if (data) {
-              finalConversationId = data.id;
-              console.log(`[chat] Auto-created conversation: ${data.id} title="${title}"`);
-            }
+              .update({ title, updated_at: new Date().toISOString() })
+              .eq('id', finalConversationId);
+            safeSend(sseEvent('titleUpdate', { conversationId: finalConversationId, title }));
           } catch (err) {
-            console.error('[chat] Auto-create conversation failed:', (err as Error).message);
+            console.error('[chat] Title update failed:', (err as Error).message);
           }
         } else if (userId && finalConversationId) {
           // Touch updated_at so sidebar ordering stays correct
@@ -682,21 +755,12 @@ export async function POST(request: NextRequest) {
             .then(() => {}, () => {});
         }
 
-        // 10. Done — include remaining daily count and conversationId
-        mark('done');
-        controller.enqueue(
-          sseEvent('done', {
-            ...(dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
-            ...(finalConversationId ? { conversationId: finalConversationId } : {}),
-          }),
-        );
-
         // Summary log with all timings
         console.log(
-          `[chat] === DONE === ${Date.now() - t0}ms total | timings=${JSON.stringify(timings)} | response=${assistantResponse.length} chars | rag=${sources.length} | web=${allWebSources.length} | verify=${verification.status} | followups=${followUps.length}`,
+          `[chat] === DONE === ${Date.now() - t0}ms total | timings=${JSON.stringify(timings)} | response=${assistantResponse.length} chars | rag=${sources.length} | web=${allWebSources.length} | verify=${verification.status} | followups=${followUps.length}${clientDisconnected ? ' | CLIENT_DISCONNECTED' : ''}`,
         );
 
-        // 11. Log conversation to Supabase (fire-and-forget)
+        // 11. Log conversation to Supabase (always — even if client disconnected)
         logConversation({
           userMessage: lastMessage.content.trim(),
           assistantMessage: assistantResponse,
@@ -716,13 +780,13 @@ export async function POST(request: NextRequest) {
           (err as Error).message,
           (err as Error).stack,
         );
-        controller.enqueue(
+        safeSend(
           sseEvent('error', {
             message: 'An error occurred while generating a response.',
           }),
         );
       } finally {
-        controller.close();
+        safeClose();
       }
     },
   });
@@ -767,10 +831,11 @@ async function generateConversationTitle(message: string): Promise<string> {
   try {
     const openai = getOpenAI();
     const response = await openai.responses.create({
-      model: 'gpt-5-mini',
+      model: 'gpt-5-nano',
       max_output_tokens: 256,
+      reasoning: { effort: 'minimal' },
       instructions:
-        'Generate a very short title (3-6 words) for this conversation. Return only the title, no quotes, no punctuation at the end. Use the same language as the message.',
+        'Summarize the TOPIC of this user question in 3-6 words. Do NOT answer the question — just label what it is about. Return only the topic label, no quotes, no punctuation at the end. Use the same language as the message.',
       input: message.slice(0, 200),
     });
     const raw = response.output_text?.trim().replace(/^["']+|["']+$/g, '');

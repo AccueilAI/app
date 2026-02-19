@@ -11,6 +11,7 @@ interface ConversationSidebarProps {
   onNew: () => void;
   open: boolean;
   onToggle: () => void;
+  titleUpdate?: { id: string; title: string } | null;
 }
 
 function groupByDate(conversations: Conversation[], t: (key: string) => string) {
@@ -41,6 +42,7 @@ export function ConversationSidebar({
   onNew,
   open,
   onToggle,
+  titleUpdate,
 }: ConversationSidebarProps) {
   const t = useTranslations('Chat');
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -62,6 +64,16 @@ export function ConversationSidebar({
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations, currentId]);
+
+  // Update title in-place when server sends titleUpdate via SSE
+  useEffect(() => {
+    if (!titleUpdate) return;
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === titleUpdate.id ? { ...c, title: titleUpdate.title } : c,
+      ),
+    );
+  }, [titleUpdate]);
 
   async function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation();
