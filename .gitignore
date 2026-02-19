@@ -27,6 +27,10 @@
 # playwright
 /.playwright-cli/
 
+# claude code
+CLAUDE.md
+/docs/plan/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
