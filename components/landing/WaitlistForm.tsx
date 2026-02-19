@@ -10,7 +10,6 @@ export function WaitlistForm() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'already' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
-  const [position, setPosition] = useState<number | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +36,6 @@ export function WaitlistForm() {
         throw new Error(data.message || 'Something went wrong');
       }
 
-      setPosition(data.position ?? null);
       setStatus('success');
       setEmail('');
     } catch (err) {

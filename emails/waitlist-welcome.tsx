@@ -15,7 +15,6 @@ import {
 } from '@react-email/components';
 
 interface WaitlistWelcomeProps {
-  position: number;
   language?: 'en' | 'fr' | 'ko';
 }
 
@@ -24,7 +23,6 @@ const copy = {
     preview: "You're on the AccueilAI waitlist!",
     badge: '🇫🇷 WAITLIST CONFIRMED',
     heading: "You're in!",
-    position: (n: number) => `You're #${n} on the waitlist.`,
     body: "We're building an AI-powered assistant to help expats navigate French bureaucracy — visas, CAF, taxes, healthcare — in your language.",
     whatNext: "What happens next?",
     steps: [
@@ -41,7 +39,6 @@ const copy = {
     preview: "Vous êtes sur la liste d'attente AccueilAI !",
     badge: "🇫🇷 INSCRIPTION CONFIRMÉE",
     heading: 'Vous êtes inscrit !',
-    position: (n: number) => `Vous êtes #${n} sur la liste d'attente.`,
     body: "Nous développons un assistant IA pour aider les expatriés à naviguer dans l'administration française — visa, CAF, impôts, santé — dans votre langue.",
     whatNext: 'Et ensuite ?',
     steps: [
@@ -59,7 +56,6 @@ const copy = {
     preview: 'AccueilAI 대기자 명단에 등록되었습니다!',
     badge: '🇫🇷 등록 완료',
     heading: '등록되었습니다!',
-    position: (n: number) => `대기자 명단 ${n}번째입니다.`,
     body: '프랑스 행정을 도와주는 AI 어시스턴트를 만들고 있습니다 — 비자, CAF, 세금, 의료보험 — 한국어로 안내합니다.',
     whatNext: '앞으로 어떻게 되나요?',
     steps: [
@@ -74,7 +70,6 @@ const copy = {
 };
 
 export default function WaitlistWelcome({
-  position,
   language = 'en',
 }: WaitlistWelcomeProps) {
   const t = copy[language] ?? copy.en;
@@ -135,13 +130,6 @@ export default function WaitlistWelcome({
                 {t.heading}
               </Heading>
 
-              {/* Position badge */}
-              <Section className="mt-4 text-center">
-                <Text className="m-0 inline-block rounded-full bg-brand px-6 py-2 text-base font-bold text-white">
-                  {t.position(position)}
-                </Text>
-              </Section>
-
               {/* Body text */}
               <Text className="mt-6 text-base leading-relaxed text-gray-600">
                 {t.body}
@@ -194,6 +182,5 @@ export default function WaitlistWelcome({
 }
 
 WaitlistWelcome.PreviewProps = {
-  position: 42,
   language: 'en',
 } satisfies WaitlistWelcomeProps;
