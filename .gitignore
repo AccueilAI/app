@@ -29,7 +29,7 @@
 
 # claude code
 CLAUDE.md
-/docs/plan/
+/docs/
 
 # debug
 npm-debug.log*
