@@ -8,6 +8,19 @@ function getOpenAI(): OpenAI {
   return openaiClient;
 }
 
+/**
+ * Debug helper: log the full output array when output_text is empty.
+ * This helps us understand WHY the model returns no text.
+ */
+function debugEmptyOutput(tag: string, response: OpenAI.Responses.Response): void {
+  console.warn(
+    `[${tag}] Empty output_text. status=${response.status} | ` +
+    `output_items=${response.output.length} | ` +
+    `output=${JSON.stringify(response.output).slice(0, 500)}` +
+    (response.incomplete_details ? ` | incomplete=${JSON.stringify(response.incomplete_details)}` : ''),
+  );
+}
+
 // --- Language Detection ---
 
 // Common French words unlikely to appear in English
@@ -77,7 +90,7 @@ export function detectLanguage(text: string): string {
 // --- Translation ---
 
 /**
- * Translate a query to French using Responses API (gpt-5-nano). Skips if already French.
+ * Translate a query to French using Responses API. Skips if already French.
  */
 export async function translateToFrench(
   text: string,
@@ -86,19 +99,31 @@ export async function translateToFrench(
   if (sourceLang === 'fr') return text;
 
   const openai = getOpenAI();
+  const t0 = Date.now();
 
-  const response = await openai.responses.create({
-    model: 'gpt-5-nano',
-    max_output_tokens: 256,
-    reasoning: { effort: 'low' },
-    instructions:
-      'You are a translator specializing in French administrative and legal terminology. ' +
-      'Translate the user query to French. Output ONLY the French translation, nothing else. ' +
-      'Use precise administrative terms (e.g., "titre de séjour" not "permis de résidence").',
-    input: text,
-  });
+  try {
+    const response = await openai.responses.create({
+      model: 'gpt-5-mini',
+      max_output_tokens: 256,
+      instructions:
+        'You are a translator. Translate the user message to French. ' +
+        'Output ONLY the French translation, nothing else. ' +
+        'Use precise French administrative terms (e.g., "titre de séjour" not "permis de résidence").',
+      input: text,
+    });
 
-  return response.output_text?.trim() || text;
+    const translated = response.output_text?.trim();
+    if (translated) {
+      console.log(`[query] Translated in ${Date.now() - t0}ms: "${translated.slice(0, 80)}"`);
+      return translated;
+    }
+
+    debugEmptyOutput('query:translate', response);
+    return text;
+  } catch (err) {
+    console.error(`[query] Translation error in ${Date.now() - t0}ms: ${(err as Error).message}`);
+    return text;
+  }
 }
 
 // --- Conversational Query Reformulation ---
@@ -132,22 +157,40 @@ export async function reformulateQuery(
   const t0 = Date.now();
   const openai = getOpenAI();
 
-  const response = await openai.responses.create({
-    model: 'gpt-5-nano',
-    max_output_tokens: 256,
-    reasoning: { effort: 'low' },
-    instructions:
-      'You are a query reformulation assistant for French administrative procedure search. ' +
-      'Given a conversation history and the latest user message, rewrite the latest message ' +
-      'as a STANDALONE search query that captures the full intent. ' +
-      'Include relevant entities and context from prior messages. ' +
-      'Output ONLY the reformulated query, nothing else. ' +
-      'If the latest message is already self-contained, return it unchanged. ' +
-      'Keep the query in the same language as the user message.',
-    input: `CONVERSATION HISTORY:\n${historyBlock}\n\nLATEST USER MESSAGE:\n${lastMessage.content}\n\nREFORMULATED STANDALONE QUERY:`,
-  });
+  let result: string;
+  try {
+    const response = await openai.responses.create({
+      model: 'gpt-5-mini',
+      max_output_tokens: 256,
+      instructions:
+        'You are a query reformulation assistant. ' +
+        'Given a conversation history and the latest user message, rewrite the latest message ' +
+        'as a STANDALONE search query that captures the full intent. ' +
+        'If the latest message is already self-contained, return it EXACTLY unchanged. ' +
+        'Output ONLY the reformulated query, nothing else. ' +
+        'Keep the query in the same language as the user message. ' +
+        'NEVER truncate or shorten the query.',
+      input: `CONVERSATION HISTORY:\n${historyBlock}\n\nLATEST USER MESSAGE:\n${lastMessage.content}`,
+    });
 
-  const result = response.output_text?.trim() || lastMessage.content;
+    result = response.output_text?.trim() || lastMessage.content;
+
+    if (!response.output_text?.trim()) {
+      debugEmptyOutput('query:reformulate', response);
+    }
+  } catch (err) {
+    console.error(`[query] Reformulation error: ${(err as Error).message}`);
+    result = lastMessage.content;
+  }
+
+  // Safety: if reformulated query is shorter than 50% of original, use original
+  if (result.length < lastMessage.content.length * 0.5) {
+    console.warn(
+      `[query] Reformulation too short (${result.length} vs ${lastMessage.content.length}), using original`,
+    );
+    result = lastMessage.content;
+  }
+
   console.log(
     `[query] Reformulated in ${Date.now() - t0}ms (${priorMessages.length} prior msgs): "${result.slice(0, 100)}"`,
   );
@@ -163,35 +206,44 @@ export async function expandQuery(query: string): Promise<string[]> {
   const t0 = Date.now();
   const openai = getOpenAI();
 
-  const response = await openai.responses.create({
-    model: 'gpt-5-nano',
-    max_output_tokens: 256,
-    reasoning: { effort: 'low' },
-    instructions:
-      'Given a French administrative query, provide 2-3 alternative phrasings using ' +
-      'official French legal/administrative terminology. Return ONLY a JSON array of strings. ' +
-      'Example: ["visa de travail", "titre de séjour salarié", "autorisation de travail"]',
-    input: query,
-  });
-
-  const raw = response.output_text?.trim() ?? '[]';
-
   try {
-    const parsed: unknown = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
-      console.log(`[query] Expanded in ${Date.now() - t0}ms: ${(parsed as string[]).length} terms`);
-      return parsed as string[];
-    }
-  } catch {
-    // If model returns malformed JSON, try to extract strings manually
-    const matches = raw.match(/"([^"]+)"/g);
-    if (matches) {
-      const extracted = matches.map((m) => m.replace(/"/g, '')).slice(0, 3);
-      console.log(`[query] Expanded (fallback) in ${Date.now() - t0}ms: ${extracted.length} terms`);
-      return extracted;
-    }
-  }
+    const response = await openai.responses.create({
+      model: 'gpt-5-mini',
+      max_output_tokens: 256,
+      instructions:
+        'Given a French administrative query, provide 2-3 alternative phrasings using ' +
+        'official French legal/administrative terminology. Return ONLY a JSON array of strings. ' +
+        'Example: ["visa de travail", "titre de séjour salarié", "autorisation de travail"]',
+      input: query,
+    });
 
-  console.log(`[query] Expand failed in ${Date.now() - t0}ms: raw="${raw.slice(0, 80)}"`);
-  return [];
+    const raw = response.output_text?.trim() || '';
+
+    if (!raw) {
+      debugEmptyOutput('query:expand', response);
+      return [];
+    }
+
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.every((s) => typeof s === 'string')) {
+        console.log(`[query] Expanded in ${Date.now() - t0}ms: ${(parsed as string[]).length} terms`);
+        return parsed as string[];
+      }
+    } catch {
+      // If model returns malformed JSON, try to extract strings manually
+      const matches = raw.match(/"([^"]+)"/g);
+      if (matches) {
+        const extracted = matches.map((m) => m.replace(/"/g, '')).slice(0, 3);
+        console.log(`[query] Expanded (fallback) in ${Date.now() - t0}ms: ${extracted.length} terms`);
+        return extracted;
+      }
+    }
+
+    console.log(`[query] Expand failed in ${Date.now() - t0}ms: raw="${raw.slice(0, 80)}"`);
+    return [];
+  } catch (err) {
+    console.error(`[query] Expand error in ${Date.now() - t0}ms: ${(err as Error).message}`);
+    return [];
+  }
 }

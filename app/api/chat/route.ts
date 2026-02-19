@@ -51,6 +51,29 @@ function sseProgress(stage: ProgressStage): Uint8Array {
 
 const MAX_TOOL_ROUNDS = 3;
 
+/**
+ * Extract only the last assistant message text from response output.
+ * Skips intermediate text that appears before/between web search calls.
+ */
+function extractLastMessageText(
+  output: OpenAI.Responses.ResponseOutputItem[],
+): string {
+  for (let i = output.length - 1; i >= 0; i--) {
+    const item = output[i];
+    if (item.type === 'message' && 'content' in item) {
+      const msg = item as OpenAI.Responses.ResponseOutputMessage;
+      const texts: string[] = [];
+      for (const part of msg.content) {
+        if (part.type === 'output_text' && part.text) {
+          texts.push(part.text);
+        }
+      }
+      if (texts.length > 0) return texts.join('');
+    }
+  }
+  return '';
+}
+
 // --- Route Handler ---
 
 export async function POST(request: NextRequest) {
@@ -431,9 +454,10 @@ export async function POST(request: NextRequest) {
             reasoning: { effort: 'medium' },
           });
 
-          // Accumulate text from this round
-          if (firstPassResponse.output_text) {
-            assistantResponse += firstPassResponse.output_text;
+          // Accumulate only the final message text (skip intermediate web search descriptions)
+          const roundText = extractLastMessageText(firstPassResponse.output);
+          if (roundText) {
+            assistantResponse += roundText;
           }
 
           // Extract web sources from response annotations
@@ -507,6 +531,21 @@ export async function POST(request: NextRequest) {
               output: resultStr,
             });
           }
+        }
+        // Fallback: if agentic loop exhausted all rounds with no text, generate without tools
+        if (!assistantResponse.trim()) {
+          console.log('[chat] Empty response after agentic loop — generating fallback without tools');
+          controller.enqueue(sseProgress('thinking'));
+          const fallbackResponse = await openai.responses.create({
+            model: 'gpt-5-mini',
+            instructions: systemPrompt,
+            input,
+            max_output_tokens: MAX_COMPLETION_TOKENS,
+            reasoning: { effort: 'medium' },
+            // No tools — forces text generation
+          });
+          assistantResponse = fallbackResponse.output_text || '';
+          console.log(`[chat] Fallback generated: ${assistantResponse.length} chars`);
         }
         mark('agentic_loop');
 

@@ -10,9 +10,10 @@ export interface QualityAssessment {
   sourceDiversity: number;
 }
 
+// Cohere rerank scores: >0.7 high relevance, 0.5-0.7 relevant, <0.4 off-topic
 const THRESHOLDS = {
-  MIN_TOP_SCORE: 0.25,
-  MIN_AVG_SCORE: 0.10,
+  MIN_TOP_SCORE: 0.40,
+  MIN_AVG_SCORE: 0.20,
   MIN_SOURCES: 1,
 } as const;
 

@@ -61,13 +61,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const supabase = getSupabase();
 
-    // Get initial session
-    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
-      setUser(currentUser);
-      if (currentUser) {
-        fetchProfile(currentUser.id);
+    // Get initial session with timeout — corporate firewalls may block *.supabase.co
+    const AUTH_TIMEOUT_MS = 5000;
+    let resolved = false;
+
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.warn('[auth] Supabase auth timed out — continuing without auth');
+        setIsLoading(false);
       }
-      setIsLoading(false);
+    }, AUTH_TIMEOUT_MS);
+
+    supabase.auth.getUser().then(({ data: { user: currentUser } }) => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        setUser(currentUser);
+        if (currentUser) {
+          fetchProfile(currentUser.id);
+        }
+        setIsLoading(false);
+      }
+    }).catch((err: unknown) => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(timeout);
+        console.warn('[auth] Supabase auth error:', (err as Error).message);
+        setIsLoading(false);
+      }
     });
 
     // Listen for auth state changes

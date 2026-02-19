@@ -58,7 +58,8 @@ export async function calculate(
     });
 
     if (!response.ok) {
-      console.error(`[openfisca] calculate failed: ${response.status} ${response.statusText}`);
+      const errorBody = await response.text().catch(() => '');
+      console.error(`[openfisca] calculate failed: ${response.status} ${response.statusText} | body=${errorBody.slice(0, 300)}`);
       return null;
     }
 
@@ -108,8 +109,9 @@ export function buildExpatSituation(params: ExpatSituationParams): OpenFiscaSitu
   const birthYear = now.getFullYear() - params.age;
   const dateNaissance = `${birthYear}-01-01`;
 
+  // date_naissance is ETERNITY period, nationalite is MONTH period
   const demandeur: Record<string, unknown> = {
-    date_naissance: { [period]: dateNaissance },
+    date_naissance: { ETERNITY: dateNaissance },
     nationalite: { [period]: params.nationality },
   };
 
@@ -117,9 +119,9 @@ export function buildExpatSituation(params: ExpatSituationParams): OpenFiscaSitu
     demandeur.salaire_net = { [period]: params.income };
   }
 
+  // Children are modeled as separate individuals, not a count variable
   const enfants: string[] = [];
   if (params.hasChildren) {
-    demandeur.nombre_enfants = { [period]: 1 };
     enfants.push('enfant1');
   }
 
@@ -129,7 +131,7 @@ export function buildExpatSituation(params: ExpatSituationParams): OpenFiscaSitu
       ...(params.hasChildren
         ? {
             enfant1: {
-              date_naissance: { [period]: `${now.getFullYear() - 5}-01-01` },
+              date_naissance: { ETERNITY: `${now.getFullYear() - 5}-01-01` },
             },
           }
         : {}),

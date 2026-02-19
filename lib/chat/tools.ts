@@ -169,13 +169,17 @@ export async function executeTool(
 async function searchPrefecture(query: string) {
   const supabase = getSupabase();
   const sanitized = query.replace(/[%_]/g, '');
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('government_offices')
-    .select('name, address, phone, email, hours, url, service_types')
+    .select('name, address, city, postal_code, phone, email, website, opening_hours, services')
     .or(
       `name.ilike.%${sanitized}%,city.ilike.%${sanitized}%,address.ilike.%${sanitized}%,department.ilike.%${sanitized}%`,
     )
     .limit(3);
+  if (error) {
+    console.error(`[tools] search_prefecture error: ${error.message}`);
+    return [];
+  }
   return data ?? [];
 }
 
@@ -246,24 +250,22 @@ async function toolCheckBenefits(params: {
     const now = new Date();
     const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-    // Family-level benefits
-    for (const v of ['rsa', 'prime_activite']) {
+    // Family-level benefits (rsa, prime_activite, aspa are all famille-level)
+    for (const v of ['rsa', 'prime_activite', 'aspa']) {
       situation.familles.famille1[v] = { [period]: null };
     }
     // Housing benefits
     situation.menages.menage1['apl'] = { [period]: null };
     // Individual benefits
-    for (const v of ['aah', 'aspa']) {
-      situation.individus.demandeur[v] = { [period]: null };
-    }
+    situation.individus.demandeur['aah'] = { [period]: null };
 
     const result = await calculate(situation);
     if (!result) return { error: 'OpenFisca calculation failed' };
 
     const benefits: Record<string, number> = {};
 
-    // Extract family-level results
-    for (const v of ['rsa', 'prime_activite']) {
+    // Extract family-level results (rsa, prime_activite, aspa)
+    for (const v of ['rsa', 'prime_activite', 'aspa']) {
       const val = (result.familles.famille1[v] as Record<string, number>)?.[period];
       if (val && val > 0) benefits[v] = Math.round(val * 100) / 100;
     }
@@ -271,10 +273,8 @@ async function toolCheckBenefits(params: {
     const aplVal = (result.menages.menage1['apl'] as Record<string, number>)?.[period];
     if (aplVal && aplVal > 0) benefits['apl'] = Math.round(aplVal * 100) / 100;
     // Individual results
-    for (const v of ['aah', 'aspa']) {
-      const val = (result.individus.demandeur[v] as Record<string, number>)?.[period];
-      if (val && val > 0) benefits[v] = Math.round(val * 100) / 100;
-    }
+    const aahVal = (result.individus.demandeur['aah'] as Record<string, number>)?.[period];
+    if (aahVal && aahVal > 0) benefits['aah'] = Math.round(aahVal * 100) / 100;
 
     return {
       eligible_benefits: benefits,
