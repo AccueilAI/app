@@ -130,7 +130,7 @@ export function MessageBubble({ message, userQuery, isStreaming, isLast, onRegen
           <Bot className="h-4 w-4 text-white" />
         </div>
       )}
-      <div className={`max-w-[80%] ${isUser ? 'text-right' : ''}`}>
+      <div className={`max-w-[80%] ${isUser ? 'flex flex-col items-end' : ''}`}>
         <div
           className={`inline-block rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser

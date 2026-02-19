@@ -262,8 +262,10 @@
       "searching_rag": "Recherche dans la base de connaissances...",
       "searching_web": "Recherche web en cours...",
       "looking_up": "Consultation des détails...",
+      "thinking": "Analyse de votre question...",
       "generating": "Génération de la réponse...",
-      "verifying": "Vérification des sources..."
+      "verifying": "Vérification des sources...",
+      "regenerating": "Amélioration de la réponse..."
     },
     "followUp": {
       "title": "Questions connexes"

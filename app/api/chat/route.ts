@@ -21,6 +21,7 @@ import { chatRateLimit, chatDailyLimit, chatDailyLimitFree } from '@/lib/rate-li
 import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { getFunctionTools, executeTool } from '@/lib/chat/tools';
+import { assessRetrievalQuality } from '@/lib/search/quality-gate';
 import { extractWebSources } from '@/lib/chat/web-sources';
 import { generateFollowUps } from '@/lib/chat/follow-ups';
 import type { ChatRequestBody, ChatSource, ProgressStage } from '@/lib/chat/types';
@@ -49,6 +50,29 @@ function sseProgress(stage: ProgressStage): Uint8Array {
 // --- Constants ---
 
 const MAX_TOOL_ROUNDS = 3;
+
+/**
+ * Extract only the last assistant message text from response output.
+ * Skips intermediate text that appears before/between web search calls.
+ */
+function extractLastMessageText(
+  output: OpenAI.Responses.ResponseOutputItem[],
+): string {
+  for (let i = output.length - 1; i >= 0; i--) {
+    const item = output[i];
+    if (item.type === 'message' && 'content' in item) {
+      const msg = item as OpenAI.Responses.ResponseOutputMessage;
+      const texts: string[] = [];
+      for (const part of msg.content) {
+        if (part.type === 'output_text' && part.text) {
+          texts.push(part.text);
+        }
+      }
+      if (texts.length > 0) return texts.join('');
+    }
+  }
+  return '';
+}
 
 // --- Route Handler ---
 
@@ -230,6 +254,48 @@ export async function POST(request: NextRequest) {
           `[chat] RAG trim: ${searchResponse.results.length} → ${trimmedResults.length} results (budget=${maxSystemTokens} tokens)`,
         );
 
+        // 2.5. Quality gate: check if sources are sufficient
+        const quality = assessRetrievalQuality(trimmedResults);
+        mark('quality_gate');
+        console.log(
+          `[chat] Quality gate: pass=${quality.pass} confidence=${quality.confidence.toFixed(2)} top=${quality.topScore.toFixed(3)} avg=${quality.avgScore.toFixed(3)} sources=${quality.sourceCount} diversity=${quality.sourceDiversity}`,
+        );
+
+        if (!quality.pass) {
+          controller.enqueue(sseEvent('sources', { sources: [] }));
+          controller.enqueue(sseProgress('generating'));
+
+          const insufficientMsg = language === 'fr'
+            ? "Je n'ai pas trouvé de sources suffisamment fiables pour répondre à cette question. Je préfère vous le dire plutôt que de risquer une information incorrecte. Essayez de reformuler votre question ou consultez directement service-public.fr."
+            : language === 'ko'
+            ? '이 질문에 대해 충분히 신뢰할 수 있는 출처를 찾지 못했습니다. 잘못된 정보를 드리는 것보다 솔직하게 말씀드리는 게 낫다고 생각합니다. 질문을 다시 표현해보시거나 service-public.fr를 직접 확인해주세요.'
+            : "I couldn't find sufficiently reliable sources to answer this question. I'd rather be honest about this than risk giving you incorrect information. Try rephrasing your question or check service-public.fr directly.";
+
+          controller.enqueue(sseEvent('token', { text: insufficientMsg }));
+          controller.enqueue(sseEvent('quality', quality));
+          controller.enqueue(sseEvent('done', {
+            ...(dailyRemaining !== null ? { remaining: dailyRemaining } : {}),
+            ...(conversationId ? { conversationId } : {}),
+          }));
+
+          // Log the blocked query
+          logConversation({
+            userMessage: lastMessage.content.trim(),
+            assistantMessage: insufficientMsg,
+            language,
+            sourceCount: 0,
+            ip,
+            userId,
+            conversationId,
+          }).catch((err) => console.error('[chat] DB log error:', err));
+
+          console.log(`[chat] === BLOCKED === Quality gate failed: ${quality.reason}`);
+          controller.close();
+          return;
+        }
+
+        controller.enqueue(sseEvent('quality', quality));
+
         // 3. Send sources event
         const sources: ChatSource[] = trimmedResults.map((r) => ({
           content: r.content,
@@ -330,8 +396,8 @@ export async function POST(request: NextRequest) {
           `[chat] History: ${originalMsgCount} msgs → ${compacted.length} msgs${wasCompacted ? ' (compacted)' : ''}, ~${estimateTokens(conversationInput)} tokens`,
         );
 
-        // 6. Agentic loop with tools
-        controller.enqueue(sseProgress('generating'));
+        // 6. Two-pass generation: silent first pass → verify → stream
+        controller.enqueue(sseProgress('thinking'));
         const openai = getOpenAI();
 
         const tools = [
@@ -378,66 +444,48 @@ export async function POST(request: NextRequest) {
             `[chat] Round ${round + 1}/${MAX_TOOL_ROUNDS}. Input tokens: ~${totalInputTokens}`,
           );
 
-          const stream = await openai.responses.create({
+          // Non-streaming first pass — response hidden until verified
+          const firstPassResponse = await openai.responses.create({
             model: 'gpt-5-mini',
             instructions: systemPrompt,
             input,
             tools,
             max_output_tokens: MAX_COMPLETION_TOKENS,
             reasoning: { effort: 'medium' },
-            stream: true,
           });
 
-          // Collect output items for potential tool call follow-up
-          const outputItems: OpenAI.Responses.ResponseOutputItem[] = [];
-          let completedResponse:
-            | OpenAI.Responses.Response
-            | undefined;
+          // Accumulate only the final message text (skip intermediate web search descriptions)
+          const roundText = extractLastMessageText(firstPassResponse.output);
+          if (roundText) {
+            assistantResponse += roundText;
+          }
+
+          // Extract web sources from response annotations
+          const webSources = extractWebSources(
+            firstPassResponse as Parameters<typeof extractWebSources>[0],
+          );
+          if (webSources.length > 0) {
+            allWebSources = [...allWebSources, ...webSources];
+            console.log(`[chat] Round ${round + 1}: ${webSources.length} web sources extracted`);
+          }
+
+          // Check for function calls
           const functionCalls: Array<{
             callId: string;
             name: string;
             args: string;
           }> = [];
-
-          for await (const event of stream) {
-            if (event.type === 'response.output_text.delta') {
-              assistantResponse += event.delta;
-              controller.enqueue(sseEvent('token', { text: event.delta }));
-            } else if (
-              event.type ===
-              'response.web_search_call.in_progress'
+          for (const item of firstPassResponse.output) {
+            if (
+              item.type === 'function_call' &&
+              item.name &&
+              item.call_id
             ) {
-              controller.enqueue(sseProgress('searching_web'));
-            } else if (event.type === 'response.output_item.done') {
-              outputItems.push(event.item);
-              // Track function calls
-              if (
-                event.item.type === 'function_call' &&
-                event.item.name &&
-                event.item.call_id
-              ) {
-                functionCalls.push({
-                  callId: event.item.call_id,
-                  name: event.item.name,
-                  args: event.item.arguments ?? '{}',
-                });
-              }
-            } else if (event.type === 'response.completed') {
-              completedResponse = event.response;
-            }
-          }
-
-          // Extract web sources from completed response annotations
-          if (completedResponse) {
-            const webSources = extractWebSources(
-              completedResponse as Parameters<typeof extractWebSources>[0],
-            );
-            if (webSources.length > 0) {
-              allWebSources = [
-                ...allWebSources,
-                ...webSources,
-              ];
-              console.log(`[chat] Round ${round + 1}: ${webSources.length} web sources extracted`);
+              functionCalls.push({
+                callId: item.call_id,
+                name: item.name,
+                args: item.arguments ?? '{}',
+              });
             }
           }
 
@@ -454,7 +502,7 @@ export async function POST(request: NextRequest) {
           controller.enqueue(sseProgress('looking_up'));
           input = [
             ...input,
-            ...outputItems.map(
+            ...firstPassResponse.output.map(
               (item) =>
                 item as unknown as OpenAI.Responses.ResponseInputItem,
             ),
@@ -484,6 +532,21 @@ export async function POST(request: NextRequest) {
             });
           }
         }
+        // Fallback: if agentic loop exhausted all rounds with no text, generate without tools
+        if (!assistantResponse.trim()) {
+          console.log('[chat] Empty response after agentic loop — generating fallback without tools');
+          controller.enqueue(sseProgress('thinking'));
+          const fallbackResponse = await openai.responses.create({
+            model: 'gpt-5-mini',
+            instructions: systemPrompt,
+            input,
+            max_output_tokens: MAX_COMPLETION_TOKENS,
+            reasoning: { effort: 'medium' },
+            // No tools — forces text generation
+          });
+          assistantResponse = fallbackResponse.output_text || '';
+          console.log(`[chat] Fallback generated: ${assistantResponse.length} chars`);
+        }
         mark('agentic_loop');
 
         // Send web sources if any were found
@@ -501,10 +564,10 @@ export async function POST(request: NextRequest) {
         }
 
         console.log(
-          `[chat] Agentic loop done: ${assistantResponse.length} chars, web_sources=${allWebSources.length}`,
+          `[chat] First pass done: ${assistantResponse.length} chars, web_sources=${allWebSources.length}`,
         );
 
-        // 7. Verify response against sources (hallucination detection)
+        // 7. Verify response BEFORE streaming (pre-streaming hallucination detection)
         controller.enqueue(sseProgress('verifying'));
         const sourcesTextForVerification = sources
           .map(
@@ -512,7 +575,7 @@ export async function POST(request: NextRequest) {
               `[Source ${i + 1}] (${s.doc_type}: ${s.source})\n${s.content}`,
           )
           .join('\n\n');
-        const verification = await verifyResponse(
+        let verification = await verifyResponse(
           assistantResponse,
           sourcesTextForVerification,
         );
@@ -520,6 +583,64 @@ export async function POST(request: NextRequest) {
         console.log(
           `[chat] Verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
         );
+
+        // 8. Stream to user — regenerate if hallucination detected
+        if (verification.status === 'error') {
+          console.log('[chat] Hallucination detected — regenerating with corrections');
+          controller.enqueue(sseProgress('regenerating'));
+
+          const flaggedList = verification.flaggedClaims
+            .map((c) => `- "${c.claim}" — ${c.reason}`)
+            .join('\n');
+
+          const correctionInput: OpenAI.Responses.ResponseInputItem[] = [
+            ...input,
+            {
+              type: 'message' as const,
+              role: 'assistant' as const,
+              content: assistantResponse,
+            },
+            {
+              type: 'message' as const,
+              role: 'user' as const,
+              content: `SYSTEM: The following claims were flagged as unsupported by sources:\n${flaggedList}\n\nRegenerate your response, removing or correcting these claims. Only include information directly supported by the provided sources. If unsure, say you don't have enough information.`,
+            },
+          ];
+
+          assistantResponse = '';
+          const correctionStream = await openai.responses.create({
+            model: 'gpt-5-mini',
+            instructions: systemPrompt,
+            input: correctionInput,
+            max_output_tokens: MAX_COMPLETION_TOKENS,
+            reasoning: { effort: 'medium' },
+            stream: true,
+          });
+
+          controller.enqueue(sseProgress('generating'));
+          for await (const event of correctionStream) {
+            if (event.type === 'response.output_text.delta') {
+              assistantResponse += event.delta;
+              controller.enqueue(sseEvent('token', { text: event.delta }));
+            }
+          }
+          mark('regeneration');
+
+          // Re-verify the corrected response
+          verification = await verifyResponse(
+            assistantResponse,
+            sourcesTextForVerification,
+          );
+          mark('re_verification');
+          console.log(
+            `[chat] Re-verification: status=${verification.status} confidence=${verification.confidence} flagged=${verification.flaggedClaims.length}`,
+          );
+        } else {
+          // Verified — stream the pre-generated response to user
+          controller.enqueue(sseProgress('generating'));
+          controller.enqueue(sseEvent('token', { text: assistantResponse }));
+        }
+
         controller.enqueue(sseEvent('verification', verification));
 
         // 8. Generate follow-up questions

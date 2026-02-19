@@ -23,14 +23,24 @@ function getOpenAI(): OpenAI {
   return client;
 }
 
+/**
+ * Debug helper: log the full output array when output_text is empty.
+ */
+function debugEmptyOutput(tag: string, response: OpenAI.Responses.Response): void {
+  console.warn(
+    `[${tag}] Empty output_text. status=${response.status} | ` +
+    `output_items=${response.output.length} | ` +
+    `output=${JSON.stringify(response.output).slice(0, 500)}` +
+    (response.incomplete_details ? ` | incomplete=${JSON.stringify(response.incomplete_details)}` : ''),
+  );
+}
+
 // --- Verification ---
 
 /**
  * Verify an assistant response against retrieved source documents.
  * Checks for unsupported factual claims — especially article numbers,
  * monetary amounts, deadlines, and procedure steps.
- *
- * Returns quickly (~1-2s with gpt-5-nano) after streaming completes.
  */
 export async function verifyResponse(
   response: string,
@@ -47,48 +57,61 @@ export async function verifyResponse(
   try {
     const result = await openai.responses.create({
       model: 'gpt-5-mini',
-      max_output_tokens: 512,
-      instructions: `You are a fact-checker for French administrative procedure information.
-Compare the RESPONSE against the SOURCE DOCUMENTS and identify factual claims in the response that are NOT supported by the sources.
-
-Focus on HIGH-RISK claims:
-- Law article numbers (e.g., "Article L313-2")
-- Monetary amounts (e.g., "225 euros")
-- Specific deadlines or durations (e.g., "4 months", "90 days")
-- Procedure step sequences
-- Institutional names or addresses
-
-Ignore:
-- General knowledge (e.g., "France has a visa system")
-- Disclaimers added by the assistant
-- Hedged language ("typically", "usually", "may")
-- Claims that paraphrase source content accurately
-
-Respond in JSON format:
-{
-  "flagged": [
-    {"claim": "exact claim text", "reason": "why unsupported", "severity": "high|medium"}
-  ],
-  "confidence": 0.0-1.0
-}
-
-If ALL factual claims are supported by sources, return: {"flagged": [], "confidence": 0.95}
-Be conservative — only flag claims you are confident are NOT in the sources.`,
-      input: `SOURCE DOCUMENTS:\n${sourcesText}\n\n---\n\nRESPONSE TO VERIFY:\n${response}`,
+      max_output_tokens: 2048,
+      instructions:
+        'You are a fact-checker. Compare the RESPONSE against SOURCE DOCUMENTS. ' +
+        'Identify factual claims NOT supported by sources. Focus on: law article numbers, monetary amounts, deadlines, procedure steps, institutional names. ' +
+        'Ignore: general knowledge, disclaimers, hedged language, accurate paraphrases. ' +
+        'If all claims are supported, return empty flagged array with confidence 0.95.',
+      input: `SOURCE DOCUMENTS:\n${sourcesText.slice(0, 6000)}\n\n---\n\nRESPONSE TO VERIFY:\n${response}`,
+      text: {
+        format: {
+          type: 'json_schema',
+          name: 'verification_result',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              flagged: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    claim: { type: 'string' },
+                    reason: { type: 'string' },
+                    severity: { type: 'string', enum: ['high', 'medium'] },
+                  },
+                  required: ['claim', 'reason', 'severity'],
+                  additionalProperties: false,
+                },
+              },
+              confidence: { type: 'number' },
+            },
+            required: ['flagged', 'confidence'],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
-    const text = result.output_text?.trim() ?? '';
+    const rawText = result.output_text?.trim() ?? '';
 
-    // Parse JSON from response (handle markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
+    if (!rawText) {
+      debugEmptyOutput('verify', result);
+      console.warn(`[verify] Empty output in ${Date.now() - t0}ms — skipping`);
       return { status: 'verified', confidence: 0.5, flaggedClaims: [] };
     }
 
-    const parsed = JSON.parse(jsonMatch[0]) as {
+    let parsed: {
       flagged?: { claim: string; reason: string; severity: string }[];
       confidence?: number;
     };
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error(`[verify] JSON parse failed in ${Date.now() - t0}ms: ${(parseErr as Error).message} | raw=${rawText.slice(0, 200)}`);
+      return { status: 'verified', confidence: 0.3, flaggedClaims: [] };
+    }
 
     const flaggedClaims: FlaggedClaim[] = (parsed.flagged ?? []).map((f) => ({
       claim: f.claim,

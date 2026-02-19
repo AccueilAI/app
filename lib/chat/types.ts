@@ -25,8 +25,10 @@ export type ProgressStage =
   | 'searching_rag'
   | 'searching_web'
   | 'looking_up'
+  | 'thinking'
   | 'generating'
-  | 'verifying';
+  | 'verifying'
+  | 'regenerating';
 
 export interface ChatMessage {
   id: string;

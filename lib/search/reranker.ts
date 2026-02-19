@@ -1,6 +1,6 @@
 import { CohereClientV2 } from 'cohere-ai';
 
-const MODEL = 'rerank-v3.5';
+const MODEL = 'rerank-v4.0-pro';
 const MAX_TOKENS_PER_DOC = 4096;
 
 let cohereClient: CohereClientV2 | null = null;

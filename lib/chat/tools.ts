@@ -1,4 +1,8 @@
 import { getSupabase } from '@/lib/supabase/client';
+import { searchAddress } from '@/lib/apis/ban';
+import { getCommuneByPostcode } from '@/lib/apis/geo';
+import { getHolidays } from '@/lib/apis/jours-feries';
+import { buildExpatSituation, calculate } from '@/lib/apis/openfisca';
 
 export function getFunctionTools() {
   return [
@@ -32,6 +36,91 @@ export function getFunctionTools() {
         additionalProperties: false,
       },
     },
+    {
+      type: 'function' as const,
+      name: 'search_address',
+      description:
+        'Search for a French address. Returns matching addresses with postal code, city, and department context. Useful for finding offices, prefectures, or verifying addresses.',
+      strict: true,
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          query: {
+            type: 'string' as const,
+            description:
+              'Address text to search (e.g., "Préfecture de Paris", "10 rue de la Paix 75002")',
+          },
+        },
+        required: ['query'],
+        additionalProperties: false,
+      },
+    },
+    {
+      type: 'function' as const,
+      name: 'lookup_commune',
+      description:
+        'Look up French communes by postal code. Returns commune name, department code, region, and population. One postal code can map to multiple communes.',
+      strict: true,
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          postcode: {
+            type: 'string' as const,
+            description: 'French postal code (e.g., "75001", "69003")',
+          },
+        },
+        required: ['postcode'],
+        additionalProperties: false,
+      },
+    },
+    {
+      type: 'function' as const,
+      name: 'get_french_holidays',
+      description:
+        'Get French public holidays for a given year. Useful for deadline calculations and checking if government offices are open.',
+      strict: true,
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          year: {
+            type: 'number' as const,
+            description: 'Year to check (e.g., 2026)',
+          },
+        },
+        required: ['year'],
+        additionalProperties: false,
+      },
+    },
+    {
+      type: 'function' as const,
+      name: 'check_benefit_eligibility',
+      description:
+        'Estimate eligibility for French social benefits (RSA, APL, prime d\'activité) using OpenFisca microsimulation. Results are indicative — actual eligibility may vary.',
+      strict: true,
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          age: {
+            type: 'number' as const,
+            description: 'Age of the person',
+          },
+          nationality: {
+            type: 'string' as const,
+            description: 'ISO country code (e.g., "FR", "US", "KR")',
+          },
+          monthly_income: {
+            type: 'number' as const,
+            description: 'Monthly net income in euros',
+          },
+          has_children: {
+            type: 'boolean' as const,
+            description: 'Whether the person has children',
+          },
+        },
+        required: ['age', 'nationality', 'monthly_income', 'has_children'],
+        additionalProperties: false,
+      },
+    },
   ];
 }
 
@@ -49,6 +138,25 @@ export async function executeTool(
     case 'get_user_profile':
       result = await getUserProfile(userId);
       break;
+    case 'search_address':
+      result = await toolSearchAddress(args.query as string);
+      break;
+    case 'lookup_commune':
+      result = await toolLookupCommune(args.postcode as string);
+      break;
+    case 'get_french_holidays':
+      result = await toolGetHolidays(args.year as number);
+      break;
+    case 'check_benefit_eligibility':
+      result = await toolCheckBenefits(
+        args as {
+          age: number;
+          nationality: string;
+          monthly_income: number;
+          has_children: boolean;
+        },
+      );
+      break;
     default:
       result = { error: 'Unknown function' };
   }
@@ -61,13 +169,17 @@ export async function executeTool(
 async function searchPrefecture(query: string) {
   const supabase = getSupabase();
   const sanitized = query.replace(/[%_]/g, '');
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('government_offices')
-    .select('name, address, phone, email, hours, url, service_types')
+    .select('name, address, city, postal_code, phone, email, website, opening_hours, services')
     .or(
       `name.ilike.%${sanitized}%,city.ilike.%${sanitized}%,address.ilike.%${sanitized}%,department.ilike.%${sanitized}%`,
     )
     .limit(3);
+  if (error) {
+    console.error(`[tools] search_prefecture error: ${error.message}`);
+    return [];
+  }
   return data ?? [];
 }
 
@@ -80,4 +192,95 @@ async function getUserProfile(userId: string | null) {
     .eq('id', userId)
     .single();
   return data ?? { error: 'Profile not found' };
+}
+
+async function toolSearchAddress(query: string) {
+  try {
+    const results = await searchAddress(query, { limit: 3 });
+    return results.map((r) => ({
+      address: r.label,
+      postcode: r.postcode,
+      city: r.city,
+      context: r.context,
+    }));
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+}
+
+async function toolLookupCommune(postcode: string) {
+  try {
+    const communes = await getCommuneByPostcode(postcode);
+    return communes.map((c) => ({
+      name: c.nom,
+      code: c.code,
+      department: c.codeDepartement,
+      region: c.codeRegion,
+      population: c.population,
+    }));
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+}
+
+async function toolGetHolidays(year: number) {
+  try {
+    const holidays = await getHolidays(year || undefined);
+    return Object.entries(holidays).map(([date, name]) => ({ date, name }));
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+}
+
+async function toolCheckBenefits(params: {
+  age: number;
+  nationality: string;
+  monthly_income: number;
+  has_children: boolean;
+}) {
+  try {
+    const situation = buildExpatSituation({
+      age: params.age,
+      nationality: params.nationality,
+      income: params.monthly_income,
+      hasChildren: params.has_children,
+    });
+
+    // Add benefit variables to compute at appropriate entity levels
+    const now = new Date();
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // Family-level benefits (rsa, prime_activite, aspa are all famille-level)
+    for (const v of ['rsa', 'prime_activite', 'aspa']) {
+      situation.familles.famille1[v] = { [period]: null };
+    }
+    // Housing benefits
+    situation.menages.menage1['apl'] = { [period]: null };
+    // Individual benefits
+    situation.individus.demandeur['aah'] = { [period]: null };
+
+    const result = await calculate(situation);
+    if (!result) return { error: 'OpenFisca calculation failed' };
+
+    const benefits: Record<string, number> = {};
+
+    // Extract family-level results (rsa, prime_activite, aspa)
+    for (const v of ['rsa', 'prime_activite', 'aspa']) {
+      const val = (result.familles.famille1[v] as Record<string, number>)?.[period];
+      if (val && val > 0) benefits[v] = Math.round(val * 100) / 100;
+    }
+    // Housing results
+    const aplVal = (result.menages.menage1['apl'] as Record<string, number>)?.[period];
+    if (aplVal && aplVal > 0) benefits['apl'] = Math.round(aplVal * 100) / 100;
+    // Individual results
+    const aahVal = (result.individus.demandeur['aah'] as Record<string, number>)?.[period];
+    if (aahVal && aahVal > 0) benefits['aah'] = Math.round(aahVal * 100) / 100;
+
+    return {
+      eligible_benefits: benefits,
+      note: 'Estimates only. Actual eligibility depends on many factors. Consult CAF or local social services.',
+    };
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
 }
