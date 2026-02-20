@@ -35,7 +35,7 @@ export function WaitlistForm() {
     setStatus('survey');
   }
 
-  async function submitWaitlist(includeSurvey: boolean) {
+  async function submitWaitlist() {
     setStatus('loading');
     setErrorMsg('');
 
@@ -46,12 +46,10 @@ export function WaitlistForm() {
         body: JSON.stringify({
           email,
           language: locale,
-          ...(includeSurvey && {
-            nationality: nationality || undefined,
-            region: region || undefined,
-            admin_difficulty: adminDifficulty || undefined,
-            desired_feature: desiredFeature || undefined,
-          }),
+          nationality: nationality || undefined,
+          region: region || undefined,
+          admin_difficulty: adminDifficulty || undefined,
+          desired_feature: desiredFeature || undefined,
         }),
       });
 
@@ -219,18 +217,12 @@ export function WaitlistForm() {
               </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-2">
+            <div className="mt-6">
               <button
-                onClick={() => submitWaitlist(true)}
-                className="flex h-11 cursor-pointer items-center justify-center rounded-lg bg-[#002395] text-sm font-semibold text-white transition-colors hover:bg-[#001A6E]"
+                onClick={submitWaitlist}
+                className="flex h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-[#002395] text-sm font-semibold text-white transition-colors hover:bg-[#001A6E]"
               >
                 {t('survey.submit')}
-              </button>
-              <button
-                onClick={() => submitWaitlist(false)}
-                className="flex h-9 cursor-pointer items-center justify-center text-sm text-[#5C5C6F] transition-colors hover:text-[#1A1A2E]"
-              >
-                {t('survey.skip')}
               </button>
             </div>
           </div>
