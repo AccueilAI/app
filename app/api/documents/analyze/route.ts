@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { createClient } from '@/lib/supabase/server';
 import { getSupabase } from '@/lib/supabase/client';
-import { documentAnalysisLimit } from '@/lib/rate-limit';
+import { docAnalysisDailyLimitPlus, docAnalysisDailyLimitPro } from '@/lib/rate-limit';
 import type { DocumentAnalysis, ChecklistItem } from '@/lib/documents/types';
 
 let openaiClient: OpenAI | null = null;
@@ -46,11 +46,46 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Rate limit
-  const { success } = await documentAnalysisLimit.limit(user.id);
-  if (!success) {
-    return NextResponse.json({ error: 'daily_limit' }, { status: 429 });
+  // Get user tier for rate limiting
+  const supabase = getSupabase();
+  let effectiveTier = 'free';
+  try {
+    const { data: tierData } = await supabase
+      .from('profiles')
+      .select('subscription_tier, subscription_expires_at')
+      .eq('id', user.id)
+      .single();
+    if (tierData) {
+      if (tierData.subscription_tier === 'admin') {
+        effectiveTier = 'admin';
+      } else if (tierData.subscription_expires_at) {
+        effectiveTier = new Date(tierData.subscription_expires_at) > new Date()
+          ? tierData.subscription_tier
+          : 'free';
+      } else {
+        effectiveTier = tierData.subscription_tier;
+      }
+    }
+  } catch { /* default free */ }
+
+  // Rate limit based on tier
+  if (effectiveTier === 'free') {
+    return NextResponse.json(
+      { error: 'tier_required', tier: 'free', minimumTier: 'plus' },
+      { status: 403 },
+    );
+  } else if (effectiveTier === 'plus') {
+    const { success } = await docAnalysisDailyLimitPlus.limit(user.id);
+    if (!success) {
+      return NextResponse.json({ error: 'daily_limit', tier: 'plus' }, { status: 429 });
+    }
+  } else if (effectiveTier === 'pro') {
+    const { success } = await docAnalysisDailyLimitPro.limit(user.id);
+    if (!success) {
+      return NextResponse.json({ error: 'daily_limit', tier: 'pro' }, { status: 429 });
+    }
   }
+  // max, admin: no limit
 
   // Parse multipart form data
   let formData: FormData;

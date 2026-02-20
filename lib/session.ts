@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { createHash } from 'crypto';
 
 const SESSION_COOKIE = '__accueil_sid';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
@@ -43,4 +44,14 @@ export function getRateLimitKey(request: NextRequest): {
 } {
   const { sessionId, isNew } = getSessionId(request);
   return { key: sessionId, sessionId, isNewSession: isNew };
+}
+
+/**
+ * Get a hashed IP address for anonymous rate limiting.
+ * Uses x-forwarded-for header (Vercel/proxied) or falls back to 'unknown'.
+ * Prevents incognito/multi-browser bypass since IP stays the same.
+ */
+export function getIpHash(request: NextRequest): string {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  return createHash('sha256').update(ip).digest('hex').slice(0, 16);
 }

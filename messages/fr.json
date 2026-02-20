@@ -131,54 +131,71 @@
   },
   "Pricing": {
     "badge": "Tarifs",
-    "headline": "1 consultation avocat : 150–300 €\nAccueilAI : 9,99 €/mois",
+    "headline": "1 consultation avocat : 150–300 €\nAccueilAI : à partir de 7 €/semaine",
     "subhead": "Commencez gratuitement. Passez à un forfait supérieur selon vos besoins.",
-    "popular": "Le plus populaire",
+    "bestValue": "Meilleur rapport qualité-prix",
     "cta": "Rejoindre la liste",
-    "earlyBird": "🎁 Les 100 premiers inscrits bénéficient d'1 mois de Plus gratuit !",
+    "earlyBird": "Les 100 premiers inscrits bénéficient d'1 mois de Pro gratuit !",
     "tiers": {
       "free": {
         "name": "Gratuit",
         "price": "0 €",
-        "period": "/mois",
-        "description": "Commencez avec les questions de base.",
+        "period": "",
+        "description": "Essayez avec des questions de base.",
         "features": {
-          "0": "5 questions IA par jour",
-          "1": "Guides de démarches de base",
-          "2": "Expériences communautaires"
+          "0": "3 questions IA par jour",
+          "1": "Page aides & actualités",
+          "2": "Lire les expériences communautaires"
         }
       },
       "plus": {
         "name": "Plus",
-        "price": "9,99 €",
-        "period": "/mois",
-        "description": "Tout ce dont vous avez besoin pour vos démarches.",
+        "price": "7 €",
+        "period": "/semaine",
+        "description": "Plus de questions, plus d'outils. Sans engagement long.",
         "features": {
-          "0": "Questions IA illimitées",
-          "1": "Checklists de documents personnalisées",
-          "2": "Suivi des échéances et rappels",
-          "3": "Aides pour résidents étrangers & dernières actus"
+          "0": "20 questions IA par jour",
+          "1": "3 checklists de documents par jour",
+          "2": "3 analyses de documents par jour",
+          "3": "Partager vos expériences",
+          "4": "Page aides & actualités"
         }
       },
       "pro": {
         "name": "Pro",
-        "price": "19,99 €",
+        "price": "15 €",
         "period": "/mois",
-        "description": "Accompagnement complet y compris administration professionnelle.",
+        "description": "Meilleur rapport qualité-prix. Tout pour vos démarches.",
         "features": {
-          "0": "Tout dans Plus",
-          "1": "Analyse de documents illimitée",
-          "2": "Admin professionnelle (auto-entrepreneur)",
-          "3": "Brouillons d'emails en français",
-          "4": "Assistance téléphonique IA en français",
-          "5": "Accès prioritaire aux nouvelles fonctionnalités"
+          "0": "Questions IA illimitées",
+          "1": "10 checklists de documents par jour",
+          "2": "10 analyses de documents par jour",
+          "3": "Suivi des échéances (10 rappels)",
+          "4": "Brouillons d'emails en français",
+          "5": "Vérification d'éligibilité aux aides",
+          "6": "Tout dans Plus"
+        }
+      },
+      "max": {
+        "name": "Max",
+        "price": "30 €",
+        "period": "/mois",
+        "description": "Puissance maximale. Tout illimité + fonctionnalités exclusives.",
+        "features": {
+          "0": "Tout illimité",
+          "1": "Rappels d'échéances illimités",
+          "2": "Assistance téléphonique IA en français",
+          "3": "Admin professionnelle (auto-entrepreneur)",
+          "4": "Support prioritaire",
+          "5": "Accès anticipé aux nouvelles fonctionnalités",
+          "6": "Tout dans Pro"
         }
       }
     }
   },
   "Waitlist": {
     "headline": "Accès anticipé",
-    "subhead": "Les 100 premiers inscrits bénéficient d'1 mois de Plus gratuit. Ne manquez pas ça.",
+    "subhead": "Les 100 premiers inscrits bénéficient d'1 mois de Pro gratuit. Ne manquez pas ça.",
     "placeholder": "vous@email.com",
     "cta": "Réserver ma place",
     "privacy": "Pas de spam. Désabonnement à tout moment.",
@@ -544,6 +561,7 @@
       "free": "Gratuit",
       "plus": "Plus",
       "pro": "Pro",
+      "max": "Max",
       "admin": "Admin"
     }
   },

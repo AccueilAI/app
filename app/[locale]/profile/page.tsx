@@ -164,6 +164,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2.5">
             <span className="text-sm text-[#5C5C6F]">{tp('currentPlan')}</span>
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${
+              tier === 'max' ? 'bg-[#ED2939] text-white' :
               tier === 'pro' ? 'bg-[#002395] text-white' :
               tier === 'plus' ? 'bg-[#2B4C8C] text-white' :
               tier === 'admin' ? 'bg-[#1A1A2E] text-white' :

@@ -27,33 +27,53 @@ export const waitlistRateLimit = new Ratelimit({
   prefix: 'rl:waitlist',
 });
 
-// Chat daily limit: 3 messages per day for unauthenticated users
+// Unauthenticated: 3 messages per day (by IP hash)
 export const chatDailyLimit = new Ratelimit({
   redis,
   limiter: Ratelimit.fixedWindow(3, '1 d'),
-  prefix: 'dl:chat',
+  prefix: 'dl:chat:anon',
 });
 
-// Document analysis: 5 per day per authenticated user
-export const documentAnalysisLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.fixedWindow(5, '1 d'),
-  prefix: 'rl:doc-analysis',
-});
-
-// Tier-based daily limits
-// Free tier: 5 chat messages/day (authenticated)
+// Free tier: 3 chat messages/day
 export const chatDailyLimitFree = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(5, '1 d'),
+  limiter: Ratelimit.fixedWindow(3, '1 d'),
   prefix: 'dl:chat:free',
 });
 
-// Free tier: 1 checklist generation/day
-export const checklistDailyLimitFree = new Ratelimit({
+// Plus tier: 20 chat messages/day
+export const chatDailyLimitPlus = new Ratelimit({
   redis,
-  limiter: Ratelimit.fixedWindow(1, '1 d'),
-  prefix: 'dl:checklist:free',
+  limiter: Ratelimit.fixedWindow(20, '1 d'),
+  prefix: 'dl:chat:plus',
+});
+
+// Plus tier: 3 checklist/day
+export const checklistDailyLimitPlus = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(3, '1 d'),
+  prefix: 'dl:checklist:plus',
+});
+
+// Pro tier: 10 checklist/day
+export const checklistDailyLimitPro = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(10, '1 d'),
+  prefix: 'dl:checklist:pro',
+});
+
+// Plus tier: 3 doc analysis/day
+export const docAnalysisDailyLimitPlus = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(3, '1 d'),
+  prefix: 'dl:doc:plus',
+});
+
+// Pro tier: 10 doc analysis/day
+export const docAnalysisDailyLimitPro = new Ratelimit({
+  redis,
+  limiter: Ratelimit.fixedWindow(10, '1 d'),
+  prefix: 'dl:doc:pro',
 });
 
 // Deadline CRUD: 20 requests per 60 seconds

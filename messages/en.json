@@ -131,54 +131,71 @@
   },
   "Pricing": {
     "badge": "Pricing",
-    "headline": "One lawyer visit: €150–300\nAccueilAI: €9.99/month",
+    "headline": "One lawyer visit: €150–300\nAccueilAI: from €7/week",
     "subhead": "Start free. Upgrade when you need more.",
-    "popular": "Most Popular",
+    "bestValue": "Best Value",
     "cta": "Join Waitlist",
-    "earlyBird": "🎁 First 100 waitlist members get 1 month of Plus for free!",
+    "earlyBird": "First 100 waitlist members get 1 month of Pro for free!",
     "tiers": {
       "free": {
         "name": "Free",
         "price": "€0",
-        "period": "/month",
-        "description": "Get started with basic Q&A.",
+        "period": "",
+        "description": "Try it out with basic Q&A.",
         "features": {
-          "0": "5 AI questions per day",
-          "1": "Basic procedure guides",
-          "2": "Community experiences"
+          "0": "3 AI questions per day",
+          "1": "Benefits & news page access",
+          "2": "Read community experiences"
         }
       },
       "plus": {
         "name": "Plus",
-        "price": "€9.99",
-        "period": "/month",
-        "description": "Everything you need for your admin journey.",
+        "price": "€7",
+        "period": "/week",
+        "description": "More questions, more tools. Low commitment.",
         "features": {
-          "0": "Unlimited AI questions",
-          "1": "Personalized document checklists",
-          "2": "Deadline tracker & reminders",
-          "3": "Benefits for foreign residents & latest news"
+          "0": "20 AI questions per day",
+          "1": "3 document checklists per day",
+          "2": "3 document analyses per day",
+          "3": "Share your experiences",
+          "4": "Benefits & news page access"
         }
       },
       "pro": {
         "name": "Pro",
-        "price": "€19.99",
+        "price": "€15",
         "period": "/month",
-        "description": "Full support including business admin.",
+        "description": "Best value. Everything you need for your admin journey.",
         "features": {
-          "0": "Everything in Plus",
-          "1": "Unlimited document analysis",
-          "2": "Business admin (auto-entrepreneur)",
-          "3": "French email drafts for you",
-          "4": "AI French phone call assistance",
-          "5": "Early access to new features"
+          "0": "Unlimited AI questions",
+          "1": "10 document checklists per day",
+          "2": "10 document analyses per day",
+          "3": "Deadline tracker (10 reminders)",
+          "4": "French email drafts for you",
+          "5": "Benefits eligibility check",
+          "6": "Everything in Plus"
+        }
+      },
+      "max": {
+        "name": "Max",
+        "price": "€30",
+        "period": "/month",
+        "description": "Full power. Unlimited everything + exclusive features.",
+        "features": {
+          "0": "Unlimited everything",
+          "1": "Unlimited deadline reminders",
+          "2": "AI French phone call assistance",
+          "3": "Business admin (auto-entrepreneur)",
+          "4": "Priority support",
+          "5": "Early access to new features",
+          "6": "Everything in Pro"
         }
       }
     }
   },
   "Waitlist": {
     "headline": "Get early access",
-    "subhead": "First 100 members get 1 month of Plus free. Don't miss it.",
+    "subhead": "First 100 members get 1 month of Pro free. Don't miss it.",
     "placeholder": "you@email.com",
     "cta": "Reserve My Spot",
     "privacy": "No spam, ever. Unsubscribe anytime.",
@@ -544,6 +561,7 @@
       "free": "Free",
       "plus": "Plus",
       "pro": "Pro",
+      "max": "Max",
       "admin": "Admin"
     }
   },

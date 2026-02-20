@@ -1,12 +1,13 @@
 import type { User } from '@supabase/supabase-js';
 
-export type SubscriptionTier = 'free' | 'plus' | 'pro' | 'admin';
+export type SubscriptionTier = 'free' | 'plus' | 'pro' | 'max' | 'admin';
 
 export const TIER_LIMITS = {
-  free: { dailyChat: 5, dailyChecklist: 1, dailyDocAnalysis: 1 },
-  plus: { dailyChat: Infinity, dailyChecklist: Infinity, dailyDocAnalysis: 5 },
-  pro: { dailyChat: Infinity, dailyChecklist: Infinity, dailyDocAnalysis: Infinity },
-  admin: { dailyChat: Infinity, dailyChecklist: Infinity, dailyDocAnalysis: Infinity },
+  free:  { dailyChat: 3,        dailyChecklist: 0,        dailyDocAnalysis: 0,        maxDeadlines: 0        },
+  plus:  { dailyChat: 20,       dailyChecklist: 3,        dailyDocAnalysis: 3,        maxDeadlines: 0        },
+  pro:   { dailyChat: Infinity, dailyChecklist: 10,       dailyDocAnalysis: 10,       maxDeadlines: 10       },
+  max:   { dailyChat: Infinity, dailyChecklist: Infinity,  dailyDocAnalysis: Infinity,  maxDeadlines: Infinity },
+  admin: { dailyChat: Infinity, dailyChecklist: Infinity,  dailyDocAnalysis: Infinity,  maxDeadlines: Infinity },
 } as const;
 
 export interface UserProfile {

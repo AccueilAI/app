@@ -3,8 +3,9 @@ import { Check } from 'lucide-react';
 
 const tiers = [
   { key: 'free', featured: false },
-  { key: 'plus', featured: true },
-  { key: 'pro', featured: false },
+  { key: 'plus', featured: false },
+  { key: 'pro', featured: true },
+  { key: 'max', featured: false },
 ] as const;
 
 export function Pricing() {
@@ -26,7 +27,7 @@ export function Pricing() {
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+        <div className="mt-8 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {tiers.map(({ key, featured }) => (
             <div
               key={key}
@@ -38,7 +39,7 @@ export function Pricing() {
             >
               {featured && (
                 <span className="absolute right-6 top-6 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                  {t('popular')}
+                  {t('bestValue')}
                 </span>
               )}
               <h3
@@ -69,7 +70,7 @@ export function Pricing() {
               />
 
               <ul className="flex-1 space-y-3">
-                {Array.from({ length: 7 }, (_, i) => i).map((i) => {
+                {Array.from({ length: 8 }, (_, i) => i).map((i) => {
                   const feature = t.has(`tiers.${key}.features.${i}`)
                     ? t(`tiers.${key}.features.${i}`)
                     : null;

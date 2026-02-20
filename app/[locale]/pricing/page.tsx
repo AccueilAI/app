@@ -8,8 +8,9 @@ import { useAuth } from '@/components/auth/AuthProvider';
 
 const tiers = [
   { key: 'free', featured: false },
-  { key: 'plus', featured: true },
-  { key: 'pro', featured: false },
+  { key: 'plus', featured: false },
+  { key: 'pro', featured: true },
+  { key: 'max', featured: false },
 ] as const;
 
 export default function PricingPage() {
@@ -36,7 +37,7 @@ export default function PricingPage() {
           <p className="mt-1 text-xs text-[#5C5C6F]">{tp('comingSoonDesc')}</p>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3 sm:gap-6">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {tiers.map(({ key, featured }) => {
             const isCurrent = tier === key;
 
@@ -51,7 +52,7 @@ export default function PricingPage() {
               >
                 {featured && (
                   <span className="absolute right-6 top-6 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
-                    {t('popular')}
+                    {t('bestValue')}
                   </span>
                 )}
 
@@ -81,7 +82,7 @@ export default function PricingPage() {
                 <div className={`my-6 h-px ${featured ? 'bg-white/20' : 'bg-[#E5E3DE]'}`} />
 
                 <ul className="flex-1 space-y-3">
-                  {Array.from({ length: 7 }, (_, i) => i).map((i) => {
+                  {Array.from({ length: 8 }, (_, i) => i).map((i) => {
                     const feature = t.has(`tiers.${key}.features.${i}`)
                       ? t(`tiers.${key}.features.${i}`)
                       : null;

@@ -17,8 +17,8 @@ import {
   searchExperiences,
   formatExperiencesForPrompt,
 } from '@/lib/experiences/search';
-import { chatRateLimit, chatDailyLimit, chatDailyLimitFree } from '@/lib/rate-limit';
-import { getRateLimitKey, sessionCookieHeader } from '@/lib/session';
+import { chatRateLimit, chatDailyLimit, chatDailyLimitFree, chatDailyLimitPlus } from '@/lib/rate-limit';
+import { getRateLimitKey, sessionCookieHeader, getIpHash } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { getFunctionTools, executeTool } from '@/lib/chat/tools';
 import { assessRetrievalQuality } from '@/lib/search/quality-gate';
@@ -188,9 +188,11 @@ export async function POST(request: NextRequest) {
   }
 
   // Daily limits based on auth state + tier
+  const ipHash = getIpHash(request);
+
   if (!userId) {
-    // Unauthenticated: 3 messages/day
-    const { success: dailyOk, remaining } = await chatDailyLimit.limit(key);
+    // Unauthenticated: 3 messages/day (by IP hash — prevents incognito bypass)
+    const { success: dailyOk, remaining } = await chatDailyLimit.limit(ipHash);
     dailyRemaining = remaining;
     if (!dailyOk) {
       return NextResponse.json(
@@ -199,7 +201,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } else if (effectiveTier === 'free') {
-    // Free tier (authenticated): 5 messages/day
+    // Free tier: 3 messages/day
     const { success: dailyOk, remaining } = await chatDailyLimitFree.limit(userId);
     dailyRemaining = remaining;
     if (!dailyOk) {
@@ -208,8 +210,18 @@ export async function POST(request: NextRequest) {
         { status: 429 },
       );
     }
+  } else if (effectiveTier === 'plus') {
+    // Plus tier: 20 messages/day
+    const { success: dailyOk, remaining } = await chatDailyLimitPlus.limit(userId);
+    dailyRemaining = remaining;
+    if (!dailyOk) {
+      return NextResponse.json(
+        { error: 'daily_limit', remaining: 0, tier: 'plus' },
+        { status: 429 },
+      );
+    }
   }
-  // essential/premium/admin: no daily limit
+  // pro, max, admin: no daily limit
 
   // Create SSE stream
   const stream = new ReadableStream({

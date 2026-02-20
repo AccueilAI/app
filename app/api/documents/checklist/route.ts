@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { createClient } from '@/lib/supabase/server';
 import { getSupabase } from '@/lib/supabase/client';
 import { ragSearch } from '@/lib/search/pipeline';
-import { documentAnalysisLimit, checklistDailyLimitFree } from '@/lib/rate-limit';
+import { checklistDailyLimitPlus, checklistDailyLimitPro } from '@/lib/rate-limit';
 import type { ChecklistItem } from '@/lib/documents/types';
 
 let openaiClient: OpenAI | null = null;
@@ -111,16 +111,23 @@ export async function POST(request: NextRequest) {
 
   // Rate limit based on tier
   if (effectiveTier === 'free') {
-    const { success } = await checklistDailyLimitFree.limit(user.id);
+    // Free: no checklist access
+    return NextResponse.json(
+      { error: 'tier_required', tier: 'free', minimumTier: 'plus' },
+      { status: 403 },
+    );
+  } else if (effectiveTier === 'plus') {
+    const { success } = await checklistDailyLimitPlus.limit(user.id);
     if (!success) {
-      return NextResponse.json({ error: 'daily_limit', tier: 'free' }, { status: 429 });
+      return NextResponse.json({ error: 'daily_limit', tier: 'plus' }, { status: 429 });
     }
-  } else {
-    const { success } = await documentAnalysisLimit.limit(user.id);
+  } else if (effectiveTier === 'pro') {
+    const { success } = await checklistDailyLimitPro.limit(user.id);
     if (!success) {
-      return NextResponse.json({ error: 'daily_limit' }, { status: 429 });
+      return NextResponse.json({ error: 'daily_limit', tier: 'pro' }, { status: 429 });
     }
   }
+  // max, admin: no limit
 
   let body: {
     procedure_type?: string;
