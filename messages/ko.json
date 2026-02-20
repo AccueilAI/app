@@ -419,16 +419,9 @@
     "form": {
       "title": "경험 공유하기",
       "procedureType": "절차 유형",
-      "prefecture": "관할 기관",
-      "city": "도시",
-      "waitTime": "처리 소요일",
-      "difficulty": "난이도",
-      "documents": "사용한 서류",
-      "documentsPlaceholder": "서류명을 입력하고 Enter를 누르세요",
-      "tips": "팁 & 조언",
+      "tips": "나의 경험",
       "tipsPlaceholder": "같은 절차를 밟는 분에게 어떤 조언을 하시겠어요?",
       "outcome": "결과",
-      "experienceDate": "경험 시기",
       "submit": "공유하기",
       "submitting": "제출 중...",
       "success": "경험이 공유되었습니다! 커뮤니티에 기여해 주셔서 감사합니다.",
@@ -453,9 +446,7 @@
       "other": "기타"
     },
     "card": {
-      "helpful": "도움됨",
-      "daysWait": "{count}일",
-      "difficulty": "난이도"
+      "helpful": "도움됨"
     },
     "empty": {
       "noExperiences": "아직 공유된 경험이 없습니다.",
@@ -463,7 +454,10 @@
     },
     "filter": {
       "all": "전체",
-      "filterBy": "필터"
+      "filterBy": "필터",
+      "recent": "최신순",
+      "mostHelpful": "도움순",
+      "loadMore": "더 보기"
     },
     "auth": {
       "loginRequired": "로그인하면 경험을 공유하고 커뮤니티에 기여할 수 있습니다.",

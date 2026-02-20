@@ -419,17 +419,10 @@
     "form": {
       "title": "Share Your Experience",
       "procedureType": "Procedure Type",
-      "prefecture": "Prefecture / Office",
-      "city": "City",
-      "waitTime": "Processing Time (days)",
-      "difficulty": "Difficulty",
-      "documents": "Documents Used",
-      "documentsPlaceholder": "Type a document name and press Enter",
-      "tips": "Tips & Advice",
+      "tips": "Your Experience",
       "tipsPlaceholder": "What would you tell someone going through the same process?",
       "outcome": "Outcome",
-      "experienceDate": "When did this happen?",
-      "submit": "Submit Experience",
+      "submit": "Submit",
       "submitting": "Submitting...",
       "success": "Experience shared! Thank you for helping the community.",
       "cancel": "Cancel"
@@ -453,9 +446,7 @@
       "other": "Other"
     },
     "card": {
-      "helpful": "Helpful",
-      "daysWait": "{count} days",
-      "difficulty": "Difficulty"
+      "helpful": "Helpful"
     },
     "empty": {
       "noExperiences": "No experiences shared yet.",
@@ -463,7 +454,10 @@
     },
     "filter": {
       "all": "All",
-      "filterBy": "Filter by"
+      "filterBy": "Filter by",
+      "recent": "Recent",
+      "mostHelpful": "Most Helpful",
+      "loadMore": "Load more"
     },
     "auth": {
       "loginRequired": "Sign in to share your experience and help the community.",

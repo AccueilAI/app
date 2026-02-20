@@ -419,16 +419,9 @@
     "form": {
       "title": "Partager votre expérience",
       "procedureType": "Type de démarche",
-      "prefecture": "Préfecture / Bureau",
-      "city": "Ville",
-      "waitTime": "Délai de traitement (jours)",
-      "difficulty": "Difficulté",
-      "documents": "Documents utilisés",
-      "documentsPlaceholder": "Tapez le nom d'un document et appuyez sur Entrée",
-      "tips": "Conseils",
+      "tips": "Votre expérience",
       "tipsPlaceholder": "Que diriez-vous à quelqu'un qui fait la même démarche ?",
       "outcome": "Résultat",
-      "experienceDate": "Quand était-ce ?",
       "submit": "Soumettre",
       "submitting": "Envoi en cours...",
       "success": "Expérience partagée ! Merci de contribuer à la communauté.",
@@ -453,9 +446,7 @@
       "other": "Autre"
     },
     "card": {
-      "helpful": "Utile",
-      "daysWait": "{count} jours",
-      "difficulty": "Difficulté"
+      "helpful": "Utile"
     },
     "empty": {
       "noExperiences": "Aucune expérience partagée pour le moment.",
@@ -463,7 +454,10 @@
     },
     "filter": {
       "all": "Tous",
-      "filterBy": "Filtrer par"
+      "filterBy": "Filtrer par",
+      "recent": "Récents",
+      "mostHelpful": "Les plus utiles",
+      "loadMore": "Charger plus"
     },
     "auth": {
       "loginRequired": "Connectez-vous pour partager votre expérience et aider la communauté.",

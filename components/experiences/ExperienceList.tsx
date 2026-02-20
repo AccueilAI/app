@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { ThumbsUp, Star, Clock, Filter } from 'lucide-react';
+import { ThumbsUp, Filter } from 'lucide-react';
 import { PROCEDURE_TYPES } from '@/lib/experiences/types';
 import type { Experience, ProcedureType } from '@/lib/experiences/types';
 
@@ -12,27 +12,15 @@ export function ExperienceList() {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('');
-  const [filterPrefecture, setFilterPrefecture] = useState('');
-  const [debouncedPrefecture, setDebouncedPrefecture] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'helpful'>('recent');
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [helpedIds, setHelpedIds] = useState<Set<string>>(new Set());
 
-  // Debounce prefecture filter
-  useEffect(() => {
-    const timer = setTimeout(
-      () => setDebouncedPrefecture(filterPrefecture),
-      400,
-    );
-    return () => clearTimeout(timer);
-  }, [filterPrefecture]);
-
   const fetchExperiences = useCallback(
     async (cursor?: string) => {
       const params = new URLSearchParams();
       if (filterType) params.set('procedure_type', filterType);
-      if (debouncedPrefecture) params.set('prefecture', debouncedPrefecture);
       params.set('sort', sortBy);
       if (cursor) params.set('cursor', cursor);
 
@@ -43,7 +31,7 @@ export function ExperienceList() {
         nextCursor: string | null;
       };
     },
-    [filterType, debouncedPrefecture, sortBy],
+    [filterType, sortBy],
   );
 
   useEffect(() => {
@@ -123,20 +111,13 @@ export function ExperienceList() {
             </option>
           ))}
         </select>
-        <input
-          type="text"
-          value={filterPrefecture}
-          onChange={(e) => setFilterPrefecture(e.target.value)}
-          placeholder={t('form.prefecture')}
-          className="rounded-lg border border-[#E5E3DE] px-3 py-1.5 text-sm text-[#1A1A2E] outline-none focus:border-[#2B4C8C]"
-        />
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as 'recent' | 'helpful')}
           className="rounded-lg border border-[#E5E3DE] px-3 py-1.5 text-sm text-[#1A1A2E] outline-none focus:border-[#2B4C8C]"
         >
-          <option value="recent">Recent</option>
-          <option value="helpful">Most Helpful</option>
+          <option value="recent">{t('filter.recent')}</option>
+          <option value="helpful">{t('filter.mostHelpful')}</option>
         </select>
       </div>
 
@@ -190,56 +171,11 @@ export function ExperienceList() {
               )}
             </div>
 
-            {/* Meta row */}
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#5C5C6F]">
-              {exp.prefecture && <span>{exp.prefecture}</span>}
-              {exp.city && <span>{exp.city}</span>}
-              {exp.wait_time_days != null && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {t('card.daysWait', { count: exp.wait_time_days })}
-                </span>
-              )}
-              {exp.difficulty != null && (
-                <span className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <Star
-                      key={n}
-                      className={`h-3 w-3 ${
-                        n <= exp.difficulty!
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'text-[#E5E3DE]'
-                      }`}
-                    />
-                  ))}
-                </span>
-              )}
-              {exp.experience_date && (
-                <span>
-                  {new Date(exp.experience_date).toLocaleDateString()}
-                </span>
-              )}
-            </div>
-
             {/* Tips */}
             {exp.tips && (
               <p className="mt-3 text-sm leading-relaxed text-[#1A1A2E]">
                 {exp.tips}
               </p>
-            )}
-
-            {/* Documents used */}
-            {exp.documents_used && exp.documents_used.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {exp.documents_used.map((doc) => (
-                  <span
-                    key={doc}
-                    className="rounded-full bg-[#FAFAF8] px-2.5 py-0.5 text-xs text-[#5C5C6F]"
-                  >
-                    {doc}
-                  </span>
-                ))}
-              </div>
             )}
 
             {/* Helpful */}
@@ -271,7 +207,7 @@ export function ExperienceList() {
             disabled={loadingMore}
             className="rounded-lg border border-[#E5E3DE] px-6 py-2 text-sm font-medium text-[#1A1A2E] transition-colors hover:bg-[#FAFAF8] disabled:opacity-50"
           >
-            {loadingMore ? '...' : 'Load more'}
+            {loadingMore ? '...' : t('filter.loadMore')}
           </button>
         </div>
       )}
