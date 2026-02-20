@@ -21,7 +21,7 @@ interface WaitlistWelcomeProps {
 const copy = {
   en: {
     preview: "You're on the AccueilAI waitlist!",
-    badge: '🇫🇷 WAITLIST CONFIRMED',
+    badge: 'WAITLIST CONFIRMED',
     heading: "You're in!",
     body: "We're building an AI-powered assistant to help expats navigate French bureaucracy — visas, CAF, taxes, healthcare — in your language.",
     whatNext: "What happens next?",
@@ -37,7 +37,7 @@ const copy = {
   },
   fr: {
     preview: "Vous êtes sur la liste d'attente AccueilAI !",
-    badge: "🇫🇷 INSCRIPTION CONFIRMÉE",
+    badge: "INSCRIPTION CONFIRMÉE",
     heading: 'Vous êtes inscrit !',
     body: "Nous développons un assistant IA pour aider les expatriés à naviguer dans l'administration française — visa, CAF, impôts, santé — dans votre langue.",
     whatNext: 'Et ensuite ?',
@@ -54,7 +54,7 @@ const copy = {
   },
   ko: {
     preview: 'AccueilAI 대기자 명단에 등록되었습니다!',
-    badge: '🇫🇷 등록 완료',
+    badge: '등록 완료',
     heading: '등록되었습니다!',
     body: '프랑스 행정을 도와주는 AI 어시스턴트를 만들고 있습니다 — 비자, CAF, 세금, 의료보험 — 한국어로 안내합니다.',
     whatNext: '앞으로 어떻게 되나요?',
@@ -150,7 +150,7 @@ export default function WaitlistWelcome({
                   key={i}
                   className="my-2 text-base leading-relaxed text-gray-600"
                 >
-                  {['1️⃣', '2️⃣', '3️⃣'][i]} {step}
+                  {i + 1}. {step}
                 </Text>
               ))}
 

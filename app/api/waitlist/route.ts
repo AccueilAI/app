@@ -90,6 +90,9 @@ export async function POST(request: NextRequest) {
             to: email,
             subject: subjects[lang] ?? subjects.en,
             react: WaitlistWelcome({ language: lang }),
+            headers: {
+              'List-Unsubscribe': '<mailto:hello@accueil.ai?subject=unsubscribe>',
+            },
           })
           .then((result) => console.log('[waitlist] Resend result:', JSON.stringify(result)))
           .catch((err) => console.error('[waitlist] Resend email error:', err));
