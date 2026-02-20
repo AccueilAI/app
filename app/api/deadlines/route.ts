@@ -5,6 +5,23 @@ import { DEADLINE_TYPES } from '@/lib/deadlines/types';
 import type { DeadlineType } from '@/lib/deadlines/types';
 import { deadlineRateLimit } from '@/lib/rate-limit';
 import { getRateLimitKey } from '@/lib/session';
+import { TIER_LIMITS, type SubscriptionTier } from '@/lib/auth/types';
+
+/** Resolve effective tier from profiles table, checking expiration. */
+async function resolveUserTier(userId: string): Promise<SubscriptionTier> {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('profiles')
+    .select('subscription_tier, subscription_expires_at')
+    .eq('id', userId)
+    .single();
+  if (!data?.subscription_tier || data.subscription_tier === 'free') return 'free';
+  if (data.subscription_tier === 'admin') return 'admin';
+  if (data.subscription_expires_at && new Date(data.subscription_expires_at) <= new Date()) {
+    return 'free';
+  }
+  return data.subscription_tier as SubscriptionTier;
+}
 
 export async function GET() {
   const authSupabase = await createClient();
@@ -57,6 +74,31 @@ export async function POST(request: NextRequest) {
       { error: 'Authentication required.' },
       { status: 401 },
     );
+  }
+
+  // Tier enforcement: check maxDeadlines
+  const tier = await resolveUserTier(user.id);
+  const maxDeadlines = TIER_LIMITS[tier].maxDeadlines;
+
+  if (maxDeadlines === 0) {
+    return NextResponse.json(
+      { error: 'tier_required', tier },
+      { status: 403 },
+    );
+  }
+
+  if (maxDeadlines !== Infinity) {
+    const supabaseCount = getSupabase();
+    const { count } = await supabaseCount
+      .from('deadlines')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+    if ((count ?? 0) >= maxDeadlines) {
+      return NextResponse.json(
+        { error: 'deadline_limit', limit: maxDeadlines, tier },
+        { status: 429 },
+      );
+    }
   }
 
   let body: Record<string, unknown>;

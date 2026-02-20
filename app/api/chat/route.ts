@@ -201,10 +201,13 @@ export async function POST(request: NextRequest) {
       );
     }
   } else if (effectiveTier === 'free') {
-    // Free tier: 3 messages/day
-    const { success: dailyOk, remaining } = await chatDailyLimitFree.limit(userId);
-    dailyRemaining = remaining;
-    if (!dailyOk) {
+    // Free tier: 3 messages/day — also consume IP hash limit to prevent anon↔free bypass
+    const [freeResult, ipResult] = await Promise.all([
+      chatDailyLimitFree.limit(userId),
+      chatDailyLimit.limit(ipHash),
+    ]);
+    dailyRemaining = freeResult.remaining;
+    if (!freeResult.success || !ipResult.success) {
       return NextResponse.json(
         { error: 'daily_limit', remaining: 0, tier: 'free' },
         { status: 429 },
