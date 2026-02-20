@@ -144,7 +144,7 @@
         "description": "Essayez avec des questions de base.",
         "features": {
           "0": "3 questions IA par jour",
-          "1": "Page aides & actualités",
+          "1": "Aides aux résidents & actualités",
           "2": "Lire les expériences communautaires"
         }
       },
@@ -158,7 +158,7 @@
           "1": "3 checklists de documents par jour",
           "2": "3 analyses de documents par jour",
           "3": "Partager vos expériences",
-          "4": "Page aides & actualités"
+          "4": "Aides aux résidents & actualités"
         }
       },
       "pro": {
@@ -171,9 +171,7 @@
           "1": "10 checklists de documents par jour",
           "2": "10 analyses de documents par jour",
           "3": "Suivi des échéances (10 rappels)",
-          "4": "Brouillons d'emails en français",
-          "5": "Vérification d'éligibilité aux aides",
-          "6": "Tout dans Plus"
+          "4": "Tout dans Plus"
         }
       },
       "max": {
@@ -203,7 +201,59 @@
     "successSub": "Nous vous préviendrons par email au lancement d'AccueilAI.",
     "successPosition": "Vous êtes #{position} sur la liste. Nous vous préviendrons au lancement.",
     "alreadyRegistered": "Vous êtes déjà inscrit ! 👋",
-    "alreadyRegisteredSub": "Votre email est enregistré. Nous vous préviendrons dès que l'accès anticipé sera prêt."
+    "alreadyRegisteredSub": "Votre email est enregistré. Nous vous préviendrons dès que l'accès anticipé sera prêt.",
+    "survey": {
+      "title": "Sondage rapide",
+      "subtitle": "Aidez-nous à construire les bonnes fonctionnalités pour vous.",
+      "nationality": "Votre nationalité",
+      "nationalityPlaceholder": "ex. Brésilien, Coréen, Américain",
+      "region": "Région en France",
+      "regionPlaceholder": "Sélectionnez une région",
+      "adminDifficulty": "Domaine administratif le plus difficile",
+      "adminDifficultyPlaceholder": "Sélectionnez un domaine",
+      "desiredFeature": "Fonctionnalité la plus souhaitée",
+      "desiredFeaturePlaceholder": "Sélectionnez une fonctionnalité",
+      "submit": "Valider et rejoindre",
+      "skip": "Passer le sondage",
+      "regions": {
+        "idf": "Île-de-France",
+        "ara": "Auvergne-Rhône-Alpes",
+        "naq": "Nouvelle-Aquitaine",
+        "occ": "Occitanie",
+        "hdf": "Hauts-de-France",
+        "paca": "Provence-Alpes-Côte d'Azur",
+        "pdl": "Pays de la Loire",
+        "bre": "Bretagne",
+        "nor": "Normandie",
+        "ges": "Grand Est",
+        "bfc": "Bourgogne-Franche-Comté",
+        "cvl": "Centre-Val de Loire",
+        "cor": "Corse",
+        "dom": "Territoires d'outre-mer",
+        "other": "Autre / Pas encore en France"
+      },
+      "difficulties": {
+        "visa": "Visa et titre de séjour",
+        "housing": "Logement (CAF, APL)",
+        "health": "Santé (CPAM, Ameli)",
+        "employment": "Emploi et permis de travail",
+        "banking": "Banque et finances",
+        "taxes": "Impôts",
+        "education": "Éducation et écoles",
+        "driving": "Permis de conduire",
+        "other": "Autre"
+      },
+      "features": {
+        "chat": "Assistant IA Q&R",
+        "checklist": "Checklists de documents",
+        "deadlines": "Suivi des échéances et rappels",
+        "benefits": "Vérification d'éligibilité aux aides",
+        "email": "Brouillons d'emails en français",
+        "phone": "Assistance téléphonique IA",
+        "experiences": "Expériences communautaires",
+        "other": "Autre"
+      }
+    }
   },
   "FAQ": {
     "headline": "Questions fréquentes",

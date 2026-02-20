@@ -144,7 +144,7 @@
         "description": "Try it out with basic Q&A.",
         "features": {
           "0": "3 AI questions per day",
-          "1": "Benefits & news page access",
+          "1": "Resident benefits & news",
           "2": "Read community experiences"
         }
       },
@@ -158,7 +158,7 @@
           "1": "3 document checklists per day",
           "2": "3 document analyses per day",
           "3": "Share your experiences",
-          "4": "Benefits & news page access"
+          "4": "Resident benefits & news"
         }
       },
       "pro": {
@@ -171,9 +171,7 @@
           "1": "10 document checklists per day",
           "2": "10 document analyses per day",
           "3": "Deadline tracker (10 reminders)",
-          "4": "French email drafts for you",
-          "5": "Benefits eligibility check",
-          "6": "Everything in Plus"
+          "4": "Everything in Plus"
         }
       },
       "max": {
@@ -203,7 +201,59 @@
     "successSub": "We'll email you when AccueilAI launches.",
     "successPosition": "You're #{position} on the waitlist. We'll email you when AccueilAI launches.",
     "alreadyRegistered": "You're already on the list! 👋",
-    "alreadyRegisteredSub": "We have your email saved. We'll notify you as soon as early access is ready."
+    "alreadyRegisteredSub": "We have your email saved. We'll notify you as soon as early access is ready.",
+    "survey": {
+      "title": "Quick survey",
+      "subtitle": "Help us build the right features for you.",
+      "nationality": "Your nationality",
+      "nationalityPlaceholder": "e.g. Brazilian, Korean, American",
+      "region": "Region in France",
+      "regionPlaceholder": "Select a region",
+      "adminDifficulty": "Hardest admin area for you",
+      "adminDifficultyPlaceholder": "Select an area",
+      "desiredFeature": "Most wanted feature",
+      "desiredFeaturePlaceholder": "Select a feature",
+      "submit": "Submit & Join",
+      "skip": "Skip survey",
+      "regions": {
+        "idf": "Île-de-France",
+        "ara": "Auvergne-Rhône-Alpes",
+        "naq": "Nouvelle-Aquitaine",
+        "occ": "Occitanie",
+        "hdf": "Hauts-de-France",
+        "paca": "Provence-Alpes-Côte d'Azur",
+        "pdl": "Pays de la Loire",
+        "bre": "Bretagne",
+        "nor": "Normandie",
+        "ges": "Grand Est",
+        "bfc": "Bourgogne-Franche-Comté",
+        "cvl": "Centre-Val de Loire",
+        "cor": "Corse",
+        "dom": "Overseas territories",
+        "other": "Other / Not in France yet"
+      },
+      "difficulties": {
+        "visa": "Visa & residence permit",
+        "housing": "Housing (CAF, APL)",
+        "health": "Healthcare (CPAM, Ameli)",
+        "employment": "Employment & work permit",
+        "banking": "Banking & finances",
+        "taxes": "Taxes",
+        "education": "Education & schools",
+        "driving": "Driving license",
+        "other": "Other"
+      },
+      "features": {
+        "chat": "AI Q&A assistant",
+        "checklist": "Document checklists",
+        "deadlines": "Deadline tracking & reminders",
+        "benefits": "Benefits eligibility check",
+        "email": "French email drafts",
+        "phone": "AI phone call assistance",
+        "experiences": "Community experiences",
+        "other": "Other"
+      }
+    }
   },
   "FAQ": {
     "headline": "Frequently asked questions",

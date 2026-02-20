@@ -18,7 +18,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let body: { email?: string; language?: string };
+  let body: {
+    email?: string;
+    language?: string;
+    nationality?: string;
+    region?: string;
+    admin_difficulty?: string;
+    desired_feature?: string;
+  };
   try {
     body = await request.json();
   } catch {
@@ -54,10 +61,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert into waitlist
+    // Insert into waitlist with optional survey data
     const { error: insertError } = await supabase
       .from('waitlist')
-      .insert({ email, language: body.language ?? null });
+      .insert({
+        email,
+        language: body.language ?? null,
+        nationality: body.nationality?.trim() || null,
+        region: body.region || null,
+        admin_difficulty: body.admin_difficulty || null,
+        desired_feature: body.desired_feature || null,
+      });
 
     if (insertError) {
       // Unique constraint violation — race condition with concurrent request

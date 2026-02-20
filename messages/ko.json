@@ -144,7 +144,7 @@
         "description": "기본 Q&A로 시작하세요.",
         "features": {
           "0": "하루 3회 AI 질문",
-          "1": "혜택 & 뉴스 페이지 열람",
+          "1": "거주자 혜택 & 뉴스",
           "2": "커뮤니티 경험 읽기"
         }
       },
@@ -158,7 +158,7 @@
           "1": "서류 체크리스트 하루 3회",
           "2": "서류 분석 하루 3회",
           "3": "경험 공유 글쓰기",
-          "4": "혜택 & 뉴스 페이지 열람"
+          "4": "거주자 혜택 & 뉴스"
         }
       },
       "pro": {
@@ -171,9 +171,7 @@
           "1": "서류 체크리스트 하루 10회",
           "2": "서류 분석 하루 10회",
           "3": "기한 알림 (10개)",
-          "4": "프랑스어 이메일 대필",
-          "5": "혜택 수급 자격 확인",
-          "6": "Plus의 모든 기능"
+          "4": "Plus의 모든 기능"
         }
       },
       "max": {
@@ -203,7 +201,59 @@
     "successSub": "AccueilAI 출시 시 이메일로 알려드리겠습니다.",
     "successPosition": "대기자 명단 {position}번째입니다. 출시 시 이메일로 알려드리겠습니다.",
     "alreadyRegistered": "이미 등록되어 있습니다! 👋",
-    "alreadyRegisteredSub": "이메일이 저장되어 있습니다. 얼리 엑세스가 준비되면 바로 알려드리겠습니다."
+    "alreadyRegisteredSub": "이메일이 저장되어 있습니다. 얼리 엑세스가 준비되면 바로 알려드리겠습니다.",
+    "survey": {
+      "title": "간단 설문",
+      "subtitle": "더 나은 서비스를 위해 알려주세요.",
+      "nationality": "국적",
+      "nationalityPlaceholder": "예: 한국, 브라질, 미국",
+      "region": "프랑스 거주 지역",
+      "regionPlaceholder": "지역 선택",
+      "adminDifficulty": "가장 어려운 행정 영역",
+      "adminDifficultyPlaceholder": "영역 선택",
+      "desiredFeature": "가장 필요한 기능",
+      "desiredFeaturePlaceholder": "기능 선택",
+      "submit": "제출 후 등록",
+      "skip": "설문 건너뛰기",
+      "regions": {
+        "idf": "일드프랑스 (파리)",
+        "ara": "오베르뉴론알프",
+        "naq": "누벨아키텐",
+        "occ": "옥시타니",
+        "hdf": "오드프랑스",
+        "paca": "프로방스알프코트다쥐르",
+        "pdl": "페이드라루아르",
+        "bre": "브르타뉴",
+        "nor": "노르망디",
+        "ges": "그랑테스트",
+        "bfc": "부르고뉴프랑슈콩테",
+        "cvl": "상트르발드루아르",
+        "cor": "코르시카",
+        "dom": "해외 영토",
+        "other": "기타 / 아직 프랑스에 없음"
+      },
+      "difficulties": {
+        "visa": "비자 및 체류증",
+        "housing": "주거 (CAF, APL)",
+        "health": "의료 (CPAM, Ameli)",
+        "employment": "취업 및 노동 허가",
+        "banking": "은행 및 금융",
+        "taxes": "세금",
+        "education": "교육 및 학교",
+        "driving": "운전면허",
+        "other": "기타"
+      },
+      "features": {
+        "chat": "AI 질문 답변",
+        "checklist": "서류 체크리스트",
+        "deadlines": "기한 추적 및 알림",
+        "benefits": "혜택 수급 자격 확인",
+        "email": "프랑스어 이메일 대필",
+        "phone": "AI 전화 상담 보조",
+        "experiences": "커뮤니티 경험 공유",
+        "other": "기타"
+      }
+    }
   },
   "FAQ": {
     "headline": "자주 묻는 질문",
